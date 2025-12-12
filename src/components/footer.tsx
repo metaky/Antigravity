@@ -4,7 +4,7 @@ export function Footer() {
     return (
         <footer className="border-t bg-muted/30">
             <div className="container mx-auto py-12 px-4 md:px-6">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
                     <div className="col-span-2">
                         <Link className="flex items-center gap-2 font-bold text-xl mb-4" href="#">
                             PDA Your IEP
@@ -18,6 +18,12 @@ export function Footer() {
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li><Link href="/how-it-works" className="hover:text-foreground">How it Works</Link></li>
                             <li><Link href="/support" className="hover:text-foreground">Support & Donate</Link></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 className="font-semibold mb-3">Connect</h3>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                            <li>Questions? Comments? <a href="mailto:declarativeapp@gmail.com" className="hover:text-foreground underline decoration-dotted">Contact me.</a></li>
                         </ul>
                     </div>
                     <div>

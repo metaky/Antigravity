@@ -2,6 +2,7 @@
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Upload, BrainCircuit, FileSearch, Scale, ShieldCheck, FileText, ArrowRight, Sparkles, BicepsFlexed, Trophy } from "lucide-react"
+import { WhyIBuiltThis } from "@/components/why-i-built-this"
 
 import type { Metadata } from "next"
 
@@ -180,6 +181,10 @@ export default function HowItWorksPage() {
                             </div>
                         </div>
 
+                    </div>
+
+                    <div className="mt-24">
+                        <WhyIBuiltThis />
                     </div>
                 </div>
             </main>
