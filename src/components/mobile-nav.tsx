@@ -70,6 +70,12 @@ export function MobileNav() {
                             >
                                 PDA Guide
                             </Link>
+                            <Link
+                                href="/privacy"
+                                className="text-2xl font-medium text-slate-900 py-2"
+                            >
+                                Your Privacy
+                            </Link>
                         </div>
 
                         <div className="mt-8 space-y-4 flex flex-col items-center w-full max-w-xs mx-auto">

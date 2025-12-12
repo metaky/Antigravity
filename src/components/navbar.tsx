@@ -22,6 +22,9 @@ export function Navbar() {
                     <Link className="transition-colors hover:text-primary" href="/other-tools">
                         Other Tools
                     </Link>
+                    <Link className="transition-colors hover:text-primary" href="/privacy">
+                        Your Privacy
+                    </Link>
                 </nav>
                 <div className="flex items-center gap-4">
                     <Link href="/analyze" className={cn(buttonVariants({ variant: "premium", size: "sm" }), "hidden md:inline-flex")}>
