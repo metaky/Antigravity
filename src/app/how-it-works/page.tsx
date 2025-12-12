@@ -24,7 +24,7 @@ export default function HowItWorksPage() {
                             How it Works
                         </h1>
                         <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-                            We combine advanced AI with expert-verified PDA strategies to turn your child's IEP into a powerful tool for support, not just compliance.
+                            We combine advanced AI with expert-verified PDA strategies to turn your child's IEP or 504 Plan into a powerful tool for support, not just compliance.
                         </p>
                     </div>
 
@@ -45,7 +45,7 @@ export default function HowItWorksPage() {
                                     <h3 className="font-bold text-lg text-slate-900">Secure Upload</h3>
                                 </div>
                                 <p className="text-slate-600 leading-relaxed">
-                                    Upload your child's existing IEP (PDF). We prioritize privacy: your document is processed in-memory and heavily safeguarded. No data is used to train public models.
+                                    Upload your child's existing IEP or 504 Plan (PDF). We prioritize privacy: your document is processed in-memory and heavily safeguarded. No data is used to train public models.
                                 </p>
                             </div>
 
@@ -74,7 +74,7 @@ export default function HowItWorksPage() {
                                     <h3 className="font-bold text-lg text-slate-900">AI Logic + Expert Knowledge</h3>
                                 </div>
                                 <p className="text-slate-600 leading-relaxed">
-                                    Our AI engine reads your IEP and cross-references it against our curated <a href="/pda-guide" className="text-indigo-600 hover:underline font-medium">"PDA Affirming Guide"</a>. It understands the nuance between standard ASD supports and what PDA brains actually need.
+                                    Our AI engine reads your IEP or 504 Plan and cross-references it against our curated <a href="/pda-guide" className="text-indigo-600 hover:underline font-medium">"PDA Affirming Guide"</a>. It understands the nuance between standard ASD supports and what PDA brains actually need.
                                 </p>
                             </div>
 
@@ -158,7 +158,7 @@ export default function HowItWorksPage() {
                                     <h3 className="font-bold text-lg text-slate-900">Advocate with Confidence</h3>
                                 </div>
                                 <p className="text-slate-600 leading-relaxed">
-                                    You get a cleaner, data-backed report to take to your next IEP meeting. No more feeling overwhelmed or unsure of what to ask for.
+                                    You get a cleaner, data-backed report to take to your next school meeting. No more feeling overwhelmed or unsure of what to ask for.
                                 </p>
                             </div>
 

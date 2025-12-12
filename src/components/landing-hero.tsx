@@ -31,10 +31,10 @@ export function LandingHero() {
                 >
                     <div className="space-y-4 flex flex-col items-center">
                         <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl xl:text-7xl/none text-white">
-                            Get PDA Affirming Advice for Your IEP
+                            Get PDA Affirming Advice for Your IEP or 504 Plan
                         </h1>
                         <p className="max-w-[800px] text-lg text-gray-200 md:text-xl leading-relaxed">
-                            Upload your child's IEP and get instant, privacy-conscious feedback on goals, supports, and accommodations. Empower your next school meeting with clear, actionable IEP recommendations.
+                            Upload your child's IEP or 504 Plan and get instant, privacy-conscious feedback on goals, supports, and accommodations. Empower your next school meeting with clear, actionable recommendations.
                         </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
@@ -49,7 +49,7 @@ export function LandingHero() {
                     <Link href="/privacy" className="group flex flex-col sm:flex-row items-center gap-2 sm:gap-3 bg-indigo-950/40 border border-indigo-500/30 rounded-full px-6 py-2.5 hover:bg-indigo-900/50 transition-all hover:border-indigo-400/50 mt-6 backdrop-blur-sm">
                         <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0" />
                         <span className="text-indigo-100 text-sm font-medium">
-                            <strong className="text-white font-semibold">Privacy Guaranteed:</strong> Your IEP data is safe, secure & private. <span className="hidden sm:inline opacity-70">|</span> <span className="underline decoration-indigo-400/50 underline-offset-4 group-hover:text-white transition-colors">How we keep it safe &rarr;</span>
+                            <strong className="text-white font-semibold">Privacy Guaranteed:</strong> Your IEP/504 data is safe, secure & private. <span className="hidden sm:inline opacity-70">|</span> <span className="underline decoration-indigo-400/50 underline-offset-4 group-hover:text-white transition-colors">How we keep it safe &rarr;</span>
                         </span>
                     </Link>
                 </motion.div>

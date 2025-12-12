@@ -79,7 +79,7 @@ export function UploadZone({ onFileSelect, isProcessing = false }: UploadZonePro
                                     <UploadCloud className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
                                 </div>
                                 <div className="space-y-2">
-                                    <h3 className="font-semibold text-xl">Upload your IEP PDF</h3>
+                                    <h3 className="font-semibold text-xl">Upload IEP or 504 Plan (PDF)</h3>
                                     <p className="text-sm text-muted-foreground max-w-xs mx-auto">
                                         Drag and drop your file here, or click to browse. Max size 10MB.
                                     </p>

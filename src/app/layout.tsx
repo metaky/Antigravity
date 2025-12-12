@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PDA Your IEP | AI-Powered Advocacy",
-  description: "Empower your child's education with AI-driven IEP analysis. Upload, evaluate, and advocate with confidence.",
+  title: "PDA Your IEP | AI-Powered Advocacy for IEPs & 504s",
+  description: "Empower your child's education with AI-driven IEP and 504 Plan analysis. Upload, evaluate, and advocate with confidence.",
 };
 
 import { PHProvider } from "./providers";

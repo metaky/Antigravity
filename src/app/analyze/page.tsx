@@ -366,10 +366,10 @@ export default function AnalyzePage() {
                 <div className="max-w-2xl mx-auto space-y-8">
                     <div className="text-center space-y-4">
                         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                            Upload your IEP
+                            Upload your IEP or 504 Plan
                         </h1>
                         <p className="text-muted-foreground text-lg">
-                            We'll analyze your IEP goals, accommodations, and services against our <Link href="/pda-guide" className="text-indigo-600 font-medium hover:underline">PDA Affirming Guide</Link> to provide you with a detailed set of recommendations to help your PDA child succeed at school.
+                            We'll analyze the goals, accommodations, and services in your IEP or 504 Plan against our <Link href="/pda-guide" className="text-indigo-600 font-medium hover:underline">PDA Affirming Guide</Link> to provide you with a detailed set of recommendations to help your PDA child succeed at school.
                         </p>
                     </div>
 

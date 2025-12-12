@@ -35,7 +35,7 @@ export default function PrivacyPolicyPage() {
                             </div>
                             <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
                                 <h3 className="font-bold text-blue-900 text-lg mb-2">🧠 No Public AI Training</h3>
-                                <p className="text-blue-800 text-sm">Your uploaded IEPs are NOT used to train the public AI models (like ChatGPT or Gemini). Your data stays isolated.</p>
+                                <p className="text-blue-800 text-sm">Your uploaded IEPs or 504 Plans are NOT used to train the public AI models (like ChatGPT or Gemini). Your data stays isolated.</p>
                             </div>
                             <div className="bg-purple-50 p-6 rounded-2xl border border-purple-100">
                                 <h3 className="font-bold text-purple-900 text-lg mb-2">🗑️ Transient Processing</h3>
