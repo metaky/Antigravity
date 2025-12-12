@@ -14,7 +14,7 @@ export default function Home() {
         <section id="features" className="py-24 bg-muted/50">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center max-w-2xl mx-auto mb-16 relative isolate">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 w-[120%] h-[120%] bg-gradient-to-r from-indigo-300/30 via-purple-300/30 to-rose-300/30 blur-3xl rounded-full" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 w-[100vw] max-w-[600px] h-[120%] bg-gradient-to-r from-indigo-300/30 via-purple-300/30 to-rose-300/30 blur-3xl rounded-full" />
               <h2 className="text-3xl font-bold tracking-tight mb-4">Everything you need to advocate effectively</h2>
               <p className="text-muted-foreground">Our AI analyzes your document against thousands of educational standards to provide clear, actionable insights.</p>
             </div>

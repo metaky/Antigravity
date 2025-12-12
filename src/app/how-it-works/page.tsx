@@ -18,7 +18,7 @@ export default function HowItWorksPage() {
                 <div className="container mx-auto px-4 md:px-6 max-w-4xl">
                     <div className="text-center mb-20 space-y-6 relative isolate">
                         {/* Hero Background Elements */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gradient-to-r from-indigo-300 via-purple-300 to-rose-300 blur-3xl rounded-full -z-10 opacity-30"></div>
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] max-w-[90vw] h-[300px] bg-gradient-to-r from-indigo-300 via-purple-300 to-rose-300 blur-3xl rounded-full -z-10 opacity-30"></div>
 
                         <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl text-slate-900">
                             How it Works
