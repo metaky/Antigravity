@@ -8,11 +8,11 @@ import { Coffee } from "lucide-react"
 export function SupportCoffee() {
     const [selectedAmount, setSelectedAmount] = useState<number | "custom" | null>(null)
 
-    // TODO: Replace these with actual Stripe Payment Links when available
+    // Live Stripe Payment Links
     const STRIPE_LINKS: Record<string, string> = {
-        "3": "https://buy.stripe.com/placeholder_small",
-        "8": "https://buy.stripe.com/placeholder_medium",
-        "custom": "https://buy.stripe.com/placeholder_custom"
+        "3": "https://buy.stripe.com/cNi7sM2tn99kgCb5JN7Zu00",
+        "8": "https://buy.stripe.com/fZu9AUfg985gbhR6NR7Zu01",
+        "custom": "https://buy.stripe.com/7sY14o6JD0CO0Ddc8b7Zu02"
     }
 
     const handleSupportClick = () => {
