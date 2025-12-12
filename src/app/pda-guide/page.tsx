@@ -92,7 +92,7 @@ export default function PDAGuidePage() {
                                     { title: "Principled Advocacy", desc: "Unwavering commitment to equity and standing up for the marginalized." },
                                     { title: "Visionary Thinking", desc: "Inventive minds that perceive solutions and pathways invisible to most." },
                                     { title: "Intuitive Insight", desc: "Profound capacity to read underlying motives and emotional honesty." },
-                                    { title: "Interspecies Empathy", desc: "Profound, intuitive understanding of animals that fosters mutual regulation." },
+                                    { title: "Imaginative Reality Shift", desc: "Display of highly skilled pretend play, sometimes blurring the lines between pretend and reality." },
                                     { title: "Social Resonance", desc: "Electric personality and wit that naturally attracts and inspires others." },
                                     { title: "Self-Directed Mastery", desc: "Remarkable ability to master complex subjects through independent exploration." }
                                 ].map((item, i) => (
