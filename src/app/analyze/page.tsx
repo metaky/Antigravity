@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Trash2, FileText, Clock, ChevronRight, Sparkles, AlertCircle } from "lucide-react"
 import { DonationPrompt } from "@/components/donation-prompt"
+import Image from "next/image"
 
 type AnalysisSession = {
     id: string
@@ -162,12 +163,12 @@ export default function AnalyzePage() {
                 <main className="flex-1 container mx-auto pt-24 pb-12 px-4 md:px-6 print:pt-4 print:pb-4 print:max-w-none">
                     <div className="max-w-5xl mx-auto space-y-8">
                         {/* Print Header */}
-                        <div className="hidden print:flex items-center justify-between mb-8 border-b pb-4">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 text-white">
-                                    <Sparkles className="h-6 w-6" />
-                                </div>
-                                <div>
+                        <div className="hidden print:flex items-center mb-8 border-b pb-4">
+                            <div className="flex items-center">
+                                <Link href="/" className="flex items-center">
+                                    <Image src="/logo.png" alt="PDA Your IEP Logo" width={75} height={75} className="h-[75px] w-[75px] object-contain" />
+                                </Link>
+                                <div className="-ml-3">
                                     <h1 className="text-2xl font-bold text-slate-900 leading-none">PDA Your IEP</h1>
                                     <p className="text-sm text-slate-500 mt-1">AI-Powered Advocacy Tool</p>
                                 </div>

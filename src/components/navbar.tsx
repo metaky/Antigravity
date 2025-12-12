@@ -1,18 +1,16 @@
+import Image from "next/image"
 import Link from "next/link"
 import { Button, buttonVariants } from "@/components/ui/button"
-import { Sparkles } from "lucide-react"
 import { MobileNav } from "@/components/mobile-nav"
 import { cn } from "@/lib/utils"
 
 export function Navbar() {
     return (
         <header className="fixed top-0 w-full z-50 border-b border-border bg-white">
-            <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-                <Link className="flex items-center gap-2 font-bold text-xl" href="/">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                        <Sparkles className="h-5 w-5" />
-                    </div>
-                    <span>PDA Your IEP</span>
+            <div className="container mx-auto flex h-24 items-center justify-between px-4 md:px-6">
+                <Link className="flex items-center" href="/">
+                    <Image src="/logo.png" alt="PDA Your IEP Logo" width={75} height={75} className="h-[75px] w-[75px] object-contain" />
+                    <span className="-ml-3 font-bold text-2xl text-slate-900">PDA Your IEP</span>
                 </Link>
                 <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
                     <Link className="transition-colors hover:text-primary" href="/how-it-works">
