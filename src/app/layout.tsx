@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "Empower your child's education with AI-driven IEP and 504 Plan analysis. Upload, evaluate, and advocate with confidence.",
 };
 
-import { PHProvider } from "./providers";
+import { PostHogSnippet } from "@/components/posthog-snippet";
 import { CookieBanner } from "@/components/cookie-banner";
 
 export default function RootLayout({
@@ -30,10 +30,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background font-sans text-foreground`}
       >
-        <PHProvider>
-          {children}
-          <CookieBanner />
-        </PHProvider>
+        <PostHogSnippet />
+        {children}
+        <CookieBanner />
       </body>
     </html>
   );
