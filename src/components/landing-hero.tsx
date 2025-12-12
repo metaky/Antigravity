@@ -46,16 +46,12 @@ export function LandingHero() {
                         </Link>
                     </div>
 
-                    <div className="flex items-center gap-6 text-sm text-gray-300 pt-4">
-                        <div className="flex items-center gap-2">
-                            <ShieldCheck className="h-4 w-4 text-indigo-300" />
-                            <span>Privacy First</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Zap className="h-4 w-4 text-indigo-300" />
-                            <span>Instant Analysis</span>
-                        </div>
-                    </div>
+                    <Link href="/privacy" className="group flex flex-col sm:flex-row items-center gap-2 sm:gap-3 bg-indigo-950/40 border border-indigo-500/30 rounded-full px-6 py-2.5 hover:bg-indigo-900/50 transition-all hover:border-indigo-400/50 mt-6 backdrop-blur-sm">
+                        <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0" />
+                        <span className="text-indigo-100 text-sm font-medium">
+                            <strong className="text-white font-semibold">Privacy Guaranteed:</strong> Your IEP data is safe, secure & private. <span className="hidden sm:inline opacity-70">|</span> <span className="underline decoration-indigo-400/50 underline-offset-4 group-hover:text-white transition-colors">How we keep it safe &rarr;</span>
+                        </span>
+                    </Link>
                 </motion.div>
             </div>
         </section>
