@@ -20,9 +20,7 @@ export default function PDAGuidePage() {
             <main className="flex-1 container mx-auto pt-24 md:pt-32 pb-16 px-4 md:px-6 max-w-5xl">
                 {/* Header Section */}
                 <div className="mb-12 text-center space-y-4">
-                    <Badge className="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 mb-4 px-4 py-1.5 text-sm font-medium border-none shadow-none">
-                        Essential Reading
-                    </Badge>
+
                     <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
                         An In-Depth Guide to Crafting a <span className="text-indigo-600">PDA-Affirming IEP</span>
                     </h1>
