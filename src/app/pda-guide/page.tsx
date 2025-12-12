@@ -85,16 +85,16 @@ export default function PDAGuidePage() {
                                 <h2 className="text-3xl font-bold text-slate-900">2.0 Reframing: PDA Strengths</h2>
                             </div>
                             <p className="text-lg text-slate-600">
-                                Adopting a strengths-based perspective is essential. PDA learners possess unique "superpowers" when their nervous system is regulated.
+                                Adopting a strengths-based perspective is essential. PDA learners have access to more of their skills when their nervous system is regulated.
                             </p>
                             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
                                 {[
-                                    { title: "Justice & Equality", desc: "Powerful advocates for fairness and defending the 'underdog'." },
-                                    { title: "Innovation", desc: "Creative 'alchemists' who see possibilities where others see limits." },
-                                    { title: "Truth Radar", desc: "Keen ability to sense authenticity and intentions in others." },
-                                    { title: "Animal Connection", desc: "Deep, instinctual bond with animals that provides calm." },
-                                    { title: "Magnetic Charisma", desc: "Engaging humor and ability to draw others into their world." },
-                                    { title: "Auto-Didactic", desc: "Exceptional at teaching themselves when interested and autonomous." }
+                                    { title: "Principled Advocacy", desc: "Unwavering commitment to equity and standing up for the marginalized." },
+                                    { title: "Visionary Thinking", desc: "Inventive minds that perceive solutions and pathways invisible to most." },
+                                    { title: "Intuitive Insight", desc: "Profound capacity to read underlying motives and emotional honesty." },
+                                    { title: "Interspecies Empathy", desc: "Profound, intuitive understanding of animals that fosters mutual regulation." },
+                                    { title: "Social Resonance", desc: "Electric personality and wit that naturally attracts and inspires others." },
+                                    { title: "Self-Directed Mastery", desc: "Remarkable ability to master complex subjects through independent exploration." }
                                 ].map((item, i) => (
                                     <div key={i} className="p-6 rounded-xl border border-slate-200 bg-white hover:shadow-md transition-shadow">
                                         <h3 className="font-bold text-slate-800 mb-2">{item.title}</h3>
