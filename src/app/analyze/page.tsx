@@ -369,7 +369,7 @@ export default function AnalyzePage() {
                             Upload your IEP
                         </h1>
                         <p className="text-muted-foreground text-lg">
-                            We'll extract goals, accommodations, and services to provide you with an interactive analysis.
+                            We'll analyze your IEP goals, accommodations, and services against our <Link href="/pda-guide" className="text-indigo-600 font-medium hover:underline">PDA Affirming Guide</Link> to provide you with a detailed set of recommendations to help your PDA child succeed at school.
                         </p>
                     </div>
 

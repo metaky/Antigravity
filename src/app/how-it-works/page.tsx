@@ -74,7 +74,7 @@ export default function HowItWorksPage() {
                                     <h3 className="font-bold text-lg text-slate-900">AI Logic + Expert Knowledge</h3>
                                 </div>
                                 <p className="text-slate-600 leading-relaxed">
-                                    Our AI engine, powered by Gemini 3.0 Pro, reads your IEP and cross-references it against our curated <a href="/pda-guide" className="text-indigo-600 hover:underline font-medium">"PDA Affirming Guide"</a> (RAG). It understands the nuance between standard ASD supports and what PDA brains actually need.
+                                    Our AI engine reads your IEP and cross-references it against our curated <a href="/pda-guide" className="text-indigo-600 hover:underline font-medium">"PDA Affirming Guide"</a>. It understands the nuance between standard ASD supports and what PDA brains actually need.
                                 </p>
                             </div>
 
