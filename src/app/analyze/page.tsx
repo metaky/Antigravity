@@ -160,7 +160,7 @@ export default function AnalyzePage() {
                 `}</style>
                 <div className="print:hidden"><Navbar /></div>
 
-                <main className="flex-1 container mx-auto pt-24 pb-12 px-4 md:px-6 print:pt-4 print:pb-4 print:max-w-none">
+                <main className="flex-1 container mx-auto pt-32 pb-12 px-4 md:px-6 print:pt-4 print:pb-4 print:max-w-none">
                     <div className="max-w-5xl mx-auto space-y-8">
                         {/* Print Header */}
                         <div className="hidden print:flex items-center mb-8 border-b pb-4">
