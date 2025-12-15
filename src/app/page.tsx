@@ -22,7 +22,7 @@ export default function Home() {
               {/* Goal Analysis Module */}
               <div className="group relative bg-white p-8 rounded-2xl border border-indigo-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                  <Target className="w-32 h-32 text-indigo-600" />
+                  <Target className="w-32 h-32 text-indigo-600" aria-hidden="true" />
                 </div>
                 <div className="relative z-10 flex flex-col h-full justify-center">
                   <h3 className="text-2xl font-bold mb-3 text-slate-900">Goal Analysis</h3>
@@ -35,7 +35,7 @@ export default function Home() {
               {/* PDA Affirming Score Module */}
               <div className="group relative bg-white p-8 rounded-2xl border border-emerald-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                  <Gauge className="w-32 h-32 text-emerald-600" />
+                  <Gauge className="w-32 h-32 text-emerald-600" aria-hidden="true" />
                 </div>
                 <div className="relative z-10 flex flex-col h-full justify-center">
                   <h3 className="text-2xl font-bold mb-3 text-slate-900">PDA Affirming Score</h3>
@@ -48,7 +48,7 @@ export default function Home() {
               {/* Accommodation Review Module */}
               <div className="group relative bg-white p-8 rounded-2xl border border-amber-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                  <ClipboardCheck className="w-32 h-32 text-amber-600" />
+                  <ClipboardCheck className="w-32 h-32 text-amber-600" aria-hidden="true" />
                 </div>
                 <div className="relative z-10 flex flex-col h-full justify-center">
                   <h3 className="text-2xl font-bold mb-3 text-slate-900">Accommodation Review</h3>

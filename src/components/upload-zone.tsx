@@ -109,6 +109,7 @@ export function UploadZone({ onFileSelect, isProcessing = false }: UploadZonePro
                                         <button
                                             onClick={removeFile}
                                             className="text-muted-foreground hover:text-destructive transition-colors"
+                                            aria-label="Remove file"
                                         >
                                             <XCircle className="h-5 w-5" />
                                         </button>

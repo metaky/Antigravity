@@ -37,7 +37,7 @@ export function MobileNav() {
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label="Toggle Menu"
             >
-                {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                {isOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
             </Button>
 
             {/* Backdrop & Menu Container */}
