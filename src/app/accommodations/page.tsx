@@ -5,7 +5,6 @@ import {
     MessageCircle,
     CalendarClock,
     HeartHandshake,
-    AlertTriangle,
     CheckCircle2,
     BookOpen,
     Users,
@@ -24,7 +23,7 @@ const AccommodationsPage = () => {
         <div className="min-h-screen flex flex-col bg-slate-50">
             <Navbar />
 
-            <main className="flex-1 pt-32 pb-20">
+            <main className="flex-1 pt-40 pb-20">
                 <div className="container mx-auto px-4 md:px-6 max-w-5xl">
 
                     {/* Header */}
@@ -34,14 +33,11 @@ const AccommodationsPage = () => {
                             The PDA Accommodations Library
                         </h1>
                         <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-                            While general autism accommodations often focus on structure, routine, and clear instruction, <strong className="text-indigo-700 font-semibold">PDA accommodations must prioritize autonomy, flexibility, and anxiety reduction.</strong>
+                            While general autism accommodations often focus on structure, routine, and clear instruction, <strong className="text-slate-900 font-semibold">PDA accommodations must prioritize autonomy, flexibility, and anxiety reduction.</strong>
                         </p>
-                        <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl max-w-2xl mx-auto text-sm text-amber-900 flex gap-3 items-start text-left shadow-sm">
-                            <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
-                            <p>
-                                In many cases, standard autism strategies (like rigid visual schedules or reward charts) can actually <span className="font-semibold">trigger PDA anxiety</span>, making the behavior worse.
-                            </p>
-                        </div>
+                        <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed mt-6">
+                            In many cases, standard autism strategies (like rigid visual schedules or reward charts) can actually <strong className="text-slate-900 font-semibold">trigger PDA anxiety</strong>, making the behavior worse.
+                        </p>
                     </div>
 
                     <div className="space-y-20">
