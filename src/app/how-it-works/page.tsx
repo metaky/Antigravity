@@ -15,7 +15,7 @@ export default function HowItWorksPage() {
     return (
         <div className="min-h-screen flex flex-col bg-white text-slate-900">
             <Navbar />
-            <main className="flex-1 pt-32 pb-20">
+            <main className="flex-1 pt-40 pb-20">
                 <div className="container mx-auto px-4 md:px-6 max-w-4xl">
                     <div className="text-center mb-20 space-y-6 relative isolate">
                         {/* Hero Background Elements */}
