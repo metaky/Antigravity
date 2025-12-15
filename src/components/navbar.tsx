@@ -43,7 +43,7 @@ export function Navbar() {
                         How it Works
                     </Link>
                     <Link className="text-slate-600 hover:text-indigo-600 transition-colors" href="/accommodations">
-                        Accommodations
+                        Accommodations Library
                     </Link>
                     <Link className="text-slate-600 hover:text-indigo-600 transition-colors" href="/other-tools">
                         Other Tools

@@ -56,7 +56,7 @@ export function MobileNav() {
                                 href="/accommodations"
                                 className="text-2xl font-medium text-slate-900 py-2"
                             >
-                                Accommodations
+                                Accommodations Library
                             </Link>
                             <Link
                                 href="/support"
