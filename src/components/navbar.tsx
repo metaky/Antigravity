@@ -26,7 +26,7 @@ export function Navbar() {
             <div className="container mx-auto flex h-20 items-center px-4 md:px-6 justify-between">
                 <div className="flex items-center">
                     <Link className="flex items-center gap-2 group" href="/">
-                        <div className="relative h-10 w-10">
+                        <div className="relative h-16 w-16">
                             <Image
                                 src="/logo.png"
                                 alt="PDA Your IEP Logo"
