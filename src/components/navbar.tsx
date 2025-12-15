@@ -19,6 +19,9 @@ export function Navbar() {
                     <Link className="transition-colors hover:text-primary" href="/how-it-works">
                         How it Works
                     </Link>
+                    <Link className="transition-colors hover:text-primary" href="/accommodations">
+                        Accommodations
+                    </Link>
                     <Link className="transition-colors hover:text-primary" href="/support">
                         Support & Donate
                     </Link>

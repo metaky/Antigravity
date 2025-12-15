@@ -53,6 +53,12 @@ export function MobileNav() {
                                 How it Works
                             </Link>
                             <Link
+                                href="/accommodations"
+                                className="text-2xl font-medium text-slate-900 py-2"
+                            >
+                                Accommodations
+                            </Link>
+                            <Link
                                 href="/support"
                                 className="text-2xl font-medium text-slate-900 py-2"
                             >
