@@ -3,6 +3,8 @@ import { LandingHero } from "@/components/landing-hero";
 import { Footer } from "@/components/footer";
 import { Target, Gauge, ClipboardCheck } from "lucide-react";
 
+import { BottomCTA } from "@/components/bottom-cta";
+
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
@@ -60,6 +62,7 @@ export default function Home() {
             </div>
           </div>
         </section>
+        <BottomCTA />
       </main>
       <Footer />
     </div>

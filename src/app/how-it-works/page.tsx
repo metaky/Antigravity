@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer"
 import { Upload, BrainCircuit, FileSearch, Scale, ShieldCheck, FileText, ArrowRight, Sparkles, BicepsFlexed, Trophy } from "lucide-react"
 import { WhyIBuiltThis } from "@/components/why-i-built-this"
 
+import { BottomCTA } from "@/components/bottom-cta"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -187,6 +188,7 @@ export default function HowItWorksPage() {
                         <WhyIBuiltThis />
                     </div>
                 </div>
+                <BottomCTA />
             </main>
             <Footer />
         </div>

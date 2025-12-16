@@ -13,6 +13,8 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 
+import { BottomCTA } from "@/components/bottom-cta"
+
 export const metadata: Metadata = {
     title: "PDA Accommodations Library | PDA Your IEP",
     description: "A curated library of school accommodations specifically designed for the Pathological Demand Avoidance (PDA) profile of autism, contrasting standard ASD supports with PDA needs.",
@@ -149,21 +151,9 @@ const AccommodationsPage = () => {
                             </div>
                         </section>
 
-                        <div className="bg-indigo-900 rounded-2xl p-8 md:p-12 text-center text-white space-y-6">
-                            <h2 className="text-2xl md:text-3xl font-bold">Need these in your IEP?</h2>
-                            <p className="text-indigo-100 text-lg max-w-2xl mx-auto">
-                                Upload your current IEP or 504 Plan and our AI will check if you have these critical supports in place.
-                            </p>
-                            <Link
-                                href="/analyze"
-                                className="inline-flex items-center gap-2 bg-white text-indigo-900 px-8 py-4 rounded-full font-bold text-lg hover:bg-indigo-50 transition-colors shadow-lg"
-                            >
-                                Analyze My IEP Now <ArrowRight className="h-5 w-5" />
-                            </Link>
-                        </div>
-
                     </div>
                 </div>
+                <BottomCTA />
             </main>
             <Footer />
         </div>
