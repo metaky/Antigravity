@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils"
 import { Trash2, FileText, Clock, ChevronRight, Sparkles, AlertCircle } from "lucide-react"
 import { DonationPrompt } from "@/components/donation-prompt"
 import Image from "next/image"
+import posthog from "posthog-js"
 
 type AnalysisSession = {
     id: string
@@ -102,6 +103,10 @@ export default function AnalyzePage() {
                 setResults(data.data)
                 setAnalysisComplete(true)
                 saveSession(data.data, file.name)
+
+                // Track successful report generation
+                posthog.capture('generated_report')
+
                 // Clear any pending file on success
                 setPendingFile(null)
                 setShowWarningModal(false)
