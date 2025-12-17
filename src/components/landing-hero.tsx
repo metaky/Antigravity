@@ -12,7 +12,7 @@ export function LandingHero() {
             {/* Background Image with Overlay */}
             <div className="absolute inset-0 -z-10">
                 <Image
-                    src="/hero-bg.png"
+                    src="/hero-tablet.jpg"
                     alt="Classroom background"
                     fill
                     className="object-cover object-center"
