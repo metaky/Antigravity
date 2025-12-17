@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Invalid file type. Only PDFs are allowed." }, { status: 400 });
         }
 
-        console.log("Processing upload:", file.name, "Size:", file.size);
+        console.log("Processing upload. Type:", file.type, "Size:", file.size);
 
         // Convert file to buffer for parsing
         const arrayBuffer = await file.arrayBuffer();

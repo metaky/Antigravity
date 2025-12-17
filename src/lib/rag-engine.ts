@@ -144,8 +144,8 @@ export class RagEngine {
 
     async analyzeIEP(fileBuffer: Buffer, mimeType: string) {
         if (!process.env.GEMINI_API_KEY) {
-            console.warn("Missing GEMINI_API_KEY, returning mock data.");
-            return this.mockAnalysis("Mock PDF Analysis");
+            console.warn("Missing GEMINI_API_KEY.");
+            throw new Error("Service Configuration Error: Missing API Key");
         }
 
         try {
@@ -210,7 +210,7 @@ export class RagEngine {
             const text = response.text();
 
             // Clean up code blocks if present (though responseMimeType should handle it)
-            console.log("Raw Gemini Response:", text); // Debug log
+            // console.log("Raw Gemini Response:", text); // REMOVED FOR PRIVACY (PII LEAK)
 
             // 1. Remove markdown code blocks
             let jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -241,46 +241,8 @@ export class RagEngine {
         } catch (error) {
             console.error("Gemini API Error:", error);
             // Fallback to mock if API fails
-            return this.mockAnalysis("Error", "AI Service Temporarily Unavailable. Showing offline analysis.");
+            throw error; // Re-throw to trigger 500 error instead of unsafe mock data
         }
     }
 
-    private mockAnalysis(text: string, note = "") {
-        return {
-            score: 42,
-            summary: `${note} Offline analysis. The document appears to be an IEP but we could not fully process it.`,
-            strengths: ["Document exists", "Contains text"],
-            opportunities: ["Connect to AI for full analysis", "Check internet connection"],
-            category_suggestions: {
-                "Goal": {
-                    "add": ["Specific, measurable reading goal", "Self-advocacy goal"],
-                    "remove": ["Compliance-based 'will obey' goals"]
-                },
-                "Accommodation": {
-                    "add": ["Access to quiet space", "Headphones"],
-                    "remove": ["Token economy system"]
-                }
-            },
-            results: [
-                {
-                    category: "Goal",
-                    title: "Reading Fluency (Offline)",
-                    status: "Needs Review",
-                    description: "Goal lacks specific time-bound criteria for WPM increase.",
-                    recommendation: "Use '120 WPM' instead of 'improve reading'.",
-                    quote: "Student will improve reading skills.",
-                    page: 1
-                },
-                {
-                    category: "Accommodation",
-                    title: "Sensory Breaks (Offline)",
-                    status: "Good",
-                    description: "Good inclusion of sensory regulation.",
-                    recommendation: "Ensure it is student-led.",
-                    quote: "Student allowed breaks as needed.",
-                    page: 2
-                }
-            ]
-        };
-    }
 }
