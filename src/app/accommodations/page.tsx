@@ -59,14 +59,12 @@ const AccommodationsPage = () => {
                                     asdApproach="Often relies on clear, direct commands (e.g., 'Put on your coat')."
                                     pdaApproach="Direct commands trigger the threat response. Declarative language invites collaboration without pressure (e.g., 'I notice it’s cold outside; I’m going to grab my coat')."
                                     rationale="Reduces the perception of a 'demand,' lowering cortisol levels and allowing the student to initiate the action themselves, preserving autonomy."
-                                    source="The Declarative Language Handbook (Murphy); PDA Society Guidelines."
                                 />
                                 <AccommodationCard
                                     title="2. Depersonalized Demands"
                                     description="When rules must be enforced, attribute the 'demand' to an inanimate object, a sign, or 'the system' rather than the teacher's personal authority."
                                     example="Pointing to a sign that says 'Library is Quiet' rather than saying 'You need to be quiet.'"
                                     rationale="It removes the interpersonal power struggle. The teacher remains an ally rather than an enforcer."
-                                    source="30 IEP Strategies for PDA and Masking Behaviors."
                                     hideComparison={true}
                                 />
                                 <AccommodationCard
@@ -74,7 +72,6 @@ const AccommodationsPage = () => {
                                     description="After presenting an idea or option, staff must wait (sometimes 10+ seconds) without repeating the prompt or adding pressure."
                                     asdApproach="Often used for cognitive processing."
                                     pdaApproach="Used for emotional processing. The child needs time to quell their initial 'No!' fight-or-flight reflex before they can logically consider the request."
-                                    source="PDA North America."
                                 />
                             </div>
                         </section>
@@ -95,7 +92,6 @@ const AccommodationsPage = () => {
                                     asdApproach="Thrives on rigid, predictable 'First/Then' schedules."
                                     pdaApproach="Rigid schedules feel like a cage. 'First/Then' is often perceived as a threat/bribe. Choice provides the necessary sense of control."
                                     rationale="Maintains academic expectations while granting the necessary autonomy to lower anxiety."
-                                    source="30 IEP Strategies for PDA and Masking Behaviors."
                                 />
                                 <AccommodationCard
                                     title="5. The 'Opt-Out' or 'Safe Exit' Clause"
@@ -103,14 +99,12 @@ const AccommodationsPage = () => {
                                     asdApproach="May need permission/prompting to take a break."
                                     pdaApproach="The requirement to ask for permission is a demand in itself. Knowing they can escape often reduces the anxiety enough that they don't need to."
                                     rationale="Reduces the feeling of being trapped, which is a primary trigger for PDA panic/meltdowns."
-                                    source="National Autistic Society (UK) - PDA Guidelines."
                                 />
                                 <AccommodationCard
                                     title="6. Novelty & Interest-Led Modifications"
                                     description="Allow the student to incorporate intense interests into non-preferred tasks (e.g., writing a math problem about Minecraft characters)."
                                     asdApproach="Interests are often used as a reward for finishing work (First work, then Minecraft)."
                                     pdaApproach="Interests are used as a bridge to start the work. Rewards generally do not work for PDA students because the pressure to 'earn' the reward ruins the motivation."
-                                    source="At Peace Parents (Casey Ehrlich); PDA Society."
                                 />
                             </div>
                         </section>
@@ -131,7 +125,6 @@ const AccommodationsPage = () => {
                                     description="The IEP goals prioritize emotional regulation and trust over immediate compliance. Staff are trained to drop demands when the student shows signs of distress."
                                     asdApproach="Often uses ABA (Applied Behavior Analysis) or compliance training."
                                     pdaApproach="Compliance-based approaches (ABA) are frequently contraindicated for PDA as they increase trauma and masking. The focus is on co-regulation."
-                                    source="PDA North America; 30 IEP Strategies for PDA."
                                 />
                                 <AccommodationCard
                                     title="8. Indirect Praise"
@@ -139,13 +132,11 @@ const AccommodationsPage = () => {
                                     asdApproach="Often responds well to enthusiastic verbal praise and reinforcement."
                                     pdaApproach="Direct praise can feel patronizing or like a 'manipulation' to get them to do it again, triggering anxiety about future expectations."
                                     rationale="Allows the child to feel pride without the pressure of external validation."
-                                    source="The PDA Society."
                                 />
                                 <AccommodationCard
                                     title="9. Peer Body Doubling / Parallel Work"
                                     description="Allowing the student to work alongside a teacher or peer who is doing their own work, rather than the teacher 'hovering' to supervise."
                                     rationale="'Body doubling' provides social motivation without the direct pressure of being watched or critiqued."
-                                    source="Neurodivergent Insights."
                                     hideComparison={true}
                                 />
                             </div>
