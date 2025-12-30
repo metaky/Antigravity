@@ -42,6 +42,9 @@ export function Navbar() {
                     <Link className="text-slate-600 hover:text-indigo-600 transition-colors" href="/how-it-works">
                         How it Works
                     </Link>
+                    <Link className="text-slate-600 hover:text-indigo-600 transition-colors" href="/behavior-report">
+                        Behavior Reports
+                    </Link>
                     <Link className="text-slate-600 hover:text-indigo-600 transition-colors" href="/accommodations">
                         Accommodations Library
                     </Link>

@@ -273,4 +273,116 @@ export class RagEngine {
         }
     }
 
+    async analyzeBehaviorReport(behaviorBuffer: Buffer, iepBuffer: Buffer, mimeType: string) {
+        if (!process.env.GEMINI_API_KEY) {
+            console.warn("Missing GEMINI_API_KEY.");
+            throw new Error("Service Configuration Error: Missing API Key");
+        }
+
+        try {
+            // 1. Retrieve PDA-specific context
+            const context = await this.retrieve("PDA behavior incident de-escalation autonomy anxiety regulation", 10);
+            const contextSummary = context.map(c => `- ${c.content} (Source: ${c.source})`).join('\n');
+
+            // 2. Call Gemini with both documents
+            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+            const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview", generationConfig: { responseMimeType: "application/json" } });
+
+            const prompt = `
+            You are an expert Special Education advocate specializing in PDA (Pathological Demand Avoidance) autism and school behavior incidents.
+            
+            You have been provided with TWO documents:
+            1. A BEHAVIOR INCIDENT REPORT describing a behavioral incident at school
+            2. The student's IEP (Individualized Education Program) or 504 Plan
+            
+            Your task is to analyze the behavior incident in the context of the student's IEP accommodations and provide feedback.
+            
+            PDA GUIDELINES (Reference Material):
+            ${contextSummary}
+            
+            INSTRUCTIONS:
+            1. Carefully read BOTH documents.
+            2. Identify what the school team did WELL during the incident that aligned with the IEP.
+            3. Identify what could have been done BETTER based on IEP accommodations that weren't followed.
+            4. Extract specific IEP strategies/accommodations that should have been applied during the incident.
+            5. Provide clear, actionable recommendations for future incidents.
+            6. CRITICALLY: Provide PDA-SPECIFIC recommendations that go BEYOND what's in the IEP. These should be:
+               - Specifically designed for PDA autistic individuals
+               - Focus on autonomy, anxiety reduction, and collaborative approaches
+               - NOT typical autism or ABA strategies (no token economies, compliance training, extinction, etc.)
+               - Practical school-based strategies staff can implement
+            
+            Output PURE JSON with this structure:
+            {
+                "summary": "Brief executive summary of the analysis (2-3 sentences max).",
+                "whatWentWell": ["Positive aspect 1...", "Positive aspect 2..."],
+                "whatCouldBeBetter": ["Area for improvement 1...", "Area for improvement 2..."],
+                "iepGuidance": [
+                    {
+                        "title": "Name of accommodation/strategy",
+                        "description": "How this should have been applied during the incident",
+                        "quote": "Exact text from the IEP if available",
+                        "page": 1
+                    }
+                ],
+                "futureRecommendations": [
+                    "Clear, actionable recommendation 1",
+                    "Clear, actionable recommendation 2"
+                ],
+                "pdaConsiderations": [
+                    {
+                        "strategy": "Name of PDA-specific strategy",
+                        "explanation": "Why this works for PDA (not typical autism strategies)",
+                        "howToImplement": "Specific, practical steps for school staff"
+                    }
+                ]
+            }
+            `;
+
+            const behaviorPart = {
+                inlineData: {
+                    data: behaviorBuffer.toString("base64"),
+                    mimeType: mimeType
+                }
+            };
+
+            const iepPart = {
+                inlineData: {
+                    data: iepBuffer.toString("base64"),
+                    mimeType: mimeType
+                }
+            };
+
+            const result = await model.generateContent([prompt, behaviorPart, iepPart]);
+            const response = await result.response;
+            const text = response.text();
+
+            // Clean up and parse JSON
+            let jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            const firstBrace = jsonStr.indexOf('{');
+            const lastBrace = jsonStr.lastIndexOf('}');
+
+            if (firstBrace !== -1 && lastBrace !== -1) {
+                jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
+            }
+
+            try {
+                return JSON.parse(jsonStr);
+            } catch (e) {
+                // Try to fix trailing commas
+                const fixedJson = jsonStr.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+                try {
+                    return JSON.parse(fixedJson);
+                } catch (e2) {
+                    console.error("JSON Parse Logic Failed for behavior report analysis.");
+                    throw e;
+                }
+            }
+
+        } catch (error) {
+            console.error("Behavior Report Analysis Error:", error);
+            throw error;
+        }
+    }
+
 }

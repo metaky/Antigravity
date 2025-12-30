@@ -53,22 +53,28 @@ export function MobileNav() {
                                 How it Works
                             </Link>
                             <Link
+                                href="/behavior-report"
+                                className="text-2xl font-medium text-slate-900 py-2"
+                            >
+                                Behavior Reports
+                            </Link>
+                            <Link
                                 href="/accommodations"
                                 className="text-2xl font-medium text-slate-900 py-2"
                             >
                                 Accommodations Library
                             </Link>
                             <Link
-                                href="/support"
-                                className="text-2xl font-medium text-slate-900 py-2"
-                            >
-                                Support & Donate
-                            </Link>
-                            <Link
                                 href="/other-tools"
                                 className="text-2xl font-medium text-slate-900 py-2"
                             >
                                 Other Tools
+                            </Link>
+                            <Link
+                                href="/support"
+                                className="text-2xl font-medium text-slate-900 py-2"
+                            >
+                                Support & Donate
                             </Link>
                             <Link
                                 href="/pda-guide"
