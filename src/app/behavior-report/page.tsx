@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { DualUploadZone } from "@/components/dual-upload-zone"
-import { Disclaimer } from "@/components/privacy-notice"
+import { PrivacyNotice, Disclaimer } from "@/components/privacy-notice"
 import { DonationPrompt } from "@/components/donation-prompt"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -417,8 +417,9 @@ export default function BehaviorReportPage() {
                         </ul>
                     </div>
 
-                    {/* Bottom Disclaimer */}
+                    {/* Bottom Privacy Notice & Disclaimer */}
                     <div className="pt-4">
+                        <PrivacyNotice />
                         <Disclaimer />
                     </div>
                 </div>
