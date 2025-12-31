@@ -333,7 +333,7 @@ export default function BehaviorReportPage() {
                             Behavior Report Tool
                         </h1>
                         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                            Upload a Behavior Incident Report and the student's IEP to receive AI-powered analysis comparing the incident response to IEP accommodations, with specific PDA considerations.
+                            Upload a Behavior Incident Report and the student's IEP to compare the incident response to IEP accommodations, outlining discrepencies and opportunities with specific PDA considerations for the future.
                         </p>
                     </div>
 
