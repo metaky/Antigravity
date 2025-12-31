@@ -1,7 +1,8 @@
 import { Navbar } from "@/components/navbar";
 import { LandingHero } from "@/components/landing-hero";
 import { Footer } from "@/components/footer";
-import { Target, Gauge, ClipboardCheck } from "lucide-react";
+import { Target, Gauge, ClipboardCheck, FileWarning, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 import { BottomCTA } from "@/components/bottom-cta";
 
@@ -62,6 +63,66 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Behavior Reports Tool Promo */}
+        <section className="py-20 bg-gradient-to-br from-purple-50 via-white to-indigo-50">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="group relative bg-white p-8 md:p-10 rounded-2xl border-2 border-purple-200 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                {/* Background decoration */}
+                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
+                  <FileWarning className="w-40 h-40 text-purple-600" aria-hidden="true" />
+                </div>
+
+                {/* Badge */}
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-sm font-medium mb-6">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                  </span>
+                  New Tool Available
+                </div>
+
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+                  <div className="flex-1 space-y-4">
+                    <h3 className="text-2xl md:text-3xl font-bold text-slate-900">
+                      Behavior Incident Report Analyzer
+                    </h3>
+                    <p className="text-slate-600 leading-relaxed text-lg">
+                      Did your child receive a behavior incident report? Upload it alongside their IEP to discover which accommodations
+                      <strong className="text-purple-700"> should have been implemented</strong>, identify discrepancies,
+                      and receive PDA-affirming strategies for future incidents.
+                    </p>
+                    <ul className="text-slate-600 space-y-2 text-base">
+                      <li className="flex items-start gap-2">
+                        <span className="text-purple-500 mt-1">✓</span>
+                        <span>Compare incident responses to IEP accommodations</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-purple-500 mt-1">✓</span>
+                        <span>Highlight missed opportunities and what went well</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-purple-500 mt-1">✓</span>
+                        <span>Get PDA-specific strategies beyond the IEP</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="shrink-0">
+                    <Link
+                      href="/behavior-report"
+                      className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+                    >
+                      Try Behavior Reports
+                      <ArrowRight className="w-5 h-5" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <BottomCTA />
       </main>
       <Footer />
