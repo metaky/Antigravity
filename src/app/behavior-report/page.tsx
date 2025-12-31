@@ -324,10 +324,6 @@ export default function BehaviorReportPage() {
                 <div className="max-w-3xl mx-auto space-y-8">
                     {/* Header */}
                     <div className="text-center space-y-4">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 text-purple-700 text-sm font-medium mb-4">
-                            <Brain className="h-4 w-4" />
-                            PDA-Focused Analysis
-                        </div>
                         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
                             Behavior Report Tool
                         </h1>
