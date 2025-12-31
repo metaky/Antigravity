@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react"
 import { useDropzone } from "react-dropzone"
-import { UploadCloud, FileText, XCircle, Loader2, Shield } from "lucide-react"
+import { UploadCloud, FileText, XCircle, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -205,19 +205,6 @@ export function DualUploadZone({ onFilesSelect, isProcessing = false }: DualUplo
                         {bothFilesReady ? "Generate Behavior Report Analysis" : "Upload Both Documents to Continue"}
                     </Button>
                 )}
-            </div>
-
-            {/* Privacy Notice - Below Upload Boxes */}
-            <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4">
-                <div className="flex items-start gap-3">
-                    <Shield className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
-                    <div>
-                        <h3 className="font-semibold text-blue-900 text-sm">Your Documents Are Secure</h3>
-                        <p className="text-xs text-blue-800 mt-1">
-                            Documents are processed securely and are not stored permanently. We do not sell your data. <a href="/privacy" className="text-indigo-600 hover:underline">Learn more</a>
-                        </p>
-                    </div>
-                </div>
             </div>
         </div>
     )
