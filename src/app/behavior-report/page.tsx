@@ -287,19 +287,6 @@ export default function BehaviorReportPage() {
                             </div>
                         </div>
 
-                        {/* Privacy Reminder */}
-                        <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 print:hidden">
-                            <div className="flex items-start gap-3">
-                                <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
-                                <div>
-                                    <h3 className="font-semibold text-blue-900 text-sm">Your Data Remains Private</h3>
-                                    <p className="text-xs text-blue-800">
-                                        The documents you uploaded were processed securely and were not permanently stored. This report exists only in your browser until you close the page.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
                         {/* Support CTA */}
                         <DonationPrompt />
 
