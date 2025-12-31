@@ -321,8 +321,9 @@ export class RagEngine {
                     {
                         "title": "Name of accommodation/strategy",
                         "description": "How this should have been applied during the incident",
-                        "quote": "Exact text from the IEP if available",
-                        "page": 1
+                        "quote": "Exact text from the document if available",
+                        "page": 1,
+                        "source": "IEP" or "BIR" (which document this quote/page is from - BIR = Behavior Incident Report)
                     }
                 ],
                 "futureRecommendations": [

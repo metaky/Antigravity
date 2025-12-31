@@ -5,7 +5,8 @@ import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { DualUploadZone } from "@/components/dual-upload-zone"
-import { PrivacyNotice, Disclaimer } from "@/components/privacy-notice"
+import { Disclaimer } from "@/components/privacy-notice"
+import { DonationPrompt } from "@/components/donation-prompt"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Shield, CheckCircle, AlertTriangle, BookOpen, Brain, Sparkles, Trash2, FileText, Clock, ChevronRight } from "lucide-react"
@@ -20,6 +21,7 @@ interface AnalysisResults {
         description: string
         quote?: string
         page?: number
+        source?: "IEP" | "BIR"
     }[]
     futureRecommendations: string[]
     pdaConsiderations: {
@@ -227,9 +229,9 @@ export default function BehaviorReportPage() {
                                         <p className="text-gray-700 mb-3">{item.description}</p>
                                         {item.quote && (
                                             <div className="bg-blue-50 p-3 rounded-lg text-sm border border-blue-100">
-                                                <span className="font-semibold text-blue-800">From IEP: </span>
+                                                <span className="font-semibold text-blue-800">From {item.source || "IEP"}: </span>
                                                 <span className="italic text-blue-900">"{item.quote}"</span>
-                                                {item.page && <span className="text-xs text-blue-600 ml-2">(Page {item.page})</span>}
+                                                {item.page && <span className="text-xs text-blue-600 ml-2">(Page {item.page}, {item.source || "IEP"})</span>}
                                             </div>
                                         )}
                                     </div>
@@ -297,6 +299,9 @@ export default function BehaviorReportPage() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Support CTA */}
+                        <DonationPrompt />
 
                         {/* Report Footer & Disclaimer */}
                         <div className="border-t pt-8 mt-12 pb-8 text-center space-y-4 print:mt-8 print:pt-4">
@@ -412,9 +417,8 @@ export default function BehaviorReportPage() {
                         </ul>
                     </div>
 
-                    {/* Bottom Privacy Notice & Disclaimer */}
+                    {/* Bottom Disclaimer */}
                     <div className="pt-4">
-                        <PrivacyNotice />
                         <Disclaimer />
                     </div>
                 </div>
