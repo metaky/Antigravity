@@ -39,6 +39,9 @@ export function Navbar() {
                 </div>
 
                 <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+                    <Link className="text-slate-600 hover:text-indigo-600 transition-colors" href="/analyze">
+                        Analyze IEP
+                    </Link>
                     <Link className="text-slate-600 hover:text-indigo-600 transition-colors" href="/how-it-works">
                         How it Works
                     </Link>

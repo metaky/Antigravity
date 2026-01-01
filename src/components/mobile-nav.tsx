@@ -47,6 +47,12 @@ export function MobileNav() {
 
                         <div className="space-y-6 flex flex-col items-center">
                             <Link
+                                href="/analyze"
+                                className="text-2xl font-medium text-slate-900 py-2"
+                            >
+                                Analyze IEP
+                            </Link>
+                            <Link
                                 href="/how-it-works"
                                 className="text-2xl font-medium text-slate-900 py-2"
                             >
