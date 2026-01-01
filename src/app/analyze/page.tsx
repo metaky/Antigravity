@@ -380,6 +380,33 @@ export default function AnalyzePage() {
 
                     <UploadZone onFileSelect={handleFileSelect} isProcessing={isProcessing} />
 
+                    {/* What You'll Receive */}
+                    <div className="bg-white rounded-xl border p-6 space-y-4">
+                        <h3 className="font-semibold text-slate-900">What You'll Receive:</h3>
+                        <ul className="space-y-2 text-sm text-slate-600">
+                            <li className="flex items-start gap-2">
+                                <Sparkles className="h-4 w-4 text-indigo-600 mt-0.5 shrink-0" />
+                                <span><strong>PDA Affirming Score:</strong> A 1-100 score measuring alignment with PDA-supportive practices</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600 mt-0.5 shrink-0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                                <span><strong>Strengths:</strong> What's working well in the current document</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600 mt-0.5 shrink-0"><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" /></svg>
+                                <span><strong>Opportunities:</strong> Areas that could better support your PDA child</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <FileText className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+                                <span><strong>Goal-by-Goal Analysis:</strong> Detailed review of each goal with cited evidence and recommendations</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600 mt-0.5 shrink-0"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                <span><strong>Actionable Suggestions:</strong> Specific additions and removals to consider for your next IEP meeting</span>
+                            </li>
+                        </ul>
+                    </div>
+
                     {/* Recent Sessions List */}
                     {savedSessions.length > 0 && (
                         <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
