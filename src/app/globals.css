@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-nunito);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-caveat);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -40,77 +41,151 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
 }
 
+/* ==========================================================================
+   WATERCOLOR DESIGN SYSTEM - PDAyourIEP.org
+   ========================================================================== */
+
 :root {
-  /* Elegant Light Mode - Soft Zincs & Trustworthy Indigo */
-  --background: 210 40% 98%;
-  /* Soft cool white */
-  --foreground: 222 47% 11%;
+  /* ========================================
+     WATERCOLOR COLOR PALETTE
+     Extracted from reference watercolor painting
+     ======================================== */
 
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
+  /* Primary: Soft Blue - Trust, calm, professional */
+  --wc-blue: #6B8FAD;
+  --wc-blue-light: #89A8C4;
+  --wc-blue-wash: #B8C5D1;
+  --wc-blue-pale: #E3EBF1;
+  --wc-blue-dark: #4A6A87;
+  /* Darker for text - 5.5:1 contrast on cream */
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
+  /* Secondary: Warm Ochre - Warmth, creativity, invitation */
+  --wc-ochre: #D4A574;
+  --wc-ochre-light: #E5C4A0;
+  --wc-ochre-pale: #F5E6D8;
+  --wc-ochre-dark: #8A6B48;
+  /* Darker for buttons */
 
-  --primary: 243 75% 59%;
-  /* Indigo 600 - Trustworthy & Modern */
-  --primary-foreground: 210 40% 98%;
+  /* Accent: Golden Yellow - Energy, positivity, hope */
+  --wc-gold: #E8C44A;
+  --wc-gold-light: #F2D87A;
+  --wc-gold-pale: #FBF3D9;
+  --wc-gold-dark: #9A7F2E;
+  /* Darker for text on gold */
 
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
+  /* Tertiary: Sage Green - Growth, balance, nature */
+  --wc-sage: #7A9E7E;
+  --wc-sage-light: #A3BFA6;
+  --wc-sage-pale: #E0EDE1;
+  --wc-sage-dark: #4A6A4E;
+  /* Darker for text - 5.8:1 contrast */
 
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
+  /* Neutral: Warm Brown - Grounding, natural, readable */
+  /* WCAG AA requires 4.5:1 contrast for normal text, 3:1 for large text */
+  --wc-brown: #8B6F47;
+  /* Original - 4.2:1 on cream (large text only) */
+  --wc-brown-light: #A99067;
+  /* Decorative use only */
+  --wc-brown-muted: #C4B49A;
+  /* Decorative/disabled only */
+  --wc-brown-dark: #5D4930;
+  /* Body text - 7.5:1 on cream (AAA) */
+  --wc-brown-darker: #3D2F1D;
+  /* Headings - 12:1 on cream (AAA) */
 
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
+  /* Backgrounds: Paper tones */
+  --wc-cream: #F5F0E8;
+  --wc-paper: #FDFCFA;
+  --wc-ivory: #FFFEF9;
 
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
+  /* Semantic Colors */
+  --wc-success: #7A9E7E;
+  --wc-success-dark: #4A6A4E;
+  --wc-warning: #E8C44A;
+  --wc-warning-dark: #9A7F2E;
+  --wc-error: #C47A6E;
+  --wc-error-dark: #8B4D43;
 
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 243 75% 59%;
+  /* ========================================
+     THEME TOKENS (Mapped to Watercolor)
+     ======================================== */
+
+  --background: 38 30% 95%;
+  /* Cream paper */
+  --foreground: 30 32% 25%;
+  /* Warm brown */
+
+  --card: 40 33% 99%;
+  /* Soft paper white */
+  --card-foreground: 30 32% 25%;
+
+  --popover: 40 33% 99%;
+  --popover-foreground: 30 32% 25%;
+
+  --primary: 209 25% 55%;
+  /* Soft blue */
+  --primary-foreground: 40 30% 98%;
+
+  --secondary: 28 45% 65%;
+  /* Warm ochre */
+  --secondary-foreground: 30 40% 20%;
+
+  --muted: 38 25% 90%;
+  /* Pale cream */
+  --muted-foreground: 30 20% 45%;
+
+  --accent: 47 75% 60%;
+  /* Golden */
+  --accent-foreground: 30 40% 20%;
+
+  --destructive: 12 40% 55%;
+  /* Terracotta */
+  --destructive-foreground: 40 30% 98%;
+
+  --border: 38 20% 85%;
+  --input: 38 20% 85%;
+  --ring: 209 25% 55%;
 
   --radius: 0.75rem;
 }
 
+/* Dark mode - Muted watercolor tones */
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Premium Dark Mode - Deep Blue-Grays */
-    --background: 222 47% 4%;
-    /* Really dark deep blue */
-    --foreground: 210 40% 98%;
+    --background: 30 20% 8%;
+    --foreground: 38 25% 90%;
 
-    --card: 222 47% 6%;
-    --card-foreground: 210 40% 98%;
+    --card: 30 20% 12%;
+    --card-foreground: 38 25% 90%;
 
-    --popover: 222 47% 6%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 30 20% 12%;
+    --popover-foreground: 38 25% 90%;
 
-    --primary: 243 75% 65%;
-    /* Slightly lighter indigo for dark mode */
-    --primary-foreground: 222 47% 11%;
+    --primary: 209 30% 60%;
+    --primary-foreground: 30 20% 10%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 28 35% 50%;
+    --secondary-foreground: 38 25% 90%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 30 15% 18%;
+    --muted-foreground: 38 15% 60%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 47 60% 50%;
+    --accent-foreground: 30 20% 10%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 12 50% 40%;
+    --destructive-foreground: 38 25% 90%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 243 75% 65%;
+    --border: 30 15% 20%;
+    --input: 30 15% 20%;
+    --ring: 209 30% 60%;
   }
 }
 
-/* Base resets */
+/* ==========================================================================
+   BASE STYLES & RESETS
+   ========================================================================== */
+
 @layer base {
   * {
     @apply border-border;
@@ -120,4 +195,332 @@
   body {
     @apply bg-background text-foreground overflow-x-hidden max-w-[100vw];
   }
+
+  /* Smooth page texture background */
+  body {
+    background-image:
+      radial-gradient(ellipse at 20% 30%, rgba(107, 143, 173, 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(212, 165, 116, 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(232, 196, 74, 0.03) 0%, transparent 70%);
+  }
+
+  /* Typography - Display font for headings */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-caveat), cursive;
+  }
+
+  /* Ensure body text uses Nunito */
+  body {
+    font-family: var(--font-nunito), system-ui, sans-serif;
+  }
+}
+
+/* ==========================================================================
+   WATERCOLOR UTILITY CLASSES
+   For use across all pages - DESIGN SYSTEM DOCUMENTATION
+   ========================================================================== */
+
+@layer utilities {
+
+  /* ----------------------------------------
+     PAPER & TEXTURE BACKGROUNDS
+     Use on cards, sections, and containers
+     ---------------------------------------- */
+
+  /* Main card background - soft white with subtle warmth */
+  .wc-paper {
+    background-color: var(--wc-paper);
+    background-image:
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  }
+
+  /* Cream background - for sections */
+  .wc-cream {
+    background-color: var(--wc-cream);
+  }
+
+  /* ----------------------------------------
+     WATERCOLOR WASHES
+     Gradient backgrounds that mimic paint
+     ---------------------------------------- */
+
+  /* Blue wash - primary actions, headers */
+  .wc-wash-blue {
+    background: linear-gradient(135deg,
+        rgba(107, 143, 173, 0.15) 0%,
+        rgba(137, 168, 196, 0.1) 50%,
+        rgba(184, 197, 209, 0.05) 100%);
+  }
+
+  /* Ochre wash - secondary, warm sections */
+  .wc-wash-ochre {
+    background: linear-gradient(135deg,
+        rgba(212, 165, 116, 0.15) 0%,
+        rgba(229, 196, 160, 0.1) 50%,
+        rgba(245, 230, 216, 0.05) 100%);
+  }
+
+  /* Gold wash - highlights, success */
+  .wc-wash-gold {
+    background: linear-gradient(135deg,
+        rgba(232, 196, 74, 0.15) 0%,
+        rgba(242, 216, 122, 0.1) 50%,
+        rgba(251, 243, 217, 0.05) 100%);
+  }
+
+  /* Sage wash - positive, growth */
+  .wc-wash-sage {
+    background: linear-gradient(135deg,
+        rgba(122, 158, 126, 0.15) 0%,
+        rgba(163, 191, 166, 0.1) 50%,
+        rgba(224, 237, 225, 0.05) 100%);
+  }
+
+  /* Multi-color bleed - hero backgrounds, large sections */
+  .wc-wash-blend {
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(107, 143, 173, 0.2) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 30%, rgba(232, 196, 74, 0.15) 0%, transparent 40%),
+      radial-gradient(ellipse at 60% 80%, rgba(212, 165, 116, 0.15) 0%, transparent 45%),
+      radial-gradient(ellipse at 30% 70%, rgba(122, 158, 126, 0.1) 0%, transparent 40%);
+  }
+
+  /* ----------------------------------------
+     SOFT SHADOWS
+     Warmer, more organic than default shadows
+     ---------------------------------------- */
+
+  .wc-shadow-sm {
+    box-shadow: 0 2px 8px -2px rgba(139, 111, 71, 0.1);
+  }
+
+  .wc-shadow {
+    box-shadow:
+      0 4px 12px -4px rgba(139, 111, 71, 0.12),
+      0 2px 4px -2px rgba(139, 111, 71, 0.08);
+  }
+
+  .wc-shadow-lg {
+    box-shadow:
+      0 8px 24px -8px rgba(139, 111, 71, 0.15),
+      0 4px 8px -4px rgba(139, 111, 71, 0.1);
+  }
+
+  /* ----------------------------------------
+     ORGANIC BORDERS
+     Slightly irregular, painted feel
+     ---------------------------------------- */
+
+  .wc-border {
+    border: 2px solid var(--wc-ochre-light);
+    border-radius: 1rem 1.5rem 1rem 1.5rem;
+  }
+
+  .wc-border-subtle {
+    border: 1px solid rgba(212, 165, 116, 0.3);
+    border-radius: 0.75rem 1rem 0.75rem 1rem;
+  }
+
+  /* ----------------------------------------
+     PAINT STROKE DECORATIONS
+     CSS-only brush stroke effects
+     ---------------------------------------- */
+
+  /* Underline that looks hand-painted */
+  .wc-underline {
+    position: relative;
+  }
+
+  .wc-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        var(--wc-ochre) 10%,
+        var(--wc-ochre-light) 50%,
+        var(--wc-ochre) 90%,
+        transparent 100%);
+    opacity: 0.4;
+    border-radius: 50%;
+    transform: scaleY(0.3) rotate(-1deg);
+  }
+
+  /* Highlight behind text */
+  .wc-highlight {
+    background: linear-gradient(120deg,
+        transparent 0%,
+        rgba(232, 196, 74, 0.25) 10%,
+        rgba(232, 196, 74, 0.3) 50%,
+        rgba(232, 196, 74, 0.25) 90%,
+        transparent 100%);
+    padding: 0 0.25rem;
+    border-radius: 0.25rem;
+  }
+
+  /* ----------------------------------------
+     STATUS COLORS
+     Semantic colors with watercolor feel
+     ---------------------------------------- */
+
+  /* Good/Success state */
+  .wc-status-good {
+    background: linear-gradient(135deg, var(--wc-sage-pale) 0%, rgba(122, 158, 126, 0.1) 100%);
+    border-left: 4px solid var(--wc-sage);
+  }
+
+  /* Warning/Opportunity state */
+  .wc-status-warning {
+    background: linear-gradient(135deg, var(--wc-gold-pale) 0%, rgba(232, 196, 74, 0.1) 100%);
+    border-left: 4px solid var(--wc-gold);
+  }
+
+  /* Error/Remove state */
+  .wc-status-error {
+    background: linear-gradient(135deg, rgba(196, 122, 110, 0.1) 0%, rgba(196, 122, 110, 0.05) 100%);
+    border-left: 4px solid var(--wc-error);
+  }
+
+  /* ----------------------------------------
+     CARD STYLES
+     Pre-composed card variants
+     ---------------------------------------- */
+
+  .wc-card {
+    background-color: var(--wc-paper);
+    background-image:
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    box-shadow:
+      0 4px 12px -4px rgba(139, 111, 71, 0.12),
+      0 2px 4px -2px rgba(139, 111, 71, 0.08);
+    border-radius: 1rem;
+    border: 1px solid var(--wc-ochre-pale);
+  }
+
+  .wc-card-hover {
+    background-color: var(--wc-paper);
+    background-image:
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    box-shadow:
+      0 4px 12px -4px rgba(139, 111, 71, 0.12),
+      0 2px 4px -2px rgba(139, 111, 71, 0.08);
+    border-radius: 1rem;
+    border: 1px solid var(--wc-ochre-pale);
+    transition: all 0.3s ease;
+  }
+
+  .wc-card-hover:hover {
+    box-shadow:
+      0 8px 24px -8px rgba(139, 111, 71, 0.15),
+      0 4px 8px -4px rgba(139, 111, 71, 0.1);
+    transform: translateY(-0.25rem);
+  }
+
+  /* ----------------------------------------
+     TYPOGRAPHY HELPERS
+     ---------------------------------------- */
+
+  /* Display font (Caveat) for special headings */
+  .font-display {
+    font-family: var(--font-caveat), cursive;
+  }
+
+  /* Warm brown text */
+  .text-warm {
+    color: var(--wc-brown);
+  }
+
+  .text-warm-muted {
+    color: var(--wc-brown-muted);
+  }
+
+  /* ----------------------------------------
+     ANIMATIONS
+     Subtle, organic movements
+     ---------------------------------------- */
+
+  @keyframes wc-float {
+
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+      transform: translateY(-8px) rotate(1deg);
+    }
+  }
+
+  @keyframes wc-spread {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-wc-float {
+    animation: wc-float 6s ease-in-out infinite;
+  }
+
+  .animate-wc-spread {
+    animation: wc-spread 0.6s ease-out forwards;
+  }
+}
+
+/* ==========================================================================
+   WATERCOLOR OVERLAY FILTER
+   Apply to images for watercolor blend effect
+   ========================================================================== */
+
+.wc-overlay {
+  position: relative;
+}
+
+.wc-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg,
+      rgba(107, 143, 173, 0.4) 0%,
+      rgba(232, 196, 74, 0.2) 25%,
+      rgba(212, 165, 116, 0.3) 50%,
+      rgba(122, 158, 126, 0.2) 75%,
+      rgba(107, 143, 173, 0.3) 100%);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+/* Stronger overlay variant */
+.wc-overlay-strong::after {
+  background:
+    linear-gradient(135deg,
+      rgba(107, 143, 173, 0.6) 0%,
+      rgba(232, 196, 74, 0.35) 25%,
+      rgba(212, 165, 116, 0.45) 50%,
+      rgba(122, 158, 126, 0.35) 75%,
+      rgba(107, 143, 173, 0.5) 100%);
+  mix-blend-mode: multiply;
+}
+
+/* Add paper texture over images */
+.wc-overlay-paper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 1;
 }

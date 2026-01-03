@@ -8,15 +8,15 @@ import { HeartHandshake } from "lucide-react"
 
 export function Navbar() {
     return (
-        <header className="fixed top-0 w-full z-50 bg-white border-b border-indigo-100 shadow-sm">
-            {/* Top Utility Bar */}
-            <div className="bg-slate-50 border-b border-indigo-50/50 block">
-                <div className="container mx-auto px-4 md:px-6 h-9 flex items-center justify-end gap-6 text-xs font-medium text-slate-500">
-                    <Link className="flex items-center gap-1.5 hover:text-indigo-600 transition-colors" href="/support">
+        <header className="fixed top-0 w-full z-50 bg-white border-b border-[var(--wc-ochre-pale)]">
+            {/* Top Utility Bar - Warm cream with subtle texture */}
+            <div className="bg-[var(--wc-cream)] border-b border-[var(--wc-ochre-pale)]/50">
+                <div className="container mx-auto px-4 md:px-6 h-9 flex items-center justify-end gap-6 text-xs font-medium text-[var(--wc-brown-dark)]">
+                    <Link className="flex items-center gap-1.5 hover:text-[var(--wc-blue-dark)] transition-colors" href="/support">
                         <HeartHandshake className="h-3.5 w-3.5" />
                         Support & Donate
                     </Link>
-                    <Link className="hover:text-indigo-600 transition-colors" href="/privacy">
+                    <Link className="hover:text-[var(--wc-blue-dark)] transition-colors" href="/privacy">
                         Your Privacy
                     </Link>
                 </div>
@@ -31,33 +31,40 @@ export function Navbar() {
                                 src="/logo.png"
                                 alt="PDA Your IEP Logo"
                                 fill
-                                className="object-contain"
+                                className="object-contain mix-blend-multiply"
                             />
                         </div>
-                        <span className="font-bold text-xl text-slate-900 group-hover:text-indigo-700 transition-colors">PDA Your IEP</span>
+                        <span className="font-display font-bold text-2xl text-[var(--wc-brown-darker)] group-hover:text-[var(--wc-blue-dark)] transition-colors">
+                            PDA Your IEP
+                        </span>
                     </Link>
                 </div>
 
-                <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-                    <Link className="text-slate-600 hover:text-indigo-600 transition-colors" href="/analyze">
+                <nav className="hidden md:flex items-center gap-8 text-sm font-semibold">
+                    <Link className="relative text-[var(--wc-brown-dark)] hover:text-[var(--wc-blue-dark)] transition-colors group" href="/analyze">
                         Analyze IEP
+                        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[var(--wc-ochre)] group-hover:w-full transition-all duration-300 rounded-full"></span>
                     </Link>
-                    <Link className="text-slate-600 hover:text-indigo-600 transition-colors" href="/how-it-works">
+                    <Link className="relative text-[var(--wc-brown-dark)] hover:text-[var(--wc-blue-dark)] transition-colors group" href="/how-it-works">
                         How it Works
+                        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[var(--wc-ochre)] group-hover:w-full transition-all duration-300 rounded-full"></span>
                     </Link>
-                    <Link className="text-slate-600 hover:text-indigo-600 transition-colors" href="/behavior-report">
+                    <Link className="relative text-[var(--wc-brown-dark)] hover:text-[var(--wc-blue-dark)] transition-colors group" href="/behavior-report">
                         Behavior Reports
+                        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[var(--wc-ochre)] group-hover:w-full transition-all duration-300 rounded-full"></span>
                     </Link>
-                    <Link className="text-slate-600 hover:text-indigo-600 transition-colors" href="/accommodations">
+                    <Link className="relative text-[var(--wc-brown-dark)] hover:text-[var(--wc-blue-dark)] transition-colors group" href="/accommodations">
                         Accommodations Library
+                        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[var(--wc-ochre)] group-hover:w-full transition-all duration-300 rounded-full"></span>
                     </Link>
-                    <Link className="text-slate-600 hover:text-indigo-600 transition-colors" href="/other-tools">
+                    <Link className="relative text-[var(--wc-brown-dark)] hover:text-[var(--wc-blue-dark)] transition-colors group" href="/other-tools">
                         Other Tools
+                        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[var(--wc-ochre)] group-hover:w-full transition-all duration-300 rounded-full"></span>
                     </Link>
                 </nav>
 
                 <div className="flex items-center gap-4">
-                    <Link href="/analyze" className={cn(buttonVariants({ variant: "premium", size: "default" }), "hidden md:inline-flex font-semibold shadow-md shadow-indigo-500/20")}>
+                    <Link href="/analyze" className={cn(buttonVariants({ variant: "watercolor", size: "default" }), "hidden md:inline-flex font-semibold rounded-full")}>
                         Analyze IEP Now
                     </Link>
                     <MobileNav />

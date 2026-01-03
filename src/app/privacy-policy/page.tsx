@@ -10,20 +10,20 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
     return (
-        <div className="min-h-screen flex flex-col bg-slate-50">
+        <div className="min-h-screen flex flex-col bg-[var(--wc-cream)]">
             <Navbar />
             <main className="flex-1 container mx-auto pt-32 pb-16 px-4 md:px-6 max-w-4xl">
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12">
-                    <div className="mb-8 p-4 bg-indigo-50 border border-indigo-100 rounded-xl">
-                        <p className="text-sm text-indigo-900 font-medium text-center">
+                <div className="wc-card p-8 md:p-12">
+                    <div className="mb-8 p-4 bg-[var(--wc-blue-pale)] border border-[var(--wc-blue)]/30 rounded-xl">
+                        <p className="text-sm text-[var(--wc-blue-dark)] font-medium text-center">
                             Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                         </p>
                     </div>
 
-                    <div className="prose prose-slate max-w-none">
-                        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-6">Privacy Policy</h1>
+                    <div className="prose prose-slate max-w-none prose-headings:text-[var(--wc-brown-darker)] prose-headings:font-display prose-p:text-[var(--wc-brown-dark)] prose-li:text-[var(--wc-brown-dark)] prose-strong:text-[var(--wc-brown-darker)]">
+                        <h1 className="text-3xl md:text-4xl font-display font-bold tracking-tight text-[var(--wc-brown-darker)] mb-6">Privacy Policy</h1>
 
-                        <p className="lead text-lg text-slate-600">
+                        <p className="lead text-lg text-[var(--wc-brown-dark)]">
                             Your privacy is critically important to us. At PDA Your IEP ("we", "us", or "our"), we have a few fundamental principles:
                         </p>
                         <ul className="text-slate-600">

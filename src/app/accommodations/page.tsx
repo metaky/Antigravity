@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 
 const AccommodationsPage = () => {
     return (
-        <div className="min-h-screen flex flex-col bg-slate-50">
+        <div className="min-h-screen flex flex-col bg-[var(--wc-cream)]">
             <Navbar />
 
             <main className="flex-1 pt-40 pb-20">
@@ -30,26 +30,26 @@ const AccommodationsPage = () => {
 
                     {/* Header */}
                     <div className="text-center mb-16 space-y-6 relative">
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] max-w-[90vw] h-[300px] bg-gradient-to-r from-indigo-200 via-purple-200 to-rose-200 blur-3xl rounded-full -z-10 opacity-40"></div>
-                        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] max-w-[90vw] h-[300px] wc-wash-blend blur-2xl rounded-full -z-10 opacity-60"></div>
+                        <h1 className="text-4xl md:text-5xl font-display font-extrabold tracking-tight text-[var(--wc-brown-darker)]">
                             The PDA Accommodations Library
                         </h1>
-                        <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-                            While general autism accommodations often focus on structure, routine, and clear instruction, <strong className="text-slate-900 font-semibold">PDA accommodations must prioritize autonomy, flexibility, and anxiety reduction.</strong>
+                        <p className="text-xl text-[var(--wc-brown-dark)] max-w-3xl mx-auto leading-relaxed">
+                            While general autism accommodations often focus on structure, routine, and clear instruction, <strong className="text-[var(--wc-brown-darker)] font-semibold">PDA accommodations must prioritize autonomy, flexibility, and anxiety reduction.</strong>
                         </p>
-                        <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed mt-6">
-                            In many cases, standard autism strategies (like rigid visual schedules or reward charts) can actually <strong className="text-slate-900 font-semibold">trigger PDA anxiety</strong>, making the behavior worse.
+                        <p className="text-xl text-[var(--wc-brown-dark)] max-w-3xl mx-auto leading-relaxed mt-6">
+                            In many cases, standard autism strategies (like rigid visual schedules or reward charts) can actually <strong className="text-[var(--wc-brown-darker)] font-semibold">trigger PDA anxiety</strong>, making the behavior worse.
                         </p>
                     </div>
 
                     <div className="space-y-20">
                         {/* Section 1: Language */}
                         <section className="space-y-8">
-                            <div className="flex items-center gap-4 border-b border-indigo-200 pb-4">
-                                <div className="h-12 w-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
+                            <div className="flex items-center gap-4 border-b border-[var(--wc-blue)]/30 pb-4">
+                                <div className="h-12 w-12 bg-[var(--wc-blue-pale)] rounded-xl flex items-center justify-center text-[var(--wc-blue-dark)]">
                                     <MessageCircle className="h-6 w-6" aria-hidden="true" />
                                 </div>
-                                <h2 className="text-3xl font-bold text-slate-900">I. Language & Communication</h2>
+                                <h2 className="text-3xl font-display font-bold text-[var(--wc-brown-darker)]">I. Language & Communication</h2>
                             </div>
 
                             <div className="grid gap-6">
@@ -78,11 +78,11 @@ const AccommodationsPage = () => {
 
                         {/* Section 2: Structure */}
                         <section className="space-y-8">
-                            <div className="flex items-center gap-4 border-b border-purple-200 pb-4">
-                                <div className="h-12 w-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
+                            <div className="flex items-center gap-4 border-b border-[var(--wc-ochre)]/30 pb-4">
+                                <div className="h-12 w-12 bg-[var(--wc-ochre-pale)] rounded-xl flex items-center justify-center text-[var(--wc-ochre-dark)]">
                                     <CalendarClock className="h-6 w-6" aria-hidden="true" />
                                 </div>
-                                <h2 className="text-3xl font-bold text-slate-900">II. Schedule, Structure & Flexibility</h2>
+                                <h2 className="text-3xl font-display font-bold text-[var(--wc-brown-darker)]">II. Schedule, Structure & Flexibility</h2>
                             </div>
 
                             <div className="grid gap-6">
@@ -111,11 +111,11 @@ const AccommodationsPage = () => {
 
                         {/* Section 3: Social */}
                         <section className="space-y-8">
-                            <div className="flex items-center gap-4 border-b border-emerald-200 pb-4">
-                                <div className="h-12 w-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600">
+                            <div className="flex items-center gap-4 border-b border-[var(--wc-sage)]/30 pb-4">
+                                <div className="h-12 w-12 bg-[var(--wc-sage-pale)] rounded-xl flex items-center justify-center text-[var(--wc-sage-dark)]">
                                     <HeartHandshake className="h-6 w-6" aria-hidden="true" />
                                 </div>
-                                <h2 className="text-3xl font-bold text-slate-900">III. Behavioral & Social Approaches</h2>
+                                <h2 className="text-3xl font-display font-bold text-[var(--wc-brown-darker)]">III. Behavioral & Social Approaches</h2>
                             </div>
 
                             <div className="grid gap-6">
@@ -175,57 +175,57 @@ function AccommodationCard({
     hideComparison?: boolean
 }) {
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
+        <div className="wc-card overflow-hidden hover:shadow-lg transition-shadow">
             <div className="p-6 md:p-8 space-y-6">
                 <div>
-                    <h3 className="text-xl font-bold text-slate-900">{title}</h3>
-                    {subtitle && <p className="text-slate-500 font-medium">{subtitle}</p>}
+                    <h3 className="text-xl font-display font-bold text-[var(--wc-brown-darker)]">{title}</h3>
+                    {subtitle && <p className="text-[var(--wc-brown-muted)] font-medium">{subtitle}</p>}
                 </div>
 
-                <p className="text-lg text-slate-700 leading-relaxed border-l-4 border-indigo-500 pl-4 bg-slate-50 py-2 pr-2 rounded-r-lg">
+                <p className="text-lg text-[var(--wc-brown-dark)] leading-relaxed border-l-4 border-[var(--wc-blue)] pl-4 bg-[var(--wc-cream)] py-2 pr-2 rounded-r-lg">
                     {description}
                 </p>
 
                 {example && (
-                    <div className="bg-slate-100 p-4 rounded-lg text-slate-700 italic">
-                        <span className="font-semibold not-italic text-slate-900 mr-2">Example:</span>
+                    <div className="bg-[var(--wc-ochre-pale)] p-4 rounded-lg text-[var(--wc-brown-dark)] italic">
+                        <span className="font-semibold not-italic text-[var(--wc-brown-darker)] mr-2">Example:</span>
                         {example}
                     </div>
                 )}
 
                 {!hideComparison && (asdApproach || pdaApproach) && (
                     <div className="grid md:grid-cols-2 gap-4 mt-6">
-                        <div className="bg-gray-50 p-5 rounded-xl border border-gray-100">
-                            <div className="flex items-center gap-2 mb-2 text-gray-500 font-bold uppercase text-xs tracking-wider">
+                        <div className="bg-[var(--wc-cream)] p-5 rounded-xl border border-[var(--wc-ochre-pale)]">
+                            <div className="flex items-center gap-2 mb-2 text-[var(--wc-brown-muted)] font-bold uppercase text-xs tracking-wider">
                                 <Users className="h-4 w-4" aria-hidden="true" />
                                 Standard ASD
                             </div>
-                            <p className="text-gray-700 text-sm leading-relaxed">{asdApproach}</p>
+                            <p className="text-[var(--wc-brown-dark)] text-sm leading-relaxed">{asdApproach}</p>
                         </div>
-                        <div className="bg-indigo-50 p-5 rounded-xl border border-indigo-100 relative">
+                        <div className="bg-[var(--wc-blue-pale)] p-5 rounded-xl border border-[var(--wc-blue)]/30 relative">
                             <div className="absolute top-0 right-0 p-3">
-                                <CheckCircle2 className="h-5 w-5 text-indigo-500 opacity-20" aria-hidden="true" />
+                                <CheckCircle2 className="h-5 w-5 text-[var(--wc-blue)] opacity-20" aria-hidden="true" />
                             </div>
-                            <div className="flex items-center gap-2 mb-2 text-indigo-700 font-bold uppercase text-xs tracking-wider">
+                            <div className="flex items-center gap-2 mb-2 text-[var(--wc-blue-dark)] font-bold uppercase text-xs tracking-wider">
                                 <BrainCircuit className="h-4 w-4" aria-hidden="true" />
                                 PDA Specific
                             </div>
-                            <p className="text-indigo-900 text-sm leading-relaxed font-medium">{pdaApproach}</p>
+                            <p className="text-[var(--wc-blue-dark)] text-sm leading-relaxed font-medium">{pdaApproach}</p>
                         </div>
                     </div>
                 )}
 
                 {(rationale || source) && (
-                    <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-6 text-sm">
+                    <div className="pt-4 border-t border-[var(--wc-ochre-pale)] flex flex-col sm:flex-row gap-6 text-sm">
                         {rationale && (
                             <div className="flex-1">
-                                <span className="font-bold text-slate-900 block mb-1">Why it works:</span>
-                                <p className="text-slate-600">{rationale}</p>
+                                <span className="font-bold text-[var(--wc-brown-darker)] block mb-1">Why it works:</span>
+                                <p className="text-[var(--wc-brown-dark)]">{rationale}</p>
                             </div>
                         )}
                         {source && (
-                            <div className="sm:max-w-[200px] text-slate-400">
-                                <span className="font-bold text-slate-500 block mb-1 flex items-center gap-1">
+                            <div className="sm:max-w-[200px] text-[var(--wc-brown-muted)]">
+                                <span className="font-bold text-[var(--wc-brown)] block mb-1 flex items-center gap-1">
                                     <BookOpen className="h-3 w-3" aria-hidden="true" /> Source:
                                 </span>
                                 <p className="italic text-xs">{source}</p>

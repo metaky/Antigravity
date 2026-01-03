@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
     {
         variants: {
             variant: {
@@ -17,7 +17,56 @@ const buttonVariants = cva(
                     "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
                 ghost: "hover:bg-accent hover:text-accent-foreground",
                 link: "text-primary underline-offset-4 hover:underline",
-                premium: "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 border border-indigo-500/20",
+
+                // Watercolor primary button - flowing blue gradient
+                watercolor: `
+                    relative overflow-hidden
+                    bg-gradient-to-r from-[#6B8FAD] via-[#89A8C4] to-[#7A9E7E]
+                    text-white font-semibold
+                    shadow-lg shadow-[#6B8FAD]/25
+                    hover:shadow-xl hover:shadow-[#6B8FAD]/30
+                    hover:scale-[1.02]
+                    border border-white/20
+                    before:absolute before:inset-0 
+                    before:bg-gradient-to-t before:from-black/10 before:to-white/10
+                    before:opacity-0 hover:before:opacity-100 before:transition-opacity
+                `,
+
+                // Ochre/warm secondary button
+                ochre: `
+                    bg-gradient-to-r from-[#D4A574] to-[#E5C4A0]
+                    text-[#5D4E37] font-semibold
+                    shadow-md shadow-[#D4A574]/20
+                    hover:shadow-lg hover:shadow-[#D4A574]/30
+                    hover:scale-[1.02]
+                    border border-white/30
+                `,
+
+                // Organic outline with hand-drawn feel
+                "outline-organic": `
+                    bg-transparent
+                    border-2 border-[#D4A574]/60
+                    text-[#8B6F47]
+                    hover:bg-[#F5F0E8] hover:border-[#D4A574]
+                    rounded-[0.75rem_1rem_0.75rem_1rem]
+                `,
+
+                // Ghost with watercolor hover
+                "ghost-warm": `
+                    text-[#8B6F47]
+                    hover:bg-gradient-to-r hover:from-[#F5E6D8]/50 hover:to-[#E3EBF1]/50
+                `,
+
+                // Legacy premium (keeping for backwards compatibility)
+                premium: `
+                    bg-gradient-to-r from-[#6B8FAD] via-[#89A8C4] to-[#7A9E7E]
+                    text-white font-semibold
+                    shadow-lg shadow-[#6B8FAD]/25
+                    hover:shadow-xl hover:shadow-[#6B8FAD]/30
+                    hover:scale-105
+                    border border-white/20
+                    transition-all duration-300
+                `,
             },
             size: {
                 default: "h-9 px-4 py-2",
