@@ -21,8 +21,12 @@ const geistMono = Geist_Mono({
 
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://pdayouriep.org"),
   title: "PDA Your IEP | AI-Powered Advocacy for IEPs & 504s",
   description: "Empower your child's education with AI-driven IEP and 504 Plan analysis. Upload, evaluate, and advocate with confidence.",
+  alternates: {
+    canonical: "/",
+  },
 };
 
 import { PostHogSnippet } from "@/components/posthog-snippet";
