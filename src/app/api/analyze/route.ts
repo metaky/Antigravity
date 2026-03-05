@@ -29,18 +29,8 @@ export async function POST(req: NextRequest) {
         );
     }
 
-    // 1. Rate Limiting & Blocklist Check
+    // 1. Rate Limiting
     const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
-    const userAgent = req.headers.get("user-agent") || "";
-
-    // Explicit blocklist for known bad actors
-    if (ip === "163.116.133.116" || userAgent.includes("Chrome/145")) {
-        console.warn(`Blocked request from banned IP/UA - IP: ${ip}, UA: ${userAgent}`);
-        return NextResponse.json(
-            { error: "Access denied." },
-            { status: 403 }
-        );
-    }
 
     if (ratelimit) {
         try {
