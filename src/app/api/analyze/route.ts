@@ -24,6 +24,14 @@ function isRateLimited(ip: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
+    // 0. Emergency Kill Switch
+    if (process.env.MAINTENANCE_MODE === 'true') {
+        return NextResponse.json(
+            { error: "Service is temporarily unavailable due to high usage. Please try again later." },
+            { status: 503 }
+        );
+    }
+
     // 1. Rate Limiting Check
     const ip = req.headers.get("x-forwarded-for") || "unknown";
     if (isRateLimited(ip)) {
