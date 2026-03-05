@@ -1,25 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { RagEngine } from "@/lib/rag-engine";
 
-// Simple in-memory rate limiter
-const rateLimit = new Map<string, { count: number; windowStart: number }>();
-const WINDOW_MS = 60 * 1000; // 1 minute
-const MAX_REQUESTS = 5; // 5 requests per minute
+import { Redis } from "@upstash/redis";
+import { Ratelimit } from "@upstash/ratelimit";
 
-function isRateLimited(ip: string): boolean {
-    const now = Date.now();
-    const record = rateLimit.get(ip) || { count: 0, windowStart: now };
+// Use Upstash Redis for distributed rate limiting across serverless containers
+const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-    if (now - record.windowStart > WINDOW_MS) {
-        record.count = 1;
-        record.windowStart = now;
-    } else {
-        record.count++;
-    }
+const redis = redisUrl && redisToken ? new Redis({
+    url: redisUrl,
+    token: redisToken,
+}) : null;
 
-    rateLimit.set(ip, record);
-    return record.count > MAX_REQUESTS;
-}
+// Create a new ratelimiter, that allows 5 requests per 1 minute
+const ratelimit = redis ? new Ratelimit({
+    redis: redis,
+    limiter: Ratelimit.slidingWindow(5, "1 m"),
+    analytics: true,
+}) : null;
 
 export async function POST(req: NextRequest) {
     // 0. Emergency Kill Switch
@@ -31,12 +30,21 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Rate Limiting Check
-    const ip = req.headers.get("x-forwarded-for") || "unknown";
-    if (isRateLimited(ip)) {
-        return NextResponse.json(
-            { error: "Too many requests. Please try again in a minute." },
-            { status: 429 }
-        );
+    const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
+
+    if (ratelimit) {
+        try {
+            const { success } = await ratelimit.limit(`ratelimit_behavior_${ip}`);
+            if (!success) {
+                return NextResponse.json(
+                    { error: "Too many requests. Please try again in a minute." },
+                    { status: 429 }
+                );
+            }
+        } catch (err) {
+            console.error("Rate limiting failed, allowing request:", err);
+            // Fail open if Redis is down
+        }
     }
 
     try {
