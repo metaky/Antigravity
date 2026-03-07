@@ -165,6 +165,16 @@ export default function AnalyzePage() {
                 `}</style>
                 <div className="print:hidden"><Navbar /></div>
 
+                {/* Maintenance Banner */}
+                <div className="bg-amber-50 border-b-2 border-amber-300 py-4 px-4 text-center print:hidden">
+                    <div className="container mx-auto flex items-center justify-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600 shrink-0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                        <p className="text-amber-800 font-semibold text-sm md:text-base">
+                            🚧 Site is currently going through maintenance updates. Some features may be temporarily unavailable. 🚧
+                        </p>
+                    </div>
+                </div>
+
                 <main className="flex-1 container mx-auto pt-40 pb-12 px-4 md:px-6 print:pt-4 print:pb-4 print:max-w-none">
                     <div className="max-w-5xl mx-auto space-y-8">
                         {/* Print Header */}
@@ -367,6 +377,17 @@ export default function AnalyzePage() {
     return (
         <div className="min-h-screen flex flex-col bg-muted/10">
             <Navbar />
+
+            {/* Maintenance Banner */}
+            <div className="bg-amber-50 border-b-2 border-amber-300 py-4 px-4 text-center">
+                <div className="container mx-auto flex items-center justify-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600 shrink-0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                    <p className="text-amber-800 font-semibold text-sm md:text-base">
+                        🚧 Site is currently going through maintenance updates. Some features may be temporarily unavailable. 🚧
+                    </p>
+                </div>
+            </div>
+
             <main className="flex-1 container mx-auto pt-40 pb-12 px-4 md:px-6">
                 <div className="max-w-2xl mx-auto space-y-8">
                     <div className="text-center space-y-4">
@@ -378,7 +399,14 @@ export default function AnalyzePage() {
                         </p>
                     </div>
 
-                    <UploadZone onFileSelect={handleFileSelect} isProcessing={isProcessing} />
+                    {/* Upload Zone disabled during maintenance */}
+                    <div className="bg-slate-100 border-2 border-dashed border-slate-300 rounded-xl p-12 text-center">
+                        <div className="flex flex-col items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                            <p className="text-2xl font-bold text-slate-500">Out of Order</p>
+                            <p className="text-slate-400 text-sm">This feature is temporarily unavailable during maintenance.</p>
+                        </div>
+                    </div>
 
                     {/* What You'll Receive */}
                     <div className="bg-white rounded-xl border p-6 space-y-4">
