@@ -47,6 +47,23 @@ export default function BehaviorReportPage() {
     const [error, setError] = useState<string | null>(null)
     const [savedSessions, setSavedSessions] = useState<BehaviorReportSession[]>([])
     const [currentFileNames, setCurrentFileNames] = useState<{ behavior: string; iep: string } | null>(null)
+    const [challengeId, setChallengeId] = useState<string | null>(null)
+
+    // Fetch challenge token on mount
+    useEffect(() => {
+        const fetchChallenge = async () => {
+            try {
+                const res = await fetch("/api/challenge")
+                const data = await res.json()
+                if (data.challengeId) {
+                    setChallengeId(data.challengeId)
+                }
+            } catch (e) {
+                console.error("Failed to fetch challenge", e)
+            }
+        }
+        fetchChallenge()
+    }, [])
 
     // Load sessions on mount
     useEffect(() => {
@@ -106,6 +123,9 @@ export default function BehaviorReportPage() {
 
             const response = await fetch("/api/behavior-report", {
                 method: "POST",
+                headers: {
+                    "X-Challenge-Id": challengeId || "",
+                },
                 body: formData
             })
 
