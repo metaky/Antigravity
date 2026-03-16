@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import { MobileNav } from "@/components/mobile-nav"
 import { cn } from "@/lib/utils"
 

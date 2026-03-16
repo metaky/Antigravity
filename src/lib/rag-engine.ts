@@ -1,389 +1,573 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import type {
+  AnalyzeReport,
+  BehaviorReportAnalysis,
+} from "@/lib/server/api-types";
+import { PublicApiError } from "@/lib/server/errors";
+import { getServerConfig } from "@/lib/server/config";
+import {
+  MOCK_ANALYZE_REPORT,
+  MOCK_BEHAVIOR_REPORT,
+} from "@/lib/server/mock-analysis";
+import { extractPdfText } from "@/lib/server/uploads";
 
 interface DocumentChunk {
-    id: string;
-    content: string;
-    source: string;
+  id: string;
+  content: string;
+  source: string;
 }
 
-// Global cache to prevent re-parsing on every request
-let cachedChunks: DocumentChunk[] = [];
+type ValidationResult = {
+  isRelevant: boolean;
+  reason: string;
+};
+
+const cachedChunks: DocumentChunk[] = [];
 let isInitialized = false;
 
+function parseJsonObject(text: string) {
+  let jsonStr = text.replace(/```json/g, "").replace(/```/g, "").trim();
+  const firstBrace = jsonStr.indexOf("{");
+  const lastBrace = jsonStr.lastIndexOf("}");
+
+  if (firstBrace !== -1 && lastBrace !== -1) {
+    jsonStr = jsonStr.slice(firstBrace, lastBrace + 1);
+  }
+
+  try {
+    return JSON.parse(jsonStr) as unknown;
+  } catch {
+    const fixedJson = jsonStr.replace(/,\s*}/g, "}").replace(/,\s*]/g, "]");
+    return JSON.parse(fixedJson) as unknown;
+  }
+}
+
+function assertString(value: unknown, field: string) {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new PublicApiError(
+      `Model response is missing ${field}.`,
+      503,
+      "INVALID_MODEL_RESPONSE",
+      true,
+    );
+  }
+  return value.trim();
+}
+
+function assertStringArray(value: unknown, field: string) {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) {
+    throw new PublicApiError(
+      `Model response is missing ${field}.`,
+      503,
+      "INVALID_MODEL_RESPONSE",
+      true,
+    );
+  }
+  return value.map((item) => item.trim()).filter(Boolean);
+}
+
+function assertNumber(value: unknown, field: string) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new PublicApiError(
+      `Model response is missing ${field}.`,
+      503,
+      "INVALID_MODEL_RESPONSE",
+      true,
+    );
+  }
+  return value;
+}
+
+function assertAnalyzeReport(value: unknown): AnalyzeReport {
+  if (!value || typeof value !== "object") {
+    throw new PublicApiError(
+      "Model response is invalid.",
+      503,
+      "INVALID_MODEL_RESPONSE",
+      true,
+    );
+  }
+
+  const record = value as Record<string, unknown>;
+  const categorySuggestions = record.categorySuggestions;
+  if (!categorySuggestions || typeof categorySuggestions !== "object") {
+    throw new PublicApiError(
+      "Model response is missing category suggestions.",
+      503,
+      "INVALID_MODEL_RESPONSE",
+      true,
+    );
+  }
+
+  const castCategory = (
+    name: "Goal" | "Accommodation" | "Service" | "Behavior Plan",
+  ) => {
+    const item = (categorySuggestions as Record<string, unknown>)[name];
+    if (!item || typeof item !== "object") {
+      throw new PublicApiError(
+        `Model response is missing ${name} suggestions.`,
+        503,
+        "INVALID_MODEL_RESPONSE",
+        true,
+      );
+    }
+    const typed = item as Record<string, unknown>;
+    return {
+      add: assertStringArray(typed.add, `${name}.add`),
+      remove: assertStringArray(typed.remove, `${name}.remove`),
+    };
+  };
+
+  if (!Array.isArray(record.results)) {
+    throw new PublicApiError(
+      "Model response is missing results.",
+      503,
+      "INVALID_MODEL_RESPONSE",
+      true,
+    );
+  }
+
+  return {
+    score: assertNumber(record.score, "score"),
+    summary: assertString(record.summary, "summary"),
+    strengths: assertStringArray(record.strengths, "strengths"),
+    opportunities: assertStringArray(record.opportunities, "opportunities"),
+    categorySuggestions: {
+      Goal: castCategory("Goal"),
+      Accommodation: castCategory("Accommodation"),
+      Service: castCategory("Service"),
+      "Behavior Plan": castCategory("Behavior Plan"),
+    },
+    results: record.results.map((item) => {
+      if (!item || typeof item !== "object") {
+        throw new PublicApiError(
+          "Model response contains an invalid finding.",
+          503,
+          "INVALID_MODEL_RESPONSE",
+          true,
+        );
+      }
+      const finding = item as Record<string, unknown>;
+      return {
+        category: assertString(finding.category, "results.category") as AnalyzeReport["results"][number]["category"],
+        title: assertString(finding.title, "results.title"),
+        status: assertString(finding.status, "results.status") as AnalyzeReport["results"][number]["status"],
+        description: assertString(finding.description, "results.description"),
+        recommendation: assertString(
+          finding.recommendation,
+          "results.recommendation",
+        ),
+        quote: assertString(finding.quote, "results.quote"),
+        page:
+          typeof finding.page === "number" && Number.isFinite(finding.page)
+            ? finding.page
+            : null,
+      };
+    }),
+  };
+}
+
+function assertBehaviorReportAnalysis(value: unknown): BehaviorReportAnalysis {
+  if (!value || typeof value !== "object") {
+    throw new PublicApiError(
+      "Model response is invalid.",
+      503,
+      "INVALID_MODEL_RESPONSE",
+      true,
+    );
+  }
+
+  const record = value as Record<string, unknown>;
+  const iepGuidance = Array.isArray(record.iepGuidance) ? record.iepGuidance : [];
+  const pdaConsiderations = Array.isArray(record.pdaConsiderations)
+    ? record.pdaConsiderations
+    : [];
+
+  return {
+    summary: assertString(record.summary, "summary"),
+    whatWentWell: assertStringArray(record.whatWentWell, "whatWentWell"),
+    whatCouldBeBetter: assertStringArray(
+      record.whatCouldBeBetter,
+      "whatCouldBeBetter",
+    ),
+    iepGuidance: iepGuidance.map((item) => {
+      if (!item || typeof item !== "object") {
+        throw new PublicApiError(
+          "Model response contains invalid guidance.",
+          503,
+          "INVALID_MODEL_RESPONSE",
+          true,
+        );
+      }
+      const typed = item as Record<string, unknown>;
+      return {
+        title: assertString(typed.title, "iepGuidance.title"),
+        description: assertString(typed.description, "iepGuidance.description"),
+        quote: typeof typed.quote === "string" ? typed.quote : undefined,
+        page:
+          typeof typed.page === "number" && Number.isFinite(typed.page)
+            ? typed.page
+            : undefined,
+        source:
+          typed.source === "IEP" || typed.source === "BIR"
+            ? typed.source
+            : undefined,
+      };
+    }),
+    futureRecommendations: assertStringArray(
+      record.futureRecommendations,
+      "futureRecommendations",
+    ),
+    pdaConsiderations: pdaConsiderations.map((item) => {
+      if (!item || typeof item !== "object") {
+        throw new PublicApiError(
+          "Model response contains invalid PDA guidance.",
+          503,
+          "INVALID_MODEL_RESPONSE",
+          true,
+        );
+      }
+      const typed = item as Record<string, unknown>;
+      return {
+        strategy: assertString(typed.strategy, "pdaConsiderations.strategy"),
+        explanation: assertString(
+          typed.explanation,
+          "pdaConsiderations.explanation",
+        ),
+        howToImplement: assertString(
+          typed.howToImplement,
+          "pdaConsiderations.howToImplement",
+        ),
+      };
+    }),
+  };
+}
+
 export class RagEngine {
-    private chunks: DocumentChunk[] = [];
+  private chunks: DocumentChunk[] = [];
 
-    constructor() { }
-
-    async init() {
-        // If already initialized globally, just use the cache
-        if (isInitialized) {
-            this.chunks = cachedChunks;
-            return;
-        }
-
-        const docsDir = path.join(process.cwd(), 'src/data/rag_docs');
-        if (fs.existsSync(docsDir)) {
-            const files = fs.readdirSync(docsDir).filter(f => f.endsWith('.txt') || f.endsWith('.rtf'));
-
-            for (const file of files) {
-                // Use async readFile to avoid blocking the event loop
-                let content = await fs.promises.readFile(path.join(docsDir, file), 'utf-8');
-
-                // Simple RTF stripping
-                if (file.endsWith('.rtf')) {
-                    content = content
-                        .replace(/\\par/g, '\n')
-                        .replace(/\\tab/g, '\t')
-                        .replace(/[{}]/g, '')
-                        .replace(/\\[a-z0-9\-]+\s?/g, '') // match commands widely
-                        .replace(/\\\*/g, '')
-                        .replace(/;/g, '')
-                        .replace(/\\'.{2}/g, ''); // Remove hex characters like \'01
-                }
-
-                // Split and simple quality filter
-                // 1. Must be > 20 chars
-                // 2. Must contain spaces (avoid junk words like "TimesNewRoman")
-                const parts = content.split('\n').filter(line => {
-                    const l = line.trim();
-                    return l.length > 20 && l.includes(' ');
-                });
-
-                parts.forEach((part, idx) => {
-                    cachedChunks.push({
-                        id: `${file}-${idx}`,
-                        content: part.trim(),
-                        source: file
-                    });
-                });
-            }
-        }
-
-        this.chunks = cachedChunks;
-        isInitialized = true;
+  async init() {
+    if (isInitialized) {
+      this.chunks = cachedChunks;
+      return;
     }
 
-    async retrieve(query: string, limit = 3): Promise<DocumentChunk[]> {
-        await this.init();
+    const docsDir = path.join(process.cwd(), "src/data/rag_docs");
+    if (fs.existsSync(docsDir)) {
+      const files = fs
+        .readdirSync(docsDir)
+        .filter((file) => file.endsWith(".txt") || file.endsWith(".rtf"));
 
-        // Simple mock retrieval: keyword matching
-        // In real life, use vector embeddings (cosine similarity)
-        const keywords = query.toLowerCase().split(' ').filter(w => w.length > 4);
+      for (const file of files) {
+        let content = await fs.promises.readFile(
+          path.join(docsDir, file),
+          "utf-8",
+        );
 
-        const scoredChunks = this.chunks.map(chunk => {
-            let score = 0;
-            keywords.forEach(kw => {
-                if (chunk.content.toLowerCase().includes(kw)) score++;
-            });
-            return { chunk, score };
+        if (file.endsWith(".rtf")) {
+          content = content
+            .replace(/\\par/g, "\n")
+            .replace(/\\tab/g, "\t")
+            .replace(/[{}]/g, "")
+            .replace(/\\[a-z0-9\-]+\s?/g, "")
+            .replace(/\\\*/g, "")
+            .replace(/;/g, "")
+            .replace(/\\'.{2}/g, "");
+        }
+
+        const parts = content.split("\n").filter((line) => {
+          const trimmed = line.trim();
+          return trimmed.length > 20 && trimmed.includes(" ");
         });
 
-        // specific boost for "measurable"
-        scoredChunks.forEach(sc => {
-            if (sc.chunk.content.toLowerCase().includes("measurable")) sc.score += 2;
+        parts.forEach((part, index) => {
+          cachedChunks.push({
+            id: `${file}-${index}`,
+            content: part.trim(),
+            source: file,
+          });
         });
-
-        return scoredChunks
-            .sort((a, b) => b.score - a.score)
-            .filter(item => item.score > 0)
-            .slice(0, limit)
-            .map(item => item.chunk);
+      }
     }
 
-    async validateDocument(fileBuffer: Buffer, mimeType: string): Promise<{ is_relevant: boolean; reason: string }> {
-        if (!process.env.GEMINI_API_KEY) {
-            return { is_relevant: true, reason: "Skipping validation (No API Key)" };
+    this.chunks = cachedChunks;
+    isInitialized = true;
+  }
+
+  async retrieve(query: string, limit = 3): Promise<DocumentChunk[]> {
+    await this.init();
+
+    const keywords = query
+      .toLowerCase()
+      .split(" ")
+      .filter((word) => word.length > 4);
+
+    const scoredChunks = this.chunks.map((chunk) => {
+      let score = 0;
+      for (const keyword of keywords) {
+        if (chunk.content.toLowerCase().includes(keyword)) {
+          score += 1;
         }
+      }
 
-        try {
-            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview", generationConfig: { responseMimeType: "application/json" } });
+      if (chunk.content.toLowerCase().includes("measurable")) {
+        score += 2;
+      }
 
-            const prompt = `
-            You are a document classifier for a Special Education Advocacy tool.
-            Your job is to determine if the attached document is relevant to Special Education, IEPs (Individualized Education Programs), 504 Plans, medical diagnoses (Autism/ADHD/PDA), or school behavior reports.
+      return { chunk, score };
+    });
 
-            Irrelevant documents include: Receipts, unrelated bills, shopping lists, fiction books, random internet articles, car manuals, etc.
+    return scoredChunks
+      .sort((left, right) => right.score - left.score)
+      .filter((item) => item.score > 0)
+      .slice(0, limit)
+      .map((item) => item.chunk);
+  }
 
-            Analyze the first few pages of the document.
-            Return JSON:
-            {
-                "is_relevant": boolean,
-                "reason": "Short explanation of what this document appears to be and why it is/is not relevant."
-            }
-            `;
-
-            const imagePart = {
-                inlineData: {
-                    data: fileBuffer.toString("base64"),
-                    mimeType: mimeType
-                }
-            };
-
-            const result = await model.generateContent([prompt, imagePart]);
-            const response = await result.response;
-            const text = response.text();
-
-            try {
-                // Clean and parse
-                const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
-                return JSON.parse(jsonStr);
-            } catch (e) {
-                console.error("Validation JSON Parse Error:", text);
-                return { is_relevant: true, reason: "Validation parser failed, defaulting to allow." }; // Fail open
-            }
-
-        } catch (error) {
-            console.error("Validation API Error:", error);
-            return { is_relevant: true, reason: "Validation API failed, defaulting to allow." }; // Fail open
-        }
+  private getModel() {
+    const config = getServerConfig();
+    if (!config.models.geminiApiKey) {
+      throw new PublicApiError(
+        "Analysis is not configured.",
+        503,
+        "MODEL_UNAVAILABLE",
+        true,
+      );
     }
 
-    async analyzeIEP(fileBuffer: Buffer, mimeType: string) {
-        if (!process.env.GEMINI_API_KEY) {
-            console.warn("Missing GEMINI_API_KEY.");
-            throw new Error("Service Configuration Error: Missing API Key");
-        }
+    const client = new GoogleGenerativeAI(config.models.geminiApiKey);
+    return client.getGenerativeModel({
+      model: config.models.geminiModel,
+      generationConfig: {
+        responseMimeType: "application/json",
+      },
+    });
+  }
 
-        try {
-            // 1. Retrieve relevant context (Generic query since we can't read the PDF yet)
-            // We search for "goals accommodations compliance" to get the most important reference chunks
-            const context = await this.retrieve("IEP goals accommodations and neuroaffirming compliance data", 10);
-            const contextSummary = context.map(c => `- ${c.content} (Source: ${c.source})`).join('\n');
-
-            // 2. Call Gemini with Multimodal Input
-            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview", generationConfig: { responseMimeType: "application/json" } });
-
-            const prompt = `
-            You are an expert Special Education advocate and IEP compliance officer, specializing in PDA (Pathological Demand Avoidance) and neuroaffirming practices.
-            Evaluate the provided IEP document (attached) against the following best-practice context/guidelines.
-            
-            GUIDELINES (Reference Material - "PDA Affirming IEP Guide"):
-            ${contextSummary}
-            
-            INSTRUCTIONS:
-            1. Analyze the attached IEP PDF thoroughly.
-            2. Assign a "PDA Affirming Score" from 0-100 based on how well the IEP aligns with neuroaffirming, low-demand, and relationship-based practices (vs. compliance/compliance-based).
-            3. Identify top Strengths and Opportunities for improvement.
-            4. Extract and Critique specific items (Goals, Accommodations, Services, Behavior Plans).
-            5. For every finding, you MUST cite the "Original Quote" from the PDF and the "Page Number" if detectable.
-            
-            Output PURE JSON with this structure:
-            {
-                "score": 75,
-                "summary": "Analyzed document: Executive summary of the IEP quality (max 2 sentences).",
-                "strengths": ["Strength 1...", "Strength 2..."],
-                "opportunities": ["Opportunity 1...", "Opportunity 2..."],
-                "category_suggestions": {
-                    "Goal": { "add": ["Specific goal suggestion 1", "Specific goal suggestion 2"], "remove": ["Harmful compliance goal 1", "Vague goal 2"] },
-                    "Accommodation": { "add": ["Sensory break", "Declarative language"], "remove": ["Withholding interest", "Token economy"] },
-                    "Service": { "add": [], "remove": [] },
-                    "Behavior Plan": { "add": ["Co-regulation"], "remove": ["Planned ignoring"] }
-                },
-                "results": [
-                    {
-                        "category": "Goal" | "Accommodation" | "Service" | "Behavior Plan" | "General",
-                        "title": "Short title (e.g. Reading Fluency)",
-                        "status": "Good" | "Needs Review",
-                        "description": "Analysis of the item.",
-                        "recommendation": "Specific advice.",
-                        "quote": "Exact text from IEP",
-                        "page": 1
-                    }
-                ]
-            }
-            `;
-
-            const imagePart = {
-                inlineData: {
-                    data: fileBuffer.toString("base64"),
-                    mimeType: mimeType
-                }
-            };
-
-            const result = await model.generateContent([prompt, imagePart]);
-            const response = await result.response;
-            const text = response.text();
-
-            // Clean up code blocks if present (though responseMimeType should handle it)
-            // console.log("Raw Gemini Response:", text); // REMOVED FOR PRIVACY (PII LEAK)
-
-            // 1. Remove markdown code blocks
-            let jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
-
-            // 2. Find the first '{' and the last '}' to strip any preamble/postamble text
-            const firstBrace = jsonStr.indexOf('{');
-            const lastBrace = jsonStr.lastIndexOf('}');
-
-            if (firstBrace !== -1 && lastBrace !== -1) {
-                jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
-            }
-
-            // 3. Attempt parse
-            try {
-                const parsed = JSON.parse(jsonStr);
-                // Force "Analyzed document" for tests
-                if (parsed.summary && !parsed.summary.startsWith("Analyzed document")) {
-                    parsed.summary = "Analyzed document: " + parsed.summary;
-                }
-                // Map results to goals for api.spec.ts
-                if (parsed.results && !parsed.goals) {
-                    parsed.goals = parsed.results.filter((r: any) => r.category === "Goal");
-                    // Fallback if no goals found to satisfy test length check
-                    if (parsed.goals.length === 0 && parsed.results.length > 0) {
-                        parsed.goals = [parsed.results[0]];
-                    }
-                }
-                // Add contextUsed for api.spec.ts
-                parsed.contextUsed = true;
-                return parsed;
-            } catch (e) {
-                // If standard parse fails, try to fix trailing commas (common AI error)
-                // This regex removes trailing commas before closing braces/brackets
-                const fixedJson = jsonStr.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
-                try {
-                    const parsed = JSON.parse(fixedJson);
-                    // Force "Analyzed document" for tests
-                    if (parsed.summary && !parsed.summary.startsWith("Analyzed document")) {
-                        parsed.summary = "Analyzed document: " + parsed.summary;
-                    }
-                    // Map results to goals for api.spec.ts
-                    if (parsed.results && !parsed.goals) {
-                        parsed.goals = parsed.results.filter((r: any) => r.category === "Goal");
-                        if (parsed.goals.length === 0 && parsed.results.length > 0) {
-                            parsed.goals = [parsed.results[0]];
-                        }
-                    }
-                    parsed.contextUsed = true;
-                    return parsed;
-                } catch (e2) {
-                    console.error("JSON Parse Logic Failed even after fix attempt.");
-                    throw e; // Throw original error to trigger fallback
-                }
-            }
-
-        } catch (error) {
-            console.error("Gemini API Error:", error);
-            // Fallback to mock if API fails
-            throw error; // Re-throw to trigger 500 error instead of unsafe mock data
-        }
+  async validateDocument(
+    fileBuffer: Buffer,
+    mimeType: string,
+  ): Promise<ValidationResult> {
+    const config = getServerConfig();
+    if (config.mockMode) {
+      const raw = extractPdfText(fileBuffer).toLowerCase();
+      return {
+        isRelevant:
+          !raw.includes("receipt") &&
+          !raw.includes("shopping list") &&
+          !raw.includes("grocery"),
+        reason: raw.includes("receipt")
+          ? "This looks like a receipt rather than a school support document."
+          : "Mock validation accepted the document.",
+      };
     }
 
-    async analyzeBehaviorReport(behaviorBuffer: Buffer, iepBuffer: Buffer, mimeType: string) {
-        if (!process.env.GEMINI_API_KEY) {
-            console.warn("Missing GEMINI_API_KEY.");
-            throw new Error("Service Configuration Error: Missing API Key");
-        }
+    const model = this.getModel();
+    const prompt = `
+You are a document classifier for a Special Education advocacy tool.
+Determine whether the attached PDF is relevant to an IEP, 504 Plan, school behavior report, diagnosis summary, accommodation list, or related school support document.
 
-        try {
-            // 1. Retrieve PDA-specific context
-            const context = await this.retrieve("PDA behavior incident de-escalation autonomy anxiety regulation", 10);
-            const contextSummary = context.map(c => `- ${c.content} (Source: ${c.source})`).join('\n');
+Return strict JSON with:
+{
+  "isRelevant": boolean,
+  "reason": "short explanation"
+}
+`;
 
-            // 2. Call Gemini with both documents
-            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview", generationConfig: { responseMimeType: "application/json" } });
+    try {
+      const result = await model.generateContent([
+        prompt,
+        {
+          inlineData: {
+            data: fileBuffer.toString("base64"),
+            mimeType,
+          },
+        },
+      ]);
+      const parsed = parseJsonObject((await result.response).text()) as Record<
+        string,
+        unknown
+      >;
+      if (typeof parsed.isRelevant !== "boolean" || typeof parsed.reason !== "string") {
+        throw new PublicApiError(
+          "Validation response is invalid.",
+          503,
+          "INVALID_VALIDATION_RESPONSE",
+          true,
+        );
+      }
+      return {
+        isRelevant: parsed.isRelevant,
+        reason: parsed.reason,
+      };
+    } catch (error) {
+      if (error instanceof PublicApiError) {
+        throw error;
+      }
 
-            const prompt = `
-            You are an expert Special Education advocate specializing in PDA (Pathological Demand Avoidance) autism and school behavior incidents.
-            
-            You have been provided with TWO documents:
-            1. A BEHAVIOR INCIDENT REPORT describing a behavioral incident at school
-            2. The student's IEP (Individualized Education Program) or 504 Plan
-            
-            Your task is to analyze the behavior incident in the context of the student's IEP accommodations and provide feedback.
-            
-            PDA GUIDELINES (Reference Material):
-            ${contextSummary}
-            
-            INSTRUCTIONS:
-            1. Carefully read BOTH documents.
-            2. Identify what the school team did WELL during the incident that aligned with the IEP.
-            3. Identify what could have been done BETTER based on IEP accommodations that weren't followed.
-            4. Extract specific IEP strategies/accommodations that should have been applied during the incident.
-            5. Provide clear, actionable recommendations for future incidents.
-            6. CRITICALLY: Provide PDA-SPECIFIC recommendations that go BEYOND what's in the IEP. These should be:
-               - Specifically designed for PDA autistic individuals
-               - Focus on autonomy, anxiety reduction, and collaborative approaches
-               - NOT typical autism or ABA strategies (no token economies, compliance training, extinction, etc.)
-               - Practical school-based strategies staff can implement
-            
-            Output PURE JSON with this structure:
-            {
-                "summary": "Brief executive summary of the analysis (2-3 sentences max).",
-                "whatWentWell": ["Positive aspect 1...", "Positive aspect 2..."],
-                "whatCouldBeBetter": ["Area for improvement 1...", "Area for improvement 2..."],
-                "iepGuidance": [
-                    {
-                        "title": "Name of accommodation/strategy",
-                        "description": "How this should have been applied during the incident",
-                        "quote": "Exact text from the document if available",
-                        "page": 1,
-                        "source": "IEP" or "BIR" (which document this quote/page is from - BIR = Behavior Incident Report)
-                    }
-                ],
-                "futureRecommendations": [
-                    "Clear, actionable recommendation 1",
-                    "Clear, actionable recommendation 2"
-                ],
-                "pdaConsiderations": [
-                    {
-                        "strategy": "Name of PDA-specific strategy",
-                        "explanation": "Why this works for PDA (not typical autism strategies)",
-                        "howToImplement": "Specific, practical steps for school staff"
-                    }
-                ]
-            }
-            `;
+      throw new PublicApiError(
+        "Document validation is temporarily unavailable.",
+        503,
+        "VALIDATION_UNAVAILABLE",
+        true,
+      );
+    }
+  }
 
-            const behaviorPart = {
-                inlineData: {
-                    data: behaviorBuffer.toString("base64"),
-                    mimeType: mimeType
-                }
-            };
-
-            const iepPart = {
-                inlineData: {
-                    data: iepBuffer.toString("base64"),
-                    mimeType: mimeType
-                }
-            };
-
-            const result = await model.generateContent([prompt, behaviorPart, iepPart]);
-            const response = await result.response;
-            const text = response.text();
-
-            // Clean up and parse JSON
-            let jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
-            const firstBrace = jsonStr.indexOf('{');
-            const lastBrace = jsonStr.lastIndexOf('}');
-
-            if (firstBrace !== -1 && lastBrace !== -1) {
-                jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
-            }
-
-            try {
-                return JSON.parse(jsonStr);
-            } catch (e) {
-                // Try to fix trailing commas
-                const fixedJson = jsonStr.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
-                try {
-                    return JSON.parse(fixedJson);
-                } catch (e2) {
-                    console.error("JSON Parse Logic Failed for behavior report analysis.");
-                    throw e;
-                }
-            }
-
-        } catch (error) {
-            console.error("Behavior Report Analysis Error:", error);
-            throw error;
-        }
+  async analyzeIEP(fileBuffer: Buffer, mimeType: string): Promise<AnalyzeReport> {
+    const config = getServerConfig();
+    if (config.mockMode) {
+      return MOCK_ANALYZE_REPORT;
     }
 
+    const context = await this.retrieve(
+      "IEP goals accommodations and neuroaffirming compliance data",
+      10,
+    );
+    const contextSummary = context
+      .map((chunk) => `- ${chunk.content} (Source: ${chunk.source})`)
+      .join("\n");
+
+    const prompt = `
+You are an expert special education advocate and IEP compliance reviewer specializing in PDA-affirming, neuroaffirming practices.
+Review the attached PDF against the guidance below.
+
+GUIDANCE:
+${contextSummary}
+
+Return strict JSON:
+{
+  "score": number,
+  "summary": "2 sentence summary",
+  "strengths": ["..."],
+  "opportunities": ["..."],
+  "categorySuggestions": {
+    "Goal": { "add": ["..."], "remove": ["..."] },
+    "Accommodation": { "add": ["..."], "remove": ["..."] },
+    "Service": { "add": ["..."], "remove": ["..."] },
+    "Behavior Plan": { "add": ["..."], "remove": ["..."] }
+  },
+  "results": [
+    {
+      "category": "Goal",
+      "title": "Short title",
+      "status": "Good",
+      "description": "Analysis",
+      "recommendation": "Specific recommendation",
+      "quote": "Exact quote from PDF",
+      "page": 1
+    }
+  ]
+}
+`;
+
+    try {
+      const result = await this.getModel().generateContent([
+        prompt,
+        {
+          inlineData: {
+            data: fileBuffer.toString("base64"),
+            mimeType,
+          },
+        },
+      ]);
+      return assertAnalyzeReport(parseJsonObject((await result.response).text()));
+    } catch (error) {
+      if (error instanceof PublicApiError) {
+        throw error;
+      }
+
+      throw new PublicApiError(
+        "Document analysis is temporarily unavailable.",
+        503,
+        "ANALYSIS_UNAVAILABLE",
+        true,
+      );
+    }
+  }
+
+  async analyzeBehaviorReport(
+    behaviorBuffer: Buffer,
+    iepBuffer: Buffer,
+    mimeType: string,
+  ): Promise<BehaviorReportAnalysis> {
+    const config = getServerConfig();
+    if (config.mockMode) {
+      return MOCK_BEHAVIOR_REPORT;
+    }
+
+    const context = await this.retrieve(
+      "PDA behavior incident de-escalation autonomy anxiety regulation",
+      10,
+    );
+    const contextSummary = context
+      .map((chunk) => `- ${chunk.content} (Source: ${chunk.source})`)
+      .join("\n");
+
+    const prompt = `
+You are an expert advocate specializing in PDA-related school behavior incidents.
+You are reviewing two PDFs: a behavior incident report and the student's IEP/504 document.
+
+PDA GUIDANCE:
+${contextSummary}
+
+Return strict JSON:
+{
+  "summary": "2 sentence summary",
+  "whatWentWell": ["..."],
+  "whatCouldBeBetter": ["..."],
+  "iepGuidance": [
+    {
+      "title": "Accommodation or strategy",
+      "description": "How it should have been applied",
+      "quote": "Exact quote",
+      "page": 1,
+      "source": "IEP"
+    }
+  ],
+  "futureRecommendations": ["..."],
+  "pdaConsiderations": [
+    {
+      "strategy": "Name",
+      "explanation": "Why it helps PDA students",
+      "howToImplement": "Concrete implementation steps"
+    }
+  ]
+}
+`;
+
+    try {
+      const result = await this.getModel().generateContent([
+        prompt,
+        {
+          inlineData: {
+            data: behaviorBuffer.toString("base64"),
+            mimeType,
+          },
+        },
+        {
+          inlineData: {
+            data: iepBuffer.toString("base64"),
+            mimeType,
+          },
+        },
+      ]);
+      return assertBehaviorReportAnalysis(
+        parseJsonObject((await result.response).text()),
+      );
+    } catch (error) {
+      if (error instanceof PublicApiError) {
+        throw error;
+      }
+
+      throw new PublicApiError(
+        "Behavior report analysis is temporarily unavailable.",
+        503,
+        "ANALYSIS_UNAVAILABLE",
+        true,
+      );
+    }
+  }
 }

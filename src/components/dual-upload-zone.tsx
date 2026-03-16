@@ -34,12 +34,14 @@ function UploadBox({ label, description, file, onDrop, onRemove, disabled, color
         amber: {
             bg: "bg-amber-50",
             border: "border-amber-200",
+            ring: "ring-amber-200",
             icon: "text-amber-600",
             iconBg: "bg-amber-100"
         },
         indigo: {
             bg: "bg-indigo-50",
             border: "border-indigo-200",
+            ring: "ring-indigo-200",
             icon: "text-indigo-600",
             iconBg: "bg-indigo-100"
         }
@@ -53,7 +55,7 @@ function UploadBox({ label, description, file, onDrop, onRemove, disabled, color
             className={cn(
                 "relative group cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed transition-all duration-300 ease-in-out flex-1",
                 isDragActive
-                    ? `${scheme.border} ${scheme.bg} ring-4 ring-${colorScheme}-200 scale-[1.02]`
+                    ? `${scheme.border} ${scheme.bg} ring-4 ${scheme.ring} scale-[1.02]`
                     : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50",
                 file ? "bg-background border-solid border-green-300" : "",
                 disabled ? "opacity-50 cursor-not-allowed" : ""

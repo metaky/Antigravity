@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Sparkles, MessageSquare, Heart, BookOpen } from "lucide-react"
+import { Sparkles, MessageSquare, Heart, BookOpen } from "lucide-react"
 import Link from "next/link"
 
 import type { Metadata } from "next"

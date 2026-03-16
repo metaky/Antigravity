@@ -1,47 +1,56 @@
-'use client'
+"use client";
 
-import posthog from 'posthog-js'
-import { PostHogProvider } from 'posthog-js/react'
-import { useEffect, Suspense } from 'react'
-import { usePathname, useSearchParams } from "next/navigation"
+import { PropsWithChildren, Suspense, useEffect, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import analytics, { type ConsentValue } from "@/services/analytics";
 
-import analytics from '@/services/analytics'
+function AnalyticsPageView() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [consent, setConsent] = useState<ConsentValue | null>(null);
 
-function PostHogPageView() {
-    const pathname = usePathname()
-    const searchParams = useSearchParams()
+  useEffect(() => {
+    setConsent(analytics.getStoredConsent());
 
-    useEffect(() => {
-        // Track pageviews
-        if (pathname) {
-            let url = window.origin + pathname
-            if (searchParams?.toString()) {
-                url = url + `?${searchParams.toString()}`
-            }
-            analytics.trackEvent('$pageview', {
-                '$current_url': url,
-            })
-        }
-    }, [pathname, searchParams])
+    const handleConsentChange = (event: Event) => {
+      const customEvent = event as CustomEvent<ConsentValue>;
+      setConsent(customEvent.detail);
+    };
 
-    return null
+    window.addEventListener("cookie-consent-change", handleConsentChange);
+    return () =>
+      window.removeEventListener("cookie-consent-change", handleConsentChange);
+  }, []);
+
+  useEffect(() => {
+    if (consent !== "granted" || !pathname) {
+      return;
+    }
+
+    let url = `${window.location.origin}${pathname}`;
+    if (searchParams?.toString()) {
+      url = `${url}?${searchParams.toString()}`;
+    }
+
+    analytics.trackEvent("$pageview", {
+      $current_url: url,
+    });
+  }, [consent, pathname, searchParams]);
+
+  return null;
 }
 
-export function PHProvider({
-    children,
-}: {
-    children: React.ReactNode
-}) {
-    useEffect(() => {
-        analytics.init()
-    }, [])
+export function PHProvider({ children }: PropsWithChildren) {
+  useEffect(() => {
+    analytics.ensureInitialized();
+  }, []);
 
-    return (
-        <PostHogProvider client={posthog}>
-            <Suspense fallback={null}>
-                <PostHogPageView />
-            </Suspense>
-            {children}
-        </PostHogProvider>
-    )
+  return (
+    <>
+      <Suspense fallback={null}>
+        <AnalyticsPageView />
+      </Suspense>
+      {children}
+    </>
+  );
 }

@@ -1,7 +1,7 @@
 
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { Upload, BrainCircuit, FileSearch, Scale, ShieldCheck, FileText, ArrowRight, Sparkles, BicepsFlexed, Trophy } from "lucide-react"
+import { Upload, BrainCircuit, FileSearch, ShieldCheck, Sparkles, BicepsFlexed, Trophy } from "lucide-react"
 import { WhyIBuiltThis } from "@/components/why-i-built-this"
 
 import { BottomCTA } from "@/components/bottom-cta"

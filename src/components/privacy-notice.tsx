@@ -1,4 +1,4 @@
-import { Shield, Lock, AlertCircle } from "lucide-react"
+import { Shield, AlertCircle } from "lucide-react"
 
 export function PrivacyNotice() {
     return (

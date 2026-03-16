@@ -1,7 +1,6 @@
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Info, AlertTriangle, CheckCircle2, Heart, Lightbulb, Shield, Sparkles } from "lucide-react"
 

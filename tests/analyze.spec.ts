@@ -1,54 +1,73 @@
-import { test, expect } from '@playwright/test';
-import path from 'path';
+import { test, expect } from "@playwright/test";
+import path from "path";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
-test('navigate to analyze page and verify components', async ({ page }) => {
-    await page.goto('/');
+async function createIrrelevantPdfFile() {
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([600, 400]);
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-    // Click CTA
-    await page.getByRole('button', { name: 'Analyze IEP Now' }).click();
+  page.drawText(
+    "School receipt for student classroom grocery shopping list accommodations and support planning",
+    {
+    x: 50,
+    y: 320,
+    size: 20,
+    font,
+    color: rgb(0, 0, 0),
+    },
+  );
 
-    // Verify URL
-    await expect(page).toHaveURL(/.*\/analyze/);
+  return {
+    name: "receipt.pdf",
+    mimeType: "application/pdf",
+    buffer: Buffer.from(await pdfDoc.save()),
+  };
+}
 
-    // Verify Dropzone text
-    await expect(page.getByText('Upload your IEP PDF')).toBeVisible();
+test("analyze flow verifies only when the user submits an upload", async ({ page }) => {
+  await page.goto("/analyze");
 
-    // Verify Privacy Notice
-    await expect(page.getByText('Your Privacy is Our Priority')).toBeVisible();
-    await expect(page.getByText('Not legal advice')).toBeVisible(); // Disclaimer
+  await expect(page.getByText("Complete security check")).not.toBeVisible();
+
+  const fileInput = page.locator('input[type="file"]');
+  await fileInput.setInputFiles(path.join(__dirname, "fixtures", "test_iep.pdf"));
+  await page.getByRole("button", { name: "Generate Report" }).click();
+
+  await expect(page.getByRole("heading", { name: "Complete security check" })).toBeVisible();
+  await page.getByRole("button", { name: "Complete security check" }).click();
+
+  await expect(page.getByRole("heading", { name: "Analysis Results" })).toBeVisible();
+  await expect(page.getByText("PDA Affirming Score")).toBeVisible();
 });
 
-test('upload zone validation', async ({ page }) => {
-    await page.goto('/analyze');
+test("warning override works without a hard page reload", async ({ page }) => {
+  await page.goto("/analyze");
 
-    // Check initial state
-    await expect(page.getByText('Drag and drop your file here')).toBeVisible();
+  const fileChooser = page.locator('input[type="file"]');
+  await fileChooser.setInputFiles(await createIrrelevantPdfFile());
+  await page.getByRole("button", { name: "Generate Report" }).click();
+  await expect(page.getByRole("heading", { name: "Complete security check" })).toBeVisible();
+  await page.getByRole("button", { name: "Complete security check" }).click();
+
+  await expect(page.getByText("Document may be irrelevant")).toBeVisible();
+  await page.getByRole("button", { name: "Proceed Anyway" }).click();
+
+  await expect(page.getByRole("heading", { name: "Analysis Results" })).toBeVisible();
 });
 
-test('full upload flow works', async ({ page }) => {
-    await page.goto('/analyze');
+test("history stays opt-in and requires explicit full-save", async ({ page }) => {
+  await page.goto("/analyze");
 
-    const fileInput = page.locator('input[type="file"]');
-    await fileInput.setInputFiles(path.join(__dirname, 'fixtures/valid.pdf'));
+  await expect(page.getByText("Enable History")).toBeVisible();
+  await page.getByRole("button", { name: "Enable History" }).click();
 
-    // Should show file name
-    await expect(page.getByText('valid.pdf')).toBeVisible();
+  const fileInput = page.locator('input[type="file"]');
+  await fileInput.setInputFiles(path.join(__dirname, "fixtures", "test_iep.pdf"));
+  await page.getByRole("button", { name: "Generate Report" }).click();
+  await page.getByRole("button", { name: "Complete security check" }).click();
 
-    // Click Generate
-    await page.getByRole('button', { name: 'Generate Report' }).click();
-
-    // Should show loading state
-    await expect(page.getByText('Analyzing document...')).toBeVisible();
-
-    // Should eventually show results
-    await expect(page.getByRole('heading', { name: 'Analysis Results' })).toBeVisible({ timeout: 15000 });
-
-    // Check for Score Card
-    await expect(page.getByText('PDA Affirming Score')).toBeVisible();
-
-    // Check for Categories
-    await expect(page.getByRole('heading', { name: /Goal/i })).toBeVisible();
-
-    // Check for specific item content (substring match or exact depending on mock)
-    await expect(page.getByText('Reading Fluency')).toBeVisible();
+  await expect(page.getByRole("button", { name: "Save Full Report On This Device" })).toBeVisible();
+  await page.getByRole("button", { name: "Analyze Another File" }).click();
+  await expect(page.getByText("Metadata only")).toBeVisible();
 });

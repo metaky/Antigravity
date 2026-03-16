@@ -8,10 +8,8 @@ import {
     CheckCircle2,
     BookOpen,
     Users,
-    BrainCircuit,
-    ArrowRight
+    BrainCircuit
 } from "lucide-react"
-import Link from "next/link"
 
 import { BottomCTA } from "@/components/bottom-cta"
 

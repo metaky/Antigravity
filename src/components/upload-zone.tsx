@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react"
 import { useDropzone } from "react-dropzone"
-import { UploadCloud, FileText, CheckCircle, XCircle, Loader2 } from "lucide-react"
+import { UploadCloud, FileText, XCircle, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"

@@ -1,62 +1,285 @@
-import { test, expect } from '@playwright/test';
-import path from 'path';
-import fs from 'fs';
+import { test, expect, type APIRequestContext } from "@playwright/test";
+import crypto from "crypto";
+import fs from "fs";
+import path from "path";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
-test('POST /api/analyze requires challenge token', async ({ request }) => {
-    // 1. Get Challenge Token
-    const challengeRes = await request.get('/api/challenge');
-    expect(challengeRes.ok()).toBeTruthy();
-    const { challengeId } = await challengeRes.json();
+function fixturePath(name: string) {
+  return path.join(__dirname, "fixtures", name);
+}
 
-    // 2. Perform Analysis with Token
-    const filePath = path.join(__dirname, 'fixtures/valid.pdf');
-    const fileBuffer = fs.readFileSync(filePath);
+function createBrowserId() {
+  return `playwright-${crypto.randomUUID()}`;
+}
 
-    const response = await request.post('/api/analyze', {
-        headers: {
-            'X-Challenge-Id': challengeId,
-        },
-        multipart: {
-            file: { name: 'test.pdf', mimeType: 'application/pdf', buffer: fileBuffer },
-        },
-    });
+async function createIrrelevantPdfBuffer() {
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([600, 400]);
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-    // We verify it PASSED the challenge gate (not a 403)
-    // It might 500 if Gemini API is not reachable locally, but that's acceptable for this test
-    expect(response.status()).not.toBe(403);
+  page.drawText(
+    "School receipt for student classroom grocery shopping list accommodations and support planning",
+    {
+    x: 50,
+    y: 320,
+    size: 20,
+    font,
+    color: rgb(0, 0, 0),
+    },
+  );
+
+  return Buffer.from(await pdfDoc.save());
+}
+
+async function verifySession(
+  request: APIRequestContext,
+  purpose: "analyze" | "behavior-report",
+  browserId: string,
+) {
+  const response = await request.post("/api/human-verify", {
+    headers: {
+      "content-type": "application/json",
+      "x-browser-id": browserId,
+    },
+    data: {
+      purpose,
+      token: "codex-turnstile-test-token",
+    },
+  });
+
+  expect(response.ok()).toBeTruthy();
+}
+
+test("analyze rejects upload without verified session", async ({ request }) => {
+  const browserId = createBrowserId();
+
+  const response = await request.post("/api/analyze", {
+    headers: {
+      "x-browser-id": browserId,
+    },
+    multipart: {
+      file: { name: "test_iep.pdf", mimeType: "application/pdf", buffer: fs.readFileSync(fixturePath("test_iep.pdf")) },
+    },
+  });
+
+  expect(response.status()).toBe(403);
+  await expect(response.json()).resolves.toMatchObject({
+    ok: false,
+    code: "VERIFICATION_REQUIRED",
+  });
 });
 
-test('POST /api/analyze fails without challenge token (403)', async ({ request }) => {
-    const filePath = path.join(__dirname, 'fixtures/valid.pdf');
-    const fileBuffer = fs.readFileSync(filePath);
+test("verified analyze request succeeds and returns typed data", async ({ request }) => {
+  const browserId = createBrowserId();
+  await verifySession(request, "analyze", browserId);
+  const fileBuffer = fs.readFileSync(fixturePath("test_iep.pdf"));
 
-    const response = await request.post('/api/analyze', {
-        multipart: {
-            file: { name: 'test.pdf', mimeType: 'application/pdf', buffer: fileBuffer },
-        },
-    });
+  const response = await request.post("/api/analyze", {
+    headers: {
+      "x-browser-id": browserId,
+    },
+    multipart: {
+      file: { name: "test_iep.pdf", mimeType: "application/pdf", buffer: fileBuffer },
+    },
+  });
 
-    expect(response.status()).toBe(403);
+  expect(response.ok()).toBeTruthy();
+  await expect(response.json()).resolves.toMatchObject({
+    ok: true,
+    data: {
+      score: expect.any(Number),
+      summary: expect.any(String),
+      results: expect.any(Array),
+    },
+  });
 });
 
-test('POST /api/analyze fails with reused token (Single-use)', async ({ request }) => {
-    const challengeRes = await request.get('/api/challenge');
-    const { challengeId } = await challengeRes.json();
+test("warning override works exactly once for the same upload", async ({ request }) => {
+  const browserId = createBrowserId();
+  await verifySession(request, "analyze", browserId);
+  const fileBuffer = await createIrrelevantPdfBuffer();
 
-    const filePath = path.join(__dirname, 'fixtures/valid.pdf');
-    const fileBuffer = fs.readFileSync(filePath);
-    const payload = {
-        headers: { 'X-Challenge-Id': challengeId },
-        multipart: {
-            file: { name: 'test.pdf', mimeType: 'application/pdf', buffer: fileBuffer },
+  const warningResponse = await request.post("/api/analyze", {
+    headers: {
+      "x-browser-id": browserId,
+    },
+    multipart: {
+      file: { name: "receipt.pdf", mimeType: "application/pdf", buffer: fileBuffer },
+    },
+  });
+
+  expect(warningResponse.status()).toBe(422);
+  const warningBody = (await warningResponse.json()) as {
+    ok: false;
+    warningId: string;
+  };
+  expect(warningBody.warningId).toBeTruthy();
+
+  const overrideResponse = await request.post("/api/analyze", {
+    headers: {
+      "x-browser-id": browserId,
+    },
+    multipart: {
+      file: { name: "receipt.pdf", mimeType: "application/pdf", buffer: fileBuffer },
+      warningId: warningBody.warningId,
+    },
+  });
+  expect(overrideResponse.ok()).toBeTruthy();
+
+  const replayResponse = await request.post("/api/analyze", {
+    headers: {
+      "x-browser-id": browserId,
+    },
+    multipart: {
+      file: { name: "receipt.pdf", mimeType: "application/pdf", buffer: fileBuffer },
+      warningId: warningBody.warningId,
+    },
+  });
+  expect(replayResponse.status()).toBe(409);
+});
+
+test("session binding rejects a different browser id", async ({ request }) => {
+  const browserId = createBrowserId();
+  await verifySession(request, "analyze", browserId);
+  const fileBuffer = fs.readFileSync(fixturePath("test_iep.pdf"));
+
+  const response = await request.post("/api/analyze", {
+    headers: {
+      "x-browser-id": "another-browser",
+    },
+    multipart: {
+      file: { name: "test_iep.pdf", mimeType: "application/pdf", buffer: fileBuffer },
+    },
+  });
+
+  expect(response.status()).toBe(403);
+  await expect(response.json()).resolves.toMatchObject({
+    ok: false,
+    code: "SESSION_MISMATCH",
+  });
+});
+
+test("verified sessions can be reused until their quota is exhausted", async ({
+  request,
+}) => {
+  const browserId = createBrowserId();
+  await verifySession(request, "analyze", browserId);
+  const fileBuffer = fs.readFileSync(fixturePath("test_iep.pdf"));
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const response = await request.post("/api/analyze", {
+      headers: {
+        "x-browser-id": browserId,
+      },
+      multipart: {
+        file: {
+          name: `test_iep_${attempt}.pdf`,
+          mimeType: "application/pdf",
+          buffer: fileBuffer,
         },
-    };
+      },
+    });
 
-    // First use: Should NOT be 403
-    const res1 = await request.post('/api/analyze', payload);
-    expect(res1.status()).not.toBe(403);
+    expect(response.ok()).toBeTruthy();
+  }
 
-    // Second use: MUST be 403
-    const res2 = await request.post('/api/analyze', payload);
-    expect(res2.status()).toBe(403);
+  const exhaustedResponse = await request.post("/api/analyze", {
+    headers: {
+      "x-browser-id": browserId,
+    },
+    multipart: {
+      file: {
+        name: "test_iep_extra.pdf",
+        mimeType: "application/pdf",
+        buffer: fileBuffer,
+      },
+    },
+  });
+
+  expect(exhaustedResponse.status()).toBe(429);
+  await expect(exhaustedResponse.json()).resolves.toMatchObject({
+    ok: false,
+    code: "SESSION_QUOTA_EXHAUSTED",
+  });
+});
+
+test("warning override tokens are scoped to the original upload", async ({
+  request,
+}) => {
+  const browserId = createBrowserId();
+  await verifySession(request, "analyze", browserId);
+  const warningFile = await createIrrelevantPdfBuffer();
+  const differentFile = await createIrrelevantPdfBuffer();
+  const extraPdf = await PDFDocument.load(differentFile);
+  extraPdf.setTitle("different file");
+  const differentBuffer = Buffer.from(await extraPdf.save());
+
+  const warningResponse = await request.post("/api/analyze", {
+    headers: {
+      "x-browser-id": browserId,
+    },
+    multipart: {
+      file: { name: "receipt.pdf", mimeType: "application/pdf", buffer: warningFile },
+    },
+  });
+
+  expect(warningResponse.status()).toBe(422);
+  const warningBody = (await warningResponse.json()) as {
+    ok: false;
+    warningId: string;
+  };
+
+  const mismatchedOverride = await request.post("/api/analyze", {
+    headers: {
+      "x-browser-id": browserId,
+    },
+    multipart: {
+      file: {
+        name: "receipt-different.pdf",
+        mimeType: "application/pdf",
+        buffer: differentBuffer,
+      },
+      warningId: warningBody.warningId,
+    },
+  });
+
+  expect(mismatchedOverride.status()).toBe(409);
+  await expect(mismatchedOverride.json()).resolves.toMatchObject({
+    ok: false,
+    code: "WARNING_INVALID",
+  });
+});
+
+test("behavior report route uses the same verified-session flow", async ({ request }) => {
+  const browserId = createBrowserId();
+  await verifySession(request, "behavior-report", browserId);
+  const behaviorFile = fs.readFileSync(fixturePath("test_behavior_report.pdf"));
+  const iepFile = fs.readFileSync(fixturePath("test_iep.pdf"));
+
+  const response = await request.post("/api/behavior-report", {
+    headers: {
+      "x-browser-id": browserId,
+    },
+    multipart: {
+      behaviorReport: {
+        name: "behavior.pdf",
+        mimeType: "application/pdf",
+        buffer: behaviorFile,
+      },
+      iepDocument: {
+        name: "iep.pdf",
+        mimeType: "application/pdf",
+        buffer: iepFile,
+      },
+    },
+  });
+
+  expect(response.ok()).toBeTruthy();
+  await expect(response.json()).resolves.toMatchObject({
+    ok: true,
+    data: {
+      summary: expect.any(String),
+      pdaConsiderations: expect.any(Array),
+    },
+  });
 });
