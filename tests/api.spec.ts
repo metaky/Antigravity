@@ -283,3 +283,77 @@ test("behavior report route uses the same verified-session flow", async ({ reque
     },
   });
 });
+
+test("behavior report warning override works exactly once for the same upload pair", async ({
+  request,
+}) => {
+  const browserId = createBrowserId();
+  await verifySession(request, "behavior-report", browserId);
+  const behaviorFile = await createIrrelevantPdfBuffer();
+  const iepFile = fs.readFileSync(fixturePath("test_iep.pdf"));
+
+  const warningResponse = await request.post("/api/behavior-report", {
+    headers: {
+      "x-browser-id": browserId,
+    },
+    multipart: {
+      behaviorReport: {
+        name: "receipt.pdf",
+        mimeType: "application/pdf",
+        buffer: behaviorFile,
+      },
+      iepDocument: {
+        name: "iep.pdf",
+        mimeType: "application/pdf",
+        buffer: iepFile,
+      },
+    },
+  });
+
+  expect(warningResponse.status()).toBe(422);
+  const warningBody = (await warningResponse.json()) as {
+    ok: false;
+    warningId: string;
+  };
+  expect(warningBody.warningId).toBeTruthy();
+
+  const overrideResponse = await request.post("/api/behavior-report", {
+    headers: {
+      "x-browser-id": browserId,
+    },
+    multipart: {
+      behaviorReport: {
+        name: "receipt.pdf",
+        mimeType: "application/pdf",
+        buffer: behaviorFile,
+      },
+      iepDocument: {
+        name: "iep.pdf",
+        mimeType: "application/pdf",
+        buffer: iepFile,
+      },
+      warningId: warningBody.warningId,
+    },
+  });
+  expect(overrideResponse.ok()).toBeTruthy();
+
+  const replayResponse = await request.post("/api/behavior-report", {
+    headers: {
+      "x-browser-id": browserId,
+    },
+    multipart: {
+      behaviorReport: {
+        name: "receipt.pdf",
+        mimeType: "application/pdf",
+        buffer: behaviorFile,
+      },
+      iepDocument: {
+        name: "iep.pdf",
+        mimeType: "application/pdf",
+        buffer: iepFile,
+      },
+      warningId: warningBody.warningId,
+    },
+  });
+  expect(replayResponse.status()).toBe(409);
+});

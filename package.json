@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:gemini-models": "node --env-file=.env.local --experimental-strip-types scripts/check-models.ts",
+    "test:guards": "npx playwright test tests/api.spec.ts tests/analyze.spec.ts tests/behavior-report.spec.ts",
+    "smoke:live": "node --env-file=.env.local scripts/live-analyzer-smoke.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

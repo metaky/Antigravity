@@ -56,18 +56,17 @@ test("warning override works without a hard page reload", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Analysis Results" })).toBeVisible();
 });
 
-test("history stays opt-in and requires explicit full-save", async ({ page }) => {
+test("history saves full reports automatically and can be cleared", async ({ page }) => {
   await page.goto("/analyze");
-
-  await expect(page.getByText("Enable History")).toBeVisible();
-  await page.getByRole("button", { name: "Enable History" }).click();
 
   const fileInput = page.locator('input[type="file"]');
   await fileInput.setInputFiles(path.join(__dirname, "fixtures", "test_iep.pdf"));
   await page.getByRole("button", { name: "Generate Report" }).click();
   await page.getByRole("button", { name: "Complete security check" }).click();
 
-  await expect(page.getByRole("button", { name: "Save Full Report On This Device" })).toBeVisible();
   await page.getByRole("button", { name: "Analyze Another File" }).click();
-  await expect(page.getByText("Metadata only")).toBeVisible();
+  await expect(page.getByText("Saved device history")).toBeVisible();
+  await expect(page.getByText("Full report saved")).toBeVisible();
+  await page.getByRole("button", { name: "Clear all history" }).click();
+  await expect(page.getByText("Saved device history")).not.toBeVisible();
 });

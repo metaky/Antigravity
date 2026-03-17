@@ -158,7 +158,7 @@ test.describe("upload preflight", () => {
     const config = getServerConfig();
 
     expect(config.uploads.maxFileBytes).toBeGreaterThan(1024 * 1024);
-    expect(config.uploads.maxPdfPages).toBeGreaterThan(0);
+    expect(config.uploads.maxPdfPages).toBeGreaterThanOrEqual(100);
     expect(config.uploads.minExtractedTextLength).toBeGreaterThan(0);
   });
 });

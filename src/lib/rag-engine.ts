@@ -432,17 +432,42 @@ Return strict JSON with:
 
     const prompt = `
 You are an expert special education advocate and IEP compliance reviewer specializing in PDA-affirming, neuroaffirming practices.
-Review the attached PDF against the guidance below.
+You are reviewing a real parent-facing IEP analysis, so your output must be concrete, specific, and genuinely useful for advocacy.
 
 GUIDANCE:
 ${contextSummary}
 
+TASK:
+1. Analyze the attached IEP or 504 PDF thoroughly.
+2. Evaluate how well it aligns with neuroaffirming, low-demand, relationship-based support rather than compliance-focused practice.
+3. Prioritize advice that a parent could actually use in a school meeting.
+4. Quote the source document directly whenever you make a finding, and include a page number whenever it is detectable.
+5. Be specific about what is strong, what is risky, and what should be rewritten.
+
+DEPTH REQUIREMENTS:
+- Write a summary that is 2-4 sentences, not generic filler.
+- Return at least 3 strengths and at least 3 opportunities when the document contains enough evidence.
+- Return at least 6 results when the document contains enough material; use fewer only if the document is extremely short or sparse.
+- Cover multiple categories when supported by the document, especially Goals, Accommodations, Services, and Behavior Plan.
+- Recommendations should be concrete and school-usable, not vague phrases like "improve support."
+
+QUALITY BAR:
+- Favor actionable, PDA-affirming guidance over generic special-education language.
+- Call out compliance-based, punitive, coercive, or demand-heavy language when present.
+- Surface missing supports if the document is kind in tone but too vague to be enforceable.
+- Do not praise a section unless the quoted evidence clearly supports that praise.
+- Avoid ABA-style or compliance-first recommendations such as token economies, planned ignoring, extinction, forced compliance, or reward/punishment framing.
+
+CATEGORY SUGGESTIONS GUIDANCE:
+- "add" should contain specific language, supports, or service ideas worth including.
+- "remove" should contain harmful, vague, unenforceable, or compliance-heavy language worth rewriting or deleting.
+
 Return strict JSON:
 {
   "score": number,
-  "summary": "2 sentence summary",
-  "strengths": ["..."],
-  "opportunities": ["..."],
+  "summary": "2-4 sentence executive summary written for a parent",
+  "strengths": ["Specific strength 1", "Specific strength 2", "Specific strength 3"],
+  "opportunities": ["Specific opportunity 1", "Specific opportunity 2", "Specific opportunity 3"],
   "categorySuggestions": {
     "Goal": { "add": ["..."], "remove": ["..."] },
     "Accommodation": { "add": ["..."], "remove": ["..."] },
@@ -454,8 +479,8 @@ Return strict JSON:
       "category": "Goal",
       "title": "Short title",
       "status": "Good",
-      "description": "Analysis",
-      "recommendation": "Specific recommendation",
+      "description": "Clear analysis of what the quoted language means and why it matters",
+      "recommendation": "Specific advocacy-ready rewrite or next step",
       "quote": "Exact quote from PDF",
       "page": 1
     }
@@ -507,32 +532,55 @@ Return strict JSON:
       .join("\n");
 
     const prompt = `
-You are an expert advocate specializing in PDA-related school behavior incidents.
-You are reviewing two PDFs: a behavior incident report and the student's IEP/504 document.
+You are an expert special education advocate specializing in PDA-related school behavior incidents.
+You are reviewing two PDFs:
+1. A behavior incident report describing what happened at school.
+2. The student's IEP or 504 document describing supports that should guide staff response.
 
 PDA GUIDANCE:
 ${contextSummary}
 
+TASK:
+1. Read both documents carefully and compare the incident response to the supports the student should have received.
+2. Explain what staff did well, what they missed, and which IEP/504 strategies should have been used in the moment.
+3. Provide recommendations that are specific to PDA, autonomy, anxiety reduction, and collaborative support.
+4. Go beyond generic autism advice; explicitly avoid compliance-first, ABA-style, punitive, or reward/punishment-based framing.
+5. Quote the source document directly whenever possible and include page numbers whenever they are detectable.
+
+DEPTH REQUIREMENTS:
+- Write a summary that is 2-4 sentences and clearly distinguishes the incident from the support failure or success.
+- Return at least 2 whatWentWell items when evidence exists.
+- Return at least 3 whatCouldBeBetter items when evidence exists.
+- Return at least 3 iepGuidance items when the IEP contains enough relevant supports.
+- Return at least 3 futureRecommendations and at least 3 pdaConsiderations when the documents contain enough evidence.
+
+QUALITY BAR:
+- The most useful output is concrete, parent-usable, and school-usable.
+- Explain exactly how a support should have been applied during the incident, not just that it existed.
+- PDA-specific recommendations should focus on reducing threat, preserving autonomy, supporting regulation, and repairing trust.
+- Do not invent facts that are not grounded in the two PDFs.
+- If the school's response escalated distress, say so clearly and explain why.
+
 Return strict JSON:
 {
-  "summary": "2 sentence summary",
-  "whatWentWell": ["..."],
-  "whatCouldBeBetter": ["..."],
+  "summary": "2-4 sentence executive summary written for a parent",
+  "whatWentWell": ["Specific positive aspect 1", "Specific positive aspect 2"],
+  "whatCouldBeBetter": ["Specific missed support 1", "Specific missed support 2", "Specific missed support 3"],
   "iepGuidance": [
     {
       "title": "Accommodation or strategy",
-      "description": "How it should have been applied",
+      "description": "How this support should have been applied during the incident and why it matters",
       "quote": "Exact quote",
       "page": 1,
       "source": "IEP"
     }
   ],
-  "futureRecommendations": ["..."],
+  "futureRecommendations": ["Clear future action 1", "Clear future action 2", "Clear future action 3"],
   "pdaConsiderations": [
     {
       "strategy": "Name",
-      "explanation": "Why it helps PDA students",
-      "howToImplement": "Concrete implementation steps"
+      "explanation": "Why it helps PDA students specifically",
+      "howToImplement": "Concrete implementation steps for school staff"
     }
   ]
 }

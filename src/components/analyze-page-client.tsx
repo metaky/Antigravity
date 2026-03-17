@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { AlertCircle, Clock, ShieldCheck, Sparkles, Trash2 } from "lucide-react";
+import { AlertCircle, Clock, Sparkles, Trash2 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { UploadZone } from "@/components/upload-zone";
@@ -19,11 +19,9 @@ import type {
 import analytics from "@/services/analytics";
 import {
   clearAnalyzeHistory,
-  getHistoryEnabled,
   loadAnalyzeHistory,
-  saveAnalyzeHistoryFullReport,
-  saveAnalyzeHistoryMetadata,
-  setHistoryEnabled,
+  removeAnalyzeHistoryEntry,
+  saveAnalyzeHistory,
 } from "@/lib/client/history";
 import { getSecurityHeaders } from "@/lib/client/security";
 
@@ -51,12 +49,9 @@ export function AnalyzePageClient({
   const [pendingSubmission, setPendingSubmission] =
     useState<PendingAnalyzeSubmission | null>(null);
   const [verificationOpen, setVerificationOpen] = useState(false);
-  const [historyEnabled, setHistoryEnabledState] = useState(false);
   const [savedHistory, setSavedHistory] = useState<StoredAnalyzeHistoryEntry[]>([]);
-  const [activeHistoryId, setActiveHistoryId] = useState<string | null>(null);
 
   useEffect(() => {
-    setHistoryEnabledState(getHistoryEnabled());
     setSavedHistory(loadAnalyzeHistory());
   }, []);
 
@@ -77,42 +72,18 @@ export function AnalyzePageClient({
     );
   }, [result]);
 
-  function updateHistoryEnabled(nextValue: boolean) {
-    setHistoryEnabled(nextValue);
-    setHistoryEnabledState(nextValue);
-    if (!nextValue) {
-      clearAnalyzeHistory();
-      setSavedHistory([]);
-    }
-  }
-
-  function persistMetadata(report: AnalyzeReport, fileName: string) {
-    if (!historyEnabled) {
-      return null;
-    }
-
-    const id = crypto.randomUUID();
-    const next = saveAnalyzeHistoryMetadata(
+  function persistHistory(report: AnalyzeReport, fileName: string) {
+    const next = saveAnalyzeHistory(
       {
-        id,
+        id: crypto.randomUUID(),
         timestamp: Date.now(),
         fileName,
         summary: report.summary,
         score: report.score,
+        fullReport: report,
       },
       historyLimit,
     );
-    setSavedHistory(next);
-    setActiveHistoryId(id);
-    return id;
-  }
-
-  function persistFullReport() {
-    if (!result || !activeHistoryId || !historyEnabled) {
-      return;
-    }
-
-    const next = saveAnalyzeHistoryFullReport(activeHistoryId, result, historyLimit);
     setSavedHistory(next);
   }
 
@@ -124,13 +95,11 @@ export function AnalyzePageClient({
 
     setCurrentFileName(entry.fileName);
     setResult(entry.fullReport);
-    setActiveHistoryId(entry.id);
     setError(null);
   }
 
   function removeHistoryEntry(entryId: string) {
-    const remaining = loadAnalyzeHistory().filter((entry) => entry.id !== entryId);
-    window.localStorage.setItem("analyze_history_v2", JSON.stringify(remaining));
+    const remaining = removeAnalyzeHistoryEntry(entryId);
     setSavedHistory(remaining);
   }
 
@@ -160,10 +129,7 @@ export function AnalyzePageClient({
       if (data.ok) {
         setResult(data.data);
         analytics.trackEvent("generated_report");
-        const historyId = persistMetadata(data.data, file.name);
-        if (!historyId) {
-          setActiveHistoryId(null);
-        }
+        persistHistory(data.data, file.name);
         return;
       }
 
@@ -250,9 +216,6 @@ export function AnalyzePageClient({
                   <Button variant="outline" onClick={() => window.print()}>
                     Print / Save PDF
                   </Button>
-                  <Button variant="outline" onClick={persistFullReport} disabled={!historyEnabled || !activeHistoryId}>
-                    Save Full Report On This Device
-                  </Button>
                   <Button
                     variant="premium"
                     onClick={() => {
@@ -336,28 +299,6 @@ export function AnalyzePageClient({
           ) : (
             <>
               <div className="bg-white rounded-xl border p-6 space-y-6">
-                <div className="flex items-center justify-between gap-4 flex-col md:flex-row">
-                  <div className="space-y-2">
-                    <h2 className="text-xl font-semibold">Device history</h2>
-                    <p className="text-sm text-muted-foreground max-w-xl">
-                      History is opt-in. By default, we only save metadata when this
-                      setting is enabled, and full report content is saved only when you
-                      explicitly choose to save it.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Button
-                      variant={historyEnabled ? "premium" : "outline"}
-                      onClick={() => updateHistoryEnabled(!historyEnabled)}
-                    >
-                      {historyEnabled ? "History Enabled" : "Enable History"}
-                    </Button>
-                    <Button variant="outline" onClick={() => updateHistoryEnabled(false)}>
-                      Clear All
-                    </Button>
-                  </div>
-                </div>
-
                 <UploadZone onFileSelect={handleFileSelect} isProcessing={isProcessing} />
 
                 {error ? (
@@ -392,19 +333,8 @@ export function AnalyzePageClient({
                   </div>
                 ) : null}
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="rounded-xl border bg-slate-50 p-4">
-                    <div className="flex items-center gap-2 font-medium">
-                      <ShieldCheck className="h-4 w-4 text-indigo-600" />
-                      Security notes
-                    </div>
-                    <ul className="mt-3 space-y-2 text-sm text-slate-700">
-                      <li>Human verification starts only when you submit an upload.</li>
-                      <li>Uploads are validated locally before any model call is made.</li>
-                      <li>Irrelevant-document overrides are scoped to that exact upload.</li>
-                    </ul>
-                  </div>
-                  <div className="rounded-xl border bg-slate-50 p-4">
+                <div className="rounded-xl border bg-slate-50 p-4">
+                  <div className="max-w-2xl">
                     <div className="flex items-center gap-2 font-medium">
                       <Sparkles className="h-4 w-4 text-indigo-600" />
                       What you’ll receive
@@ -420,11 +350,28 @@ export function AnalyzePageClient({
 
               {savedHistory.length > 0 ? (
                 <div className="bg-white rounded-xl border overflow-hidden">
-                  <div className="p-4 border-b bg-slate-50 flex items-center justify-between">
-                    <h2 className="font-semibold">Saved device history</h2>
-                    <span className="text-xs text-muted-foreground">
-                      {savedHistory.length} item{savedHistory.length === 1 ? "" : "s"}
-                    </span>
+                  <div className="p-4 border-b bg-slate-50 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div className="space-y-1">
+                      <h2 className="font-semibold">Saved device history</h2>
+                      <p className="text-xs text-muted-foreground">
+                        Reports are saved in this browser on this device until you delete them.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="text-xs text-muted-foreground">
+                        {savedHistory.length} item{savedHistory.length === 1 ? "" : "s"}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          clearAnalyzeHistory();
+                          setSavedHistory([]);
+                        }}
+                      >
+                        Clear all history
+                      </Button>
+                    </div>
                   </div>
                   <div className="divide-y">
                     {savedHistory.map((entry) => (
@@ -444,7 +391,7 @@ export function AnalyzePageClient({
                               {new Date(entry.timestamp).toLocaleString()}
                             </span>
                             <span>Score {entry.score}</span>
-                            <span>{entry.fullReport ? "Full report saved" : "Metadata only"}</span>
+                            <span>Full report saved</span>
                           </div>
                         </button>
                         <Button variant="ghost" size="icon" onClick={() => removeHistoryEntry(entry.id)}>

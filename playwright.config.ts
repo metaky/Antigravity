@@ -35,10 +35,15 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  webServer: {
-    command: "npm run dev",
-    url: "http://127.0.0.1:3000",
-    env: enabledEnv,
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer:
+    process.env.PLAYWRIGHT_DISABLE_WEBSERVER === "true"
+      ? undefined
+      : {
+          command: "npm run dev",
+          url: "http://127.0.0.1:3000",
+          env: enabledEnv,
+          // Always start with the test env so we do not accidentally hit a stale
+          // maintenance-mode or live-configured dev server during safeguard checks.
+          reuseExistingServer: false,
+        },
 });

@@ -1,34 +1,55 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-// import * as dotenv from "dotenv";
-// dotenv.config({ path: '.env.local' });
-
 async function listModels() {
-    const key = process.env.GEMINI_API_KEY;
-    if (!key) {
-        console.error("No API Key found.");
-        return;
+  const key = process.env.GEMINI_API_KEY;
+  const desiredModel = process.env.GEMINI_MODEL ?? "gemini-3-flash-preview";
+
+  if (!key) {
+    console.error("GEMINI_API_KEY is not set.");
+    process.exitCode = 1;
+    return;
+  }
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`;
+
+  try {
+    const response = await fetch(url);
+    const data = (await response.json()) as {
+      error?: { message?: string };
+      models?: Array<{
+        name: string;
+        supportedGenerationMethods?: string[];
+      }>;
+    };
+
+    if (!response.ok || !data.models) {
+      console.error("Gemini model listing failed.", data.error?.message ?? data);
+      process.exitCode = 1;
+      return;
     }
 
-    // Manual fetch because SDK sometimes hides raw list
-    // But SDK has a generic request method or we can just try to init known models.
-    // Actually, simply fetching the API endpoint is best.
-    const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`;
+    const availableNames = data.models.map((model) => model.name);
+    const desiredCandidates = [
+      desiredModel,
+      `models/${desiredModel}`,
+    ];
+    const desiredAvailable = desiredCandidates.some((candidate) =>
+      availableNames.includes(candidate),
+    );
 
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-
-        console.log("Available Models:");
-        if (data.models) {
-            data.models.forEach((m: any) => {
-                console.log(`- ${m.name} [Supported methods: ${m.supportedGenerationMethods.join(', ')}]`);
-            });
-        } else {
-            console.log("No models returned. Error data:", data);
-        }
-    } catch (e) {
-        console.error("Error fetching models:", e);
+    console.log(`Configured model: ${desiredModel}`);
+    console.log(`Configured model available: ${desiredAvailable ? "yes" : "no"}`);
+    console.log("Available models:");
+    for (const model of data.models) {
+      const methods = model.supportedGenerationMethods?.join(", ") ?? "unknown";
+      console.log(`- ${model.name} [${methods}]`);
     }
+
+    if (!desiredAvailable) {
+      process.exitCode = 1;
+    }
+  } catch (error) {
+    console.error("Error fetching Gemini models:", error);
+    process.exitCode = 1;
+  }
 }
 
 listModels();

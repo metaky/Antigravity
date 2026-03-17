@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
+  AlertCircle,
   AlertTriangle,
   BookOpen,
   Brain,
@@ -26,17 +27,16 @@ import type {
 import analytics from "@/services/analytics";
 import {
   clearBehaviorHistory,
-  getHistoryEnabled,
   loadBehaviorHistory,
-  saveBehaviorHistoryFullReport,
-  saveBehaviorHistoryMetadata,
-  setHistoryEnabled,
+  removeBehaviorHistoryEntry,
+  saveBehaviorHistory,
 } from "@/lib/client/history";
 import { getSecurityHeaders } from "@/lib/client/security";
 
 type PendingBehaviorSubmission = {
   behaviorReport: File;
   iepDocument: File;
+  warningId?: string;
 };
 
 type BehaviorReportPageClientProps = {
@@ -53,57 +53,31 @@ export function BehaviorReportPageClient({
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<BehaviorReportAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [warningReason, setWarningReason] = useState<string | null>(null);
   const [verificationOpen, setVerificationOpen] = useState(false);
   const [pendingSubmission, setPendingSubmission] =
     useState<PendingBehaviorSubmission | null>(null);
-  const [historyEnabled, setHistoryEnabledState] = useState(false);
   const [savedHistory, setSavedHistory] = useState<StoredBehaviorHistoryEntry[]>([]);
-  const [activeHistoryId, setActiveHistoryId] = useState<string | null>(null);
   const [fileNames, setFileNames] = useState<{ behavior: string; iep: string } | null>(
     null,
   );
 
   useEffect(() => {
-    setHistoryEnabledState(getHistoryEnabled());
     setSavedHistory(loadBehaviorHistory());
   }, []);
 
-  function updateHistoryEnabled(nextValue: boolean) {
-    setHistoryEnabled(nextValue);
-    setHistoryEnabledState(nextValue);
-    if (!nextValue) {
-      clearBehaviorHistory();
-      setSavedHistory([]);
-    }
-  }
-
-  function persistMetadata(report: BehaviorReportAnalysis, behaviorFileName: string, iepFileName: string) {
-    if (!historyEnabled) {
-      return null;
-    }
-
-    const id = crypto.randomUUID();
-    const next = saveBehaviorHistoryMetadata(
+  function persistHistory(report: BehaviorReportAnalysis, behaviorFileName: string, iepFileName: string) {
+    const next = saveBehaviorHistory(
       {
-        id,
+        id: crypto.randomUUID(),
         timestamp: Date.now(),
         behaviorFileName,
         iepFileName,
         summary: report.summary,
+        fullReport: report,
       },
       historyLimit,
     );
-    setSavedHistory(next);
-    setActiveHistoryId(id);
-    return id;
-  }
-
-  function persistFullReport() {
-    if (!result || !activeHistoryId || !historyEnabled) {
-      return;
-    }
-
-    const next = saveBehaviorHistoryFullReport(activeHistoryId, result, historyLimit);
     setSavedHistory(next);
   }
 
@@ -118,25 +92,31 @@ export function BehaviorReportPageClient({
       iep: entry.iepFileName,
     });
     setResult(entry.fullReport);
-    setActiveHistoryId(entry.id);
     setError(null);
   }
 
   function removeHistoryEntry(entryId: string) {
-    const remaining = loadBehaviorHistory().filter((entry) => entry.id !== entryId);
-    window.localStorage.setItem("behavior_history_v2", JSON.stringify(remaining));
+    const remaining = removeBehaviorHistoryEntry(entryId);
     setSavedHistory(remaining);
   }
 
-  async function submitBehaviorRequest(behaviorReport: File, iepDocument: File) {
+  async function submitBehaviorRequest(
+    behaviorReport: File,
+    iepDocument: File,
+    warningId?: string,
+  ) {
     setIsProcessing(true);
     setError(null);
+    setWarningReason(null);
     setFileNames({ behavior: behaviorReport.name, iep: iepDocument.name });
 
     try {
       const formData = new FormData();
       formData.append("behaviorReport", behaviorReport);
       formData.append("iepDocument", iepDocument);
+      if (warningId) {
+        formData.append("warningId", warningId);
+      }
 
       const response = await fetch("/api/behavior-report", {
         method: "POST",
@@ -148,14 +128,11 @@ export function BehaviorReportPageClient({
       if (data.ok) {
         setResult(data.data);
         analytics.trackEvent("generated_behavior_report");
-        const historyId = persistMetadata(
+        persistHistory(
           data.data,
           behaviorReport.name,
           iepDocument.name,
         );
-        if (!historyId) {
-          setActiveHistoryId(null);
-        }
         return;
       }
 
@@ -164,8 +141,18 @@ export function BehaviorReportPageClient({
         data.code === "SESSION_EXPIRED" ||
         data.code === "SESSION_MISMATCH"
       ) {
-        setPendingSubmission({ behaviorReport, iepDocument });
+        setPendingSubmission({ behaviorReport, iepDocument, warningId });
         setVerificationOpen(true);
+        return;
+      }
+
+      if (data.type === "warning") {
+        setPendingSubmission({
+          behaviorReport,
+          iepDocument,
+          warningId: data.warningId,
+        });
+        setWarningReason(data.message);
         return;
       }
 
@@ -184,7 +171,23 @@ export function BehaviorReportPageClient({
     }
     const next = pendingSubmission;
     setPendingSubmission(null);
-    await submitBehaviorRequest(next.behaviorReport, next.iepDocument);
+    await submitBehaviorRequest(
+      next.behaviorReport,
+      next.iepDocument,
+      next.warningId,
+    );
+  }
+
+  async function proceedWithWarning() {
+    if (!pendingSubmission?.warningId) {
+      return;
+    }
+
+    await submitBehaviorRequest(
+      pendingSubmission.behaviorReport,
+      pendingSubmission.iepDocument,
+      pendingSubmission.warningId,
+    );
   }
 
   const featureUnavailable = maintenanceMode || !featureEnabled;
@@ -223,9 +226,6 @@ export function BehaviorReportPageClient({
                 <div className="flex flex-wrap gap-2">
                   <Button variant="outline" onClick={() => window.print()}>
                     Print / Save PDF
-                  </Button>
-                  <Button variant="outline" onClick={persistFullReport} disabled={!historyEnabled || !activeHistoryId}>
-                    Save Full Report On This Device
                   </Button>
                   <Button variant="premium" onClick={() => setResult(null)}>
                     Analyze Another Incident
@@ -318,27 +318,6 @@ export function BehaviorReportPageClient({
           ) : (
             <>
               <div className="bg-white rounded-xl border p-6 space-y-6">
-                <div className="flex items-center justify-between gap-4 flex-col md:flex-row">
-                  <div className="space-y-2">
-                    <h2 className="text-xl font-semibold">Device history</h2>
-                    <p className="text-sm text-muted-foreground max-w-xl">
-                      History is opt-in. Metadata can be saved automatically, and the full
-                      report is only stored if you explicitly save it afterward.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Button
-                      variant={historyEnabled ? "premium" : "outline"}
-                      onClick={() => updateHistoryEnabled(!historyEnabled)}
-                    >
-                      {historyEnabled ? "History Enabled" : "Enable History"}
-                    </Button>
-                    <Button variant="outline" onClick={() => updateHistoryEnabled(false)}>
-                      Clear All
-                    </Button>
-                  </div>
-                </div>
-
                 <DualUploadZone
                   onFilesSelect={(behaviorReport, iepDocument) =>
                     void submitBehaviorRequest(behaviorReport, iepDocument)
@@ -351,15 +330,58 @@ export function BehaviorReportPageClient({
                     {error}
                   </div>
                 ) : null}
+
+                {warningReason ? (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="h-5 w-5 text-amber-700 mt-0.5" />
+                      <div>
+                        <h3 className="font-semibold text-amber-900">Documents may be irrelevant</h3>
+                        <p className="text-sm text-amber-800 mt-1">{warningReason}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 justify-end">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setPendingSubmission(null);
+                          setWarningReason(null);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button onClick={() => void proceedWithWarning()}>
+                        Proceed Anyway
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
               </div>
 
               {savedHistory.length > 0 ? (
                 <div className="bg-white rounded-xl border overflow-hidden">
-                  <div className="p-4 border-b bg-slate-50 flex items-center justify-between">
-                    <h2 className="font-semibold">Saved device history</h2>
-                    <span className="text-xs text-muted-foreground">
-                      {savedHistory.length} item{savedHistory.length === 1 ? "" : "s"}
-                    </span>
+                  <div className="p-4 border-b bg-slate-50 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div className="space-y-1">
+                      <h2 className="font-semibold">Saved device history</h2>
+                      <p className="text-xs text-muted-foreground">
+                        Reports are saved in this browser on this device until you delete them.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="text-xs text-muted-foreground">
+                        {savedHistory.length} item{savedHistory.length === 1 ? "" : "s"}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          clearBehaviorHistory();
+                          setSavedHistory([]);
+                        }}
+                      >
+                        Clear all history
+                      </Button>
+                    </div>
                   </div>
                   <div className="divide-y">
                     {savedHistory.map((entry) => (
@@ -380,7 +402,7 @@ export function BehaviorReportPageClient({
                               <Clock className="h-3 w-3" />
                               {new Date(entry.timestamp).toLocaleString()}
                             </span>
-                            <span>{entry.fullReport ? "Full report saved" : "Metadata only"}</span>
+                            <span>Full report saved</span>
                           </div>
                         </button>
                         <Button variant="ghost" size="icon" onClick={() => removeHistoryEntry(entry.id)}>

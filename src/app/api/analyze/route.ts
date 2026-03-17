@@ -10,7 +10,6 @@ import {
   consumeWarningId,
 } from "@/lib/server/security";
 import {
-  assertLocalRelevance,
   preflightPdfUpload,
 } from "@/lib/server/uploads";
 
@@ -57,7 +56,6 @@ export async function POST(req: NextRequest) {
     await requireVerifiedSession(req, "analyze");
     const formData = await req.formData();
     const upload = await preflightPdfUpload(formData.get("file") as File | null);
-    assertLocalRelevance(upload.extractedText);
 
     const session = await consumeSessionQuota(req, "analyze");
     const warningId = formData.get("warningId");
