@@ -124,6 +124,10 @@ export function AnalyzePageClient({
   maintenanceMode,
   historyLimit,
 }: AnalyzePageClientProps) {
+  const printedAt = new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date());
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<AnalyzeReport | null>(null);
   const [currentFileName, setCurrentFileName] = useState<string | null>(null);
@@ -268,9 +272,9 @@ export function AnalyzePageClient({
   return (
     <div className="min-h-screen flex flex-col bg-muted/10">
       <Navbar />
-      <main className="flex-1 container mx-auto pt-40 pb-12 px-4 md:px-6">
-        <div className="max-w-5xl mx-auto space-y-8">
-          <div className="text-center space-y-4">
+      <main className="flex-1 container mx-auto pt-40 pb-12 px-4 md:px-6 print:max-w-none print:px-0 print:pt-0 print:pb-0">
+        <div className="max-w-5xl mx-auto space-y-8 print:mx-0 print:max-w-none print:space-y-4">
+          <div className="text-center space-y-4 print:hidden">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
               Upload your IEP or 504 Plan
             </h1>
@@ -289,11 +293,33 @@ export function AnalyzePageClient({
               description="This feature is temporarily unavailable while the API hardening work is completed."
             />
           ) : result ? (
-            <div className="space-y-6">
-              <section className="wc-card relative overflow-hidden p-6 md:p-8">
-                <div className="absolute inset-0 wc-wash-blend opacity-45" aria-hidden="true" />
+            <div className="space-y-6 print-report-shell">
+              <section className="hidden print:block print-report-header">
+                <div className="print-report-kicker">PDA Your IEP</div>
+                <h1 className="print-report-title">IEP / 504 Analysis Report</h1>
+                <p className="print-report-summary">{result.summary}</p>
+                <div className="print-report-meta">
+                  <div className="print-report-meta-item">
+                    <span className="print-report-meta-label">Document</span>
+                    <span className="print-report-meta-value">
+                      {currentFileName ?? "Uploaded file"}
+                    </span>
+                  </div>
+                  <div className="print-report-meta-item">
+                    <span className="print-report-meta-label">PDA affirming score</span>
+                    <span className="print-report-meta-value">{result.score} / 100</span>
+                  </div>
+                  <div className="print-report-meta-item">
+                    <span className="print-report-meta-label">Prepared</span>
+                    <span className="print-report-meta-value">{printedAt}</span>
+                  </div>
+                </div>
+              </section>
+
+              <section className="wc-card relative overflow-hidden p-6 md:p-8 print:hidden">
+                <div className="print-decor absolute inset-0 wc-wash-blend opacity-45" aria-hidden="true" />
                 <div
-                  className="absolute -top-12 right-0 h-36 w-36 rounded-full bg-[var(--wc-blue)]/10 blur-3xl"
+                  className="print-decor absolute -top-12 right-0 h-36 w-36 rounded-full bg-[var(--wc-blue)]/10 blur-3xl"
                   aria-hidden="true"
                 />
                 <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
@@ -331,12 +357,12 @@ export function AnalyzePageClient({
                 </div>
               </section>
 
-              <div className="grid gap-4 lg:grid-cols-[1.1fr_1.9fr]">
+              <div className="grid gap-4 lg:grid-cols-[1.1fr_1.9fr] print:grid-cols-1">
                 <section
-                  className={`wc-card relative overflow-hidden p-6 md:p-7 ring-1 ${scoreTone?.ringClassName ?? ""}`}
+                  className={`wc-card print-break-avoid relative overflow-hidden p-6 md:p-7 ring-1 print:hidden ${scoreTone?.ringClassName ?? ""}`}
                 >
                   <div
-                    className={`absolute inset-0 opacity-80 ${scoreTone?.washClassName ?? ""}`}
+                    className={`print-decor absolute inset-0 opacity-80 ${scoreTone?.washClassName ?? ""}`}
                     aria-hidden="true"
                   />
                   <div className="relative space-y-5">
@@ -372,7 +398,7 @@ export function AnalyzePageClient({
                   </div>
                 </section>
 
-                <section className="wc-card p-6 md:p-7">
+                <section className="wc-card print-break-avoid p-6 md:p-7">
                   <div className="flex items-start gap-4">
                     <div className="mt-1 rounded-2xl bg-[var(--wc-ochre-pale)] p-3 text-[var(--wc-ochre-dark)]">
                       <FileText className="h-5 w-5" />
@@ -395,7 +421,7 @@ export function AnalyzePageClient({
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
-                <section className="wc-card wc-status-good p-6">
+                <section className="wc-card wc-status-good print-break-avoid p-6">
                   <div className="mb-4 flex items-center gap-3">
                     <div className="rounded-2xl bg-[var(--wc-paper)]/85 p-2 text-[var(--wc-sage-dark)]">
                       <CheckCircle2 className="h-5 w-5" />
@@ -417,7 +443,7 @@ export function AnalyzePageClient({
                   </ul>
                 </section>
 
-                <section className="wc-card wc-status-warning p-6">
+                <section className="wc-card wc-status-warning print-break-avoid p-6">
                   <div className="mb-4 flex items-center gap-3">
                     <div className="rounded-2xl bg-[var(--wc-paper)]/85 p-2 text-[var(--wc-gold-dark)]">
                       <TriangleAlert className="h-5 w-5" />
@@ -462,9 +488,12 @@ export function AnalyzePageClient({
                     return (
                       <article
                         key={category}
-                        className={`wc-card relative overflow-hidden border ${style.borderClassName} p-5`}
+                        className={`wc-card print-break-avoid relative overflow-hidden border ${style.borderClassName} p-5`}
                       >
-                        <div className={`absolute inset-0 opacity-65 ${style.wash}`} aria-hidden="true" />
+                        <div
+                          className={`print-decor absolute inset-0 opacity-65 ${style.wash}`}
+                          aria-hidden="true"
+                        />
                         <div className="relative space-y-4">
                           <div className="flex items-center justify-between gap-3">
                             <h4 className="text-lg font-semibold text-[var(--wc-brown-darker)]">{category}</h4>
@@ -552,7 +581,7 @@ export function AnalyzePageClient({
                       {items.map((item) => (
                         <article
                           key={`${item.title}-${item.page ?? "na"}`}
-                          className={`rounded-2xl border p-5 ${
+                          className={`print-break-avoid rounded-2xl border p-5 ${
                             item.status === "Good"
                               ? "border-[var(--wc-sage)]/20 bg-[var(--wc-sage-pale)]/35"
                               : "border-[var(--wc-gold)]/20 bg-[var(--wc-gold-pale)]/35"
@@ -607,7 +636,7 @@ export function AnalyzePageClient({
             </div>
           ) : (
             <>
-              <div className="wc-card p-6 space-y-6">
+              <div className="wc-card p-6 space-y-6 print:hidden">
                 <UploadZone onFileSelect={handleFileSelect} isProcessing={isProcessing} />
 
                 {error ? (
@@ -659,7 +688,7 @@ export function AnalyzePageClient({
               </div>
 
               {savedHistory.length > 0 ? (
-                <div className="wc-card overflow-hidden">
+                <div className="wc-card overflow-hidden print:hidden">
                   <div className="flex flex-col gap-3 border-b bg-[var(--wc-blue-pale)]/30 p-4 md:flex-row md:items-center md:justify-between">
                     <div className="space-y-1">
                       <h2 className="font-semibold text-[var(--wc-brown-darker)]">Saved report history</h2>

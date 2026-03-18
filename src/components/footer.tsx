@@ -2,7 +2,7 @@ import Link from "next/link"
 
 export function Footer() {
     return (
-        <footer className="border-t border-[var(--wc-ochre-pale)] bg-[var(--wc-cream)] relative overflow-hidden">
+        <footer className="border-t border-[var(--wc-ochre-pale)] bg-[var(--wc-cream)] relative overflow-hidden print:hidden">
             {/* Subtle watercolor wash at top */}
             <div className="absolute top-0 left-0 right-0 h-16 wc-wash-blend opacity-30" />
 

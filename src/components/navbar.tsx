@@ -8,7 +8,7 @@ import { HeartHandshake } from "lucide-react"
 
 export function Navbar() {
     return (
-        <header className="fixed top-0 w-full z-50 bg-white border-b border-[var(--wc-ochre-pale)]">
+        <header className="fixed top-0 w-full z-50 bg-white border-b border-[var(--wc-ochre-pale)] print:hidden">
             {/* Top Utility Bar - Warm cream with subtle texture */}
             <div className="bg-[var(--wc-cream)] border-b border-[var(--wc-ochre-pale)]/50">
                 <div className="container mx-auto px-4 md:px-6 h-9 flex items-center justify-end gap-6 text-xs font-medium text-[var(--wc-brown-dark)]">

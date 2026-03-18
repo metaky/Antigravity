@@ -2,7 +2,7 @@ import { Shield, AlertCircle } from "lucide-react"
 
 export function PrivacyNotice() {
     return (
-        <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-900/50 dark:bg-blue-900/10">
+        <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-900/50 dark:bg-blue-900/10 print:hidden">
             <div className="flex items-start gap-3">
                 <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div className="space-y-2">
@@ -23,7 +23,7 @@ export function PrivacyNotice() {
 
 export function Disclaimer() {
     return (
-        <div className="text-xs text-muted-foreground mt-4 flex items-start gap-2 max-w-lg mx-auto text-center justify-center">
+        <div className="text-xs text-muted-foreground mt-4 flex items-start gap-2 max-w-lg mx-auto text-center justify-center print:hidden">
             <AlertCircle className="h-3 w-3 shrink-0 mt-0.5" />
             <p>
                 This tool provides information for educational advocacy purposes only and does not constitute legal or medical advice. Always consult with a qualified attorney or advocate for specific legal situations.

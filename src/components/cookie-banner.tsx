@@ -24,7 +24,7 @@ export function CookieBanner() {
     if (consent === "loading" || consent !== null) return null
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom duration-500">
+        <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom duration-500 print:hidden">
             <div className="container mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="text-sm text-slate-600 md:max-w-2xl">
                     <p className="font-semibold text-slate-900 mb-1">🍪 We value your privacy</p>

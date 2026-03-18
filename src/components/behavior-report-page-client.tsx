@@ -61,6 +61,10 @@ export function BehaviorReportPageClient({
   maintenanceMode,
   historyLimit,
 }: BehaviorReportPageClientProps) {
+  const printedAt = new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date());
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<BehaviorReportAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -209,9 +213,9 @@ export function BehaviorReportPageClient({
   return (
     <div className="min-h-screen flex flex-col bg-muted/10">
       <Navbar />
-      <main className="flex-1 container mx-auto pt-40 pb-12 px-4 md:px-6">
-        <div className="max-w-5xl mx-auto space-y-8">
-          <div className="text-center space-y-4">
+      <main className="flex-1 container mx-auto pt-40 pb-12 px-4 md:px-6 print:max-w-none print:px-0 print:pt-0 print:pb-0">
+        <div className="max-w-5xl mx-auto space-y-8 print:mx-0 print:max-w-none print:space-y-4">
+          <div className="text-center space-y-4 print:hidden">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
               Behavior Report Tool
             </h1>
@@ -227,11 +231,35 @@ export function BehaviorReportPageClient({
               description="This feature is temporarily unavailable while the API hardening work is completed."
             />
           ) : result ? (
-            <div className="space-y-6">
-              <section className="wc-card relative overflow-hidden p-6 md:p-8">
-                <div className="absolute inset-0 wc-wash-blend opacity-45" aria-hidden="true" />
+            <div className="space-y-6 print-report-shell">
+              <section className="hidden print:block print-report-header">
+                <div className="print-report-kicker">PDA Your IEP</div>
+                <h1 className="print-report-title">Behavior Incident Analysis Report</h1>
+                <p className="print-report-summary">{result.summary}</p>
+                <div className="print-report-meta">
+                  <div className="print-report-meta-item">
+                    <span className="print-report-meta-label">Behavior report</span>
+                    <span className="print-report-meta-value">
+                      {fileNames?.behavior ?? "Uploaded report"}
+                    </span>
+                  </div>
+                  <div className="print-report-meta-item">
+                    <span className="print-report-meta-label">School support plan</span>
+                    <span className="print-report-meta-value">
+                      {fileNames?.iep ?? "Uploaded IEP or 504"}
+                    </span>
+                  </div>
+                  <div className="print-report-meta-item">
+                    <span className="print-report-meta-label">Prepared</span>
+                    <span className="print-report-meta-value">{printedAt}</span>
+                  </div>
+                </div>
+              </section>
+
+              <section className="wc-card relative overflow-hidden p-6 md:p-8 print:hidden">
+                <div className="print-decor absolute inset-0 wc-wash-blend opacity-45" aria-hidden="true" />
                 <div
-                  className="absolute -top-12 left-0 h-36 w-36 rounded-full bg-[var(--wc-sage)]/10 blur-3xl"
+                  className="print-decor absolute -top-12 left-0 h-36 w-36 rounded-full bg-[var(--wc-sage)]/10 blur-3xl"
                   aria-hidden="true"
                 />
                 <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
@@ -270,7 +298,7 @@ export function BehaviorReportPageClient({
               </section>
 
               <div className="grid gap-4 lg:grid-cols-[1.35fr_1fr]">
-                <section className="wc-card p-6 md:p-7">
+                <section className="wc-card print-break-avoid p-6 md:p-7">
                   <div className="flex items-start gap-4">
                     <div className="mt-1 rounded-2xl bg-[var(--wc-ochre-pale)] p-3 text-[var(--wc-ochre-dark)]">
                       <BookOpen className="h-5 w-5" />
@@ -289,8 +317,8 @@ export function BehaviorReportPageClient({
                   </div>
                 </section>
 
-                <section className="wc-card relative overflow-hidden p-6 md:p-7">
-                  <div className="absolute inset-0 wc-wash-blue opacity-60" aria-hidden="true" />
+                <section className="wc-card print-break-avoid relative overflow-hidden p-6 md:p-7">
+                  <div className="print-decor absolute inset-0 wc-wash-blue opacity-60" aria-hidden="true" />
                   <div className="relative space-y-4">
                     <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--wc-brown)]">
                       Report at a glance
@@ -329,7 +357,7 @@ export function BehaviorReportPageClient({
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
-                <section className="wc-card wc-status-good p-6">
+                <section className="wc-card wc-status-good print-break-avoid p-6">
                   <div className="mb-4 flex items-center gap-3">
                     <div className="rounded-2xl bg-[var(--wc-paper)]/85 p-2 text-[var(--wc-sage-dark)]">
                       <CheckCircle className="h-5 w-5" />
@@ -351,7 +379,7 @@ export function BehaviorReportPageClient({
                   </ul>
                 </section>
 
-                <section className="wc-card wc-status-warning p-6">
+                <section className="wc-card wc-status-warning print-break-avoid p-6">
                   <div className="mb-4 flex items-center gap-3">
                     <div className="rounded-2xl bg-[var(--wc-paper)]/85 p-2 text-[var(--wc-gold-dark)]">
                       <AlertTriangle className="h-5 w-5" />
@@ -395,7 +423,7 @@ export function BehaviorReportPageClient({
                   {result.iepGuidance.map((item) => (
                     <article
                       key={`${item.title}-${item.page ?? "na"}`}
-                      className="rounded-2xl border border-[var(--wc-blue)]/15 bg-[var(--wc-blue-pale)]/20 p-5"
+                      className="print-break-avoid rounded-2xl border border-[var(--wc-blue)]/15 bg-[var(--wc-blue-pale)]/20 p-5"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
@@ -429,7 +457,7 @@ export function BehaviorReportPageClient({
               </section>
 
               <div className="grid gap-4 lg:grid-cols-[1.05fr_1.15fr]">
-                <section className="wc-card p-6 md:p-7">
+                <section className="wc-card print-break-avoid p-6 md:p-7">
                   <div className="mb-4 flex items-center gap-3">
                     <div className="rounded-2xl bg-[var(--wc-blue-pale)] p-2 text-[var(--wc-blue-dark)]">
                       <Sparkles className="h-5 w-5" />
@@ -455,8 +483,8 @@ export function BehaviorReportPageClient({
                   </ul>
                 </section>
 
-                <section className="wc-card relative overflow-hidden p-6 md:p-7">
-                  <div className="absolute inset-0 wc-wash-sage opacity-45" aria-hidden="true" />
+                <section className="wc-card print-break-avoid relative overflow-hidden p-6 md:p-7">
+                  <div className="print-decor absolute inset-0 wc-wash-sage opacity-45" aria-hidden="true" />
                   <div className="relative">
                     <div className="mb-4 flex items-center gap-3">
                       <div className="rounded-2xl bg-[var(--wc-paper)]/85 p-2 text-[var(--wc-sage-dark)]">
@@ -471,7 +499,10 @@ export function BehaviorReportPageClient({
                     </div>
                     <div className="space-y-4">
                       {result.pdaConsiderations.map((item) => (
-                        <article key={item.strategy} className="rounded-2xl border border-[var(--wc-sage)]/20 bg-[var(--wc-paper)]/85 p-4">
+                        <article
+                          key={item.strategy}
+                          className="print-break-avoid rounded-2xl border border-[var(--wc-sage)]/20 bg-[var(--wc-paper)]/85 p-4"
+                        >
                           <h4 className="text-lg font-semibold text-[var(--wc-sage-dark)]">{item.strategy}</h4>
                           <p className="mt-2 text-sm leading-6 text-[var(--wc-brown-dark)]">{item.explanation}</p>
                           <div className="mt-3 rounded-2xl bg-[var(--wc-sage-pale)]/60 p-3">
@@ -493,7 +524,7 @@ export function BehaviorReportPageClient({
             </div>
           ) : (
             <>
-              <div className="wc-card p-6 space-y-6">
+              <div className="wc-card p-6 space-y-6 print:hidden">
                 <DualUploadZone
                   onFilesSelect={(behaviorReport, iepDocument) =>
                     void submitBehaviorRequest(behaviorReport, iepDocument)
@@ -549,7 +580,7 @@ export function BehaviorReportPageClient({
               </div>
 
               {savedHistory.length > 0 ? (
-                <div className="wc-card overflow-hidden">
+                <div className="wc-card overflow-hidden print:hidden">
                   <div className="flex flex-col gap-3 border-b bg-[var(--wc-sage-pale)]/30 p-4 md:flex-row md:items-center md:justify-between">
                     <div className="space-y-1">
                       <h2 className="font-semibold text-[var(--wc-brown-darker)]">Saved report history</h2>
