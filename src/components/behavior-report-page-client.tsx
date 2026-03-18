@@ -8,6 +8,8 @@ import {
   Brain,
   CheckCircle,
   Clock,
+  FileSearch,
+  Printer,
   Sparkles,
   Trash2,
 } from "lucide-react";
@@ -22,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import type {
   ApiResponse,
   BehaviorReportAnalysis,
+  BehaviorGuidanceItem,
   StoredBehaviorHistoryEntry,
 } from "@/lib/server/api-types";
 import analytics from "@/services/analytics";
@@ -45,6 +48,14 @@ type BehaviorReportPageClientProps = {
   historyLimit: number;
 };
 
+function getGuidanceBadge(item: BehaviorGuidanceItem) {
+  if (item.source === "BIR") {
+    return "bg-[var(--wc-ochre-pale)] text-[var(--wc-ochre-dark)] border-[var(--wc-ochre)]/20";
+  }
+
+  return "bg-[var(--wc-blue-pale)] text-[var(--wc-blue-dark)] border-[var(--wc-blue)]/20";
+}
+
 export function BehaviorReportPageClient({
   featureEnabled,
   maintenanceMode,
@@ -66,7 +77,11 @@ export function BehaviorReportPageClient({
     setSavedHistory(loadBehaviorHistory());
   }, []);
 
-  function persistHistory(report: BehaviorReportAnalysis, behaviorFileName: string, iepFileName: string) {
+  function persistHistory(
+    report: BehaviorReportAnalysis,
+    behaviorFileName: string,
+    iepFileName: string,
+  ) {
     const next = saveBehaviorHistory(
       {
         id: crypto.randomUUID(),
@@ -93,6 +108,9 @@ export function BehaviorReportPageClient({
     });
     setResult(entry.fullReport);
     setError(null);
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "auto" });
+    });
   }
 
   function removeHistoryEntry(entryId: string) {
@@ -128,11 +146,7 @@ export function BehaviorReportPageClient({
       if (data.ok) {
         setResult(data.data);
         analytics.trackEvent("generated_behavior_report");
-        persistHistory(
-          data.data,
-          behaviorReport.name,
-          iepDocument.name,
-        );
+        persistHistory(data.data, behaviorReport.name, iepDocument.name);
         return;
       }
 
@@ -214,110 +228,272 @@ export function BehaviorReportPageClient({
             />
           ) : result ? (
             <div className="space-y-6">
-              <div className="bg-white rounded-xl border p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-2xl font-bold">Behavior Incident Analysis</h2>
-                  <p className="text-muted-foreground">
-                    {fileNames
-                      ? `${fileNames.behavior} compared with ${fileNames.iep}`
-                      : "Review your report below."}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" onClick={() => window.print()}>
-                    Print / Save PDF
-                  </Button>
-                  <Button variant="premium" onClick={() => setResult(null)}>
-                    Analyze Another Incident
-                  </Button>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl border p-6">
-                <h3 className="font-semibold text-lg">Executive Summary</h3>
-                <p className="mt-3 text-slate-700">{result.summary}</p>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="bg-green-50 rounded-xl border border-green-200 p-6">
-                  <h3 className="flex items-center gap-2 font-semibold text-green-900 mb-3">
-                    <CheckCircle className="h-5 w-5" />
-                    What went well
-                  </h3>
-                  <ul className="space-y-2 text-sm text-green-900">
-                    {result.whatWentWell.map((item) => (
-                      <li key={item}>• {item}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="bg-amber-50 rounded-xl border border-amber-200 p-6">
-                  <h3 className="flex items-center gap-2 font-semibold text-amber-900 mb-3">
-                    <AlertTriangle className="h-5 w-5" />
-                    What could be better
-                  </h3>
-                  <ul className="space-y-2 text-sm text-amber-900">
-                    {result.whatCouldBeBetter.map((item) => (
-                      <li key={item}>• {item}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl border p-6">
-                <h3 className="flex items-center gap-2 font-semibold text-lg mb-4">
-                  <BookOpen className="h-5 w-5 text-blue-600" />
-                  IEP strategies that should have been applied
-                </h3>
-                <div className="space-y-4">
-                  {result.iepGuidance.map((item) => (
-                    <div key={`${item.title}-${item.page ?? "na"}`} className="border rounded-lg p-4">
-                      <h4 className="font-semibold">{item.title}</h4>
-                      <p className="mt-2 text-sm text-slate-700">{item.description}</p>
-                      {item.quote ? (
-                        <blockquote className="mt-3 border-l-2 border-slate-200 pl-3 text-sm italic text-slate-600">
-                          “{item.quote}”{item.page ? ` (Page ${item.page})` : ""}
-                        </blockquote>
-                      ) : null}
+              <section className="wc-card relative overflow-hidden p-6 md:p-8">
+                <div className="absolute inset-0 wc-wash-blend opacity-45" aria-hidden="true" />
+                <div
+                  className="absolute -top-12 left-0 h-36 w-36 rounded-full bg-[var(--wc-sage)]/10 blur-3xl"
+                  aria-hidden="true"
+                />
+                <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                  <div className="max-w-3xl space-y-3">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-[var(--wc-sage)]/20 bg-[var(--wc-sage-pale)]/80 px-3 py-1 text-sm font-semibold text-[var(--wc-sage-dark)]">
+                      <FileSearch className="h-4 w-4" />
+                      Behavior Incident Analysis
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl border p-6">
-                <h3 className="flex items-center gap-2 font-semibold text-lg mb-4">
-                  <Sparkles className="h-5 w-5 text-indigo-600" />
-                  Recommendations for future incidents
-                </h3>
-                <ul className="space-y-2 text-sm text-slate-700">
-                  {result.futureRecommendations.map((item) => (
-                    <li key={item}>• {item}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="bg-purple-50 rounded-xl border border-purple-200 p-6">
-                <h3 className="flex items-center gap-2 font-semibold text-lg mb-4 text-purple-900">
-                  <Brain className="h-5 w-5 text-purple-600" />
-                  PDA considerations
-                </h3>
-                <div className="space-y-4">
-                  {result.pdaConsiderations.map((item) => (
-                    <div key={item.strategy} className="bg-white rounded-lg border border-purple-100 p-4">
-                      <h4 className="font-semibold text-purple-900">{item.strategy}</h4>
-                      <p className="mt-2 text-sm text-slate-700">{item.explanation}</p>
-                      <p className="mt-2 text-sm text-purple-900">
-                        How to implement: {item.howToImplement}
+                    <div>
+                      <h2 className="text-3xl font-bold tracking-tight text-[var(--wc-brown-darker)]">
+                        A clearer picture of what happened and what should change
+                      </h2>
+                      <p className="mt-2 text-base leading-7 text-[var(--wc-brown-dark)]">
+                        {fileNames
+                          ? `${fileNames.behavior} compared with ${fileNames.iep}`
+                          : "Review your report below."}
                       </p>
                     </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline-organic" onClick={() => window.print()}>
+                      <Printer className="h-4 w-4" />
+                      Print / Save PDF
+                    </Button>
+                    <Button
+                      variant="watercolor"
+                      onClick={() => {
+                        setResult(null);
+                        setFileNames(null);
+                      }}
+                    >
+                      Analyze Another Incident
+                    </Button>
+                  </div>
+                </div>
+              </section>
+
+              <div className="grid gap-4 lg:grid-cols-[1.35fr_1fr]">
+                <section className="wc-card p-6 md:p-7">
+                  <div className="flex items-start gap-4">
+                    <div className="mt-1 rounded-2xl bg-[var(--wc-ochre-pale)] p-3 text-[var(--wc-ochre-dark)]">
+                      <BookOpen className="h-5 w-5" />
+                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--wc-brown)]">
+                          Executive summary
+                        </p>
+                        <h3 className="mt-2 text-2xl font-semibold text-[var(--wc-brown-darker)]">
+                          What this incident review suggests
+                        </h3>
+                      </div>
+                      <p className="text-base leading-7 text-[var(--wc-brown-dark)]">{result.summary}</p>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="wc-card relative overflow-hidden p-6 md:p-7">
+                  <div className="absolute inset-0 wc-wash-blue opacity-60" aria-hidden="true" />
+                  <div className="relative space-y-4">
+                    <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--wc-brown)]">
+                      Report at a glance
+                    </p>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <div className="rounded-2xl bg-[var(--wc-paper)]/85 p-4 text-center">
+                        <div className="text-3xl font-bold text-[var(--wc-brown-darker)]">
+                          {result.whatWentWell.length}
+                        </div>
+                        <div className="mt-1 text-xs uppercase tracking-[0.18em] text-[var(--wc-brown)]">
+                          strengths
+                        </div>
+                      </div>
+                      <div className="rounded-2xl bg-[var(--wc-paper)]/85 p-4 text-center">
+                        <div className="text-3xl font-bold text-[var(--wc-brown-darker)]">
+                          {result.iepGuidance.length}
+                        </div>
+                        <div className="mt-1 text-xs uppercase tracking-[0.18em] text-[var(--wc-brown)]">
+                          IEP cues
+                        </div>
+                      </div>
+                      <div className="rounded-2xl bg-[var(--wc-paper)]/85 p-4 text-center">
+                        <div className="text-3xl font-bold text-[var(--wc-brown-darker)]">
+                          {result.pdaConsiderations.length}
+                        </div>
+                        <div className="mt-1 text-xs uppercase tracking-[0.18em] text-[var(--wc-brown)]">
+                          PDA ideas
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-sm leading-6 text-[var(--wc-brown-dark)]">
+                      The sections below separate supportive responses, missed supports, and next-step strategies for easier discussion with school staff.
+                    </p>
+                  </div>
+                </section>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <section className="wc-card wc-status-good p-6">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="rounded-2xl bg-[var(--wc-paper)]/85 p-2 text-[var(--wc-sage-dark)]">
+                      <CheckCircle className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-[var(--wc-sage-dark)]">What went well</h3>
+                      <p className="text-sm text-[var(--wc-brown-dark)]">
+                        Steps that already support regulation and dignity.
+                      </p>
+                    </div>
+                  </div>
+                  <ul className="space-y-3 text-sm leading-6 text-[var(--wc-brown-dark)]">
+                    {result.whatWentWell.map((item) => (
+                      <li key={item} className="flex gap-3">
+                        <span className="mt-1 text-[var(--wc-sage-dark)]">●</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+
+                <section className="wc-card wc-status-warning p-6">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="rounded-2xl bg-[var(--wc-paper)]/85 p-2 text-[var(--wc-gold-dark)]">
+                      <AlertTriangle className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-[var(--wc-gold-dark)]">What could be better</h3>
+                      <p className="text-sm text-[var(--wc-brown-dark)]">
+                        Missed supports or patterns that may have increased stress.
+                      </p>
+                    </div>
+                  </div>
+                  <ul className="space-y-3 text-sm leading-6 text-[var(--wc-brown-dark)]">
+                    {result.whatCouldBeBetter.map((item) => (
+                      <li key={item} className="flex gap-3">
+                        <span className="mt-1 text-[var(--wc-gold-dark)]">●</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              </div>
+
+              <section className="wc-card overflow-hidden">
+                <div className="border-b px-6 py-5 wc-wash-blue">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--wc-brown)]">
+                        Guidance from the documents
+                      </p>
+                      <h3 className="mt-2 text-2xl font-semibold text-[var(--wc-brown-darker)]">
+                        IEP strategies that should have shaped the response
+                      </h3>
+                    </div>
+                    <p className="max-w-2xl text-sm leading-6 text-[var(--wc-brown-dark)]">
+                      These items keep the applicable support, the source, and the citation together so the team can reference them quickly.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4 p-6">
+                  {result.iepGuidance.map((item) => (
+                    <article
+                      key={`${item.title}-${item.page ?? "na"}`}
+                      className="rounded-2xl border border-[var(--wc-blue)]/15 bg-[var(--wc-blue-pale)]/20 p-5"
+                    >
+                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h4 className="text-lg font-semibold text-[var(--wc-brown-darker)]">{item.title}</h4>
+                            <span
+                              className={`rounded-full border px-3 py-1 text-xs font-semibold ${getGuidanceBadge(item)}`}
+                            >
+                              {item.source ?? "IEP"}
+                            </span>
+                          </div>
+                          <p className="mt-3 text-sm leading-6 text-[var(--wc-brown-dark)]">{item.description}</p>
+                        </div>
+                        {item.page ? (
+                          <span className="shrink-0 rounded-full border border-[var(--wc-brown-muted)]/40 bg-[var(--wc-paper)] px-3 py-1 text-xs text-[var(--wc-brown)]">
+                            Page {item.page}
+                          </span>
+                        ) : null}
+                      </div>
+                      {item.quote ? (
+                        <blockquote className="mt-4 rounded-2xl border-l-4 border-[var(--wc-blue)]/40 bg-[var(--wc-paper)]/80 p-4 text-sm italic leading-6 text-[var(--wc-brown)]">
+                          <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] not-italic text-[var(--wc-blue-dark)]">
+                            Supporting quote
+                          </div>
+                          “{item.quote}”
+                        </blockquote>
+                      ) : null}
+                    </article>
                   ))}
                 </div>
+              </section>
+
+              <div className="grid gap-4 lg:grid-cols-[1.05fr_1.15fr]">
+                <section className="wc-card p-6 md:p-7">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="rounded-2xl bg-[var(--wc-blue-pale)] p-2 text-[var(--wc-blue-dark)]">
+                      <Sparkles className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-semibold text-[var(--wc-brown-darker)]">
+                        Recommendations for future incidents
+                      </h3>
+                      <p className="text-sm text-[var(--wc-brown-dark)]">
+                        Concrete next steps that can reduce escalation and improve alignment.
+                      </p>
+                    </div>
+                  </div>
+                  <ul className="space-y-4">
+                    {result.futureRecommendations.map((item, index) => (
+                      <li key={item} className="flex gap-4">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--wc-blue-pale)] text-sm font-semibold text-[var(--wc-blue-dark)]">
+                          {index + 1}
+                        </div>
+                        <p className="pt-1 text-sm leading-6 text-[var(--wc-brown-dark)]">{item}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+
+                <section className="wc-card relative overflow-hidden p-6 md:p-7">
+                  <div className="absolute inset-0 wc-wash-sage opacity-45" aria-hidden="true" />
+                  <div className="relative">
+                    <div className="mb-4 flex items-center gap-3">
+                      <div className="rounded-2xl bg-[var(--wc-paper)]/85 p-2 text-[var(--wc-sage-dark)]">
+                        <Brain className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-semibold text-[var(--wc-brown-darker)]">PDA considerations</h3>
+                        <p className="text-sm text-[var(--wc-brown-dark)]">
+                          Nervous-system-aware ideas that can support safer follow-through.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      {result.pdaConsiderations.map((item) => (
+                        <article key={item.strategy} className="rounded-2xl border border-[var(--wc-sage)]/20 bg-[var(--wc-paper)]/85 p-4">
+                          <h4 className="text-lg font-semibold text-[var(--wc-sage-dark)]">{item.strategy}</h4>
+                          <p className="mt-2 text-sm leading-6 text-[var(--wc-brown-dark)]">{item.explanation}</p>
+                          <div className="mt-3 rounded-2xl bg-[var(--wc-sage-pale)]/60 p-3">
+                            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--wc-sage-dark)]">
+                              How to implement
+                            </div>
+                            <p className="mt-2 text-sm leading-6 text-[var(--wc-brown-dark)]">
+                              {item.howToImplement}
+                            </p>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                </section>
               </div>
 
               <DonationPrompt />
             </div>
           ) : (
             <>
-              <div className="bg-white rounded-xl border p-6 space-y-6">
+              <div className="wc-card p-6 space-y-6">
                 <DualUploadZone
                   onFilesSelect={(behaviorReport, iepDocument) =>
                     void submitBehaviorRequest(behaviorReport, iepDocument)
@@ -342,7 +518,7 @@ export function BehaviorReportPageClient({
                     </div>
                     <div className="flex gap-2 justify-end">
                       <Button
-                        variant="outline"
+                        variant="outline-organic"
                         onClick={() => {
                           setPendingSubmission(null);
                           setWarningReason(null);
@@ -350,29 +526,43 @@ export function BehaviorReportPageClient({
                       >
                         Cancel
                       </Button>
-                      <Button onClick={() => void proceedWithWarning()}>
+                      <Button variant="watercolor" onClick={() => void proceedWithWarning()}>
                         Proceed Anyway
                       </Button>
                     </div>
                   </div>
                 ) : null}
+
+                <div className="rounded-2xl border border-[var(--wc-sage)]/15 bg-[var(--wc-sage-pale)]/35 p-4">
+                  <div className="max-w-2xl">
+                    <div className="flex items-center gap-2 font-medium text-[var(--wc-sage-dark)]">
+                      <Sparkles className="h-4 w-4" />
+                      What you’ll receive
+                    </div>
+                    <ul className="mt-3 space-y-2 text-sm text-[var(--wc-brown-dark)]">
+                      <li>Strengths and missed supports side by side</li>
+                      <li>IEP guidance with source and page context</li>
+                      <li>Future recommendations and PDA-aware implementation ideas</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
 
               {savedHistory.length > 0 ? (
-                <div className="bg-white rounded-xl border overflow-hidden">
-                  <div className="p-4 border-b bg-slate-50 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="wc-card overflow-hidden">
+                  <div className="flex flex-col gap-3 border-b bg-[var(--wc-sage-pale)]/30 p-4 md:flex-row md:items-center md:justify-between">
                     <div className="space-y-1">
-                      <h2 className="font-semibold">Saved device history</h2>
-                      <p className="text-xs text-muted-foreground">
+                      <h2 className="font-semibold text-[var(--wc-brown-darker)]">Saved report history</h2>
+                      <p className="text-xs text-[var(--wc-brown)]">
                         Reports are saved in this browser on this device until you delete them.
                       </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-[var(--wc-brown)]">
                         {savedHistory.length} item{savedHistory.length === 1 ? "" : "s"}
                       </span>
                       <Button
-                        variant="outline"
+                        variant="outline-organic"
                         size="sm"
                         onClick={() => {
                           clearBehaviorHistory();
@@ -383,21 +573,21 @@ export function BehaviorReportPageClient({
                       </Button>
                     </div>
                   </div>
-                  <div className="divide-y">
+                  <div className="divide-y divide-[var(--wc-ochre-pale)]">
                     {savedHistory.map((entry) => (
-                      <div key={entry.id} className="p-4 flex items-start justify-between gap-4">
+                      <div key={entry.id} className="flex items-start justify-between gap-4 p-4">
                         <button
-                          className="text-left flex-1"
+                          className="flex-1 cursor-pointer text-left disabled:cursor-not-allowed"
                           onClick={() => restoreHistory(entry)}
                           disabled={!entry.fullReport}
                         >
-                          <div className="font-medium">
+                          <div className="font-medium text-[var(--wc-brown-darker)]">
                             {entry.behaviorFileName} + {entry.iepFileName}
                           </div>
-                          <div className="mt-1 text-sm text-muted-foreground">
+                          <div className="mt-1 text-sm text-[var(--wc-brown-dark)]">
                             {entry.summary}
                           </div>
-                          <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+                          <div className="mt-2 flex items-center gap-3 text-xs text-[var(--wc-brown)]">
                             <span className="inline-flex items-center gap-1">
                               <Clock className="h-3 w-3" />
                               {new Date(entry.timestamp).toLocaleString()}
@@ -405,7 +595,7 @@ export function BehaviorReportPageClient({
                             <span>Full report saved</span>
                           </div>
                         </button>
-                        <Button variant="ghost" size="icon" onClick={() => removeHistoryEntry(entry.id)}>
+                        <Button variant="ghost-warm" size="icon" onClick={() => removeHistoryEntry(entry.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

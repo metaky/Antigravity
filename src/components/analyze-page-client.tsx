@@ -2,7 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { AlertCircle, Clock, Sparkles, Trash2 } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  FileText,
+  Printer,
+  Sparkles,
+  Trash2,
+  TriangleAlert,
+} from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { UploadZone } from "@/components/upload-zone";
@@ -12,6 +21,7 @@ import { FeatureUnavailable } from "@/components/feature-unavailable";
 import { HumanVerificationPanel } from "@/components/human-verification-panel";
 import { Button } from "@/components/ui/button";
 import type {
+  AnalyzeFindingCategory,
   AnalyzeReport,
   ApiResponse,
   StoredAnalyzeHistoryEntry,
@@ -35,6 +45,79 @@ type AnalyzePageClientProps = {
   maintenanceMode: boolean;
   historyLimit: number;
 };
+
+const categoryStyles: Record<
+  AnalyzeFindingCategory,
+  {
+    wash: string;
+    badgeClassName: string;
+    borderClassName: string;
+  }
+> = {
+  Goal: {
+    wash: "wc-wash-blue",
+    badgeClassName:
+      "bg-[var(--wc-blue-pale)] text-[var(--wc-blue-dark)] border-[var(--wc-blue)]/20",
+    borderClassName: "border-[var(--wc-blue)]/20",
+  },
+  Accommodation: {
+    wash: "wc-wash-sage",
+    badgeClassName:
+      "bg-[var(--wc-sage-pale)] text-[var(--wc-sage-dark)] border-[var(--wc-sage)]/20",
+    borderClassName: "border-[var(--wc-sage)]/20",
+  },
+  Service: {
+    wash: "wc-wash-ochre",
+    badgeClassName:
+      "bg-[var(--wc-ochre-pale)] text-[var(--wc-ochre-dark)] border-[var(--wc-ochre)]/20",
+    borderClassName: "border-[var(--wc-ochre)]/20",
+  },
+  "Behavior Plan": {
+    wash: "wc-wash-gold",
+    badgeClassName:
+      "bg-[var(--wc-gold-pale)] text-[var(--wc-gold-dark)] border-[var(--wc-gold)]/20",
+    borderClassName: "border-[var(--wc-gold)]/20",
+  },
+  General: {
+    wash: "wc-wash-blue",
+    badgeClassName:
+      "bg-[var(--wc-blue-pale)] text-[var(--wc-blue-dark)] border-[var(--wc-blue)]/20",
+    borderClassName: "border-[var(--wc-blue)]/20",
+  },
+};
+
+function getScoreTone(score: number) {
+  if (score >= 85) {
+    return {
+      label: "Strong foundation",
+      description: "This plan already includes several supportive, regulation-aware elements.",
+      accentClassName:
+        "bg-[var(--wc-sage-pale)] text-[var(--wc-sage-dark)] border-[var(--wc-sage)]/25",
+      ringClassName: "ring-[var(--wc-sage)]/20",
+      washClassName: "wc-wash-sage",
+    };
+  }
+
+  if (score >= 70) {
+    return {
+      label: "Promising with revisions",
+      description: "The plan shows support, but targeted changes could make daily implementation gentler.",
+      accentClassName:
+        "bg-[var(--wc-gold-pale)] text-[var(--wc-gold-dark)] border-[var(--wc-gold)]/25",
+      ringClassName: "ring-[var(--wc-gold)]/20",
+      washClassName: "wc-wash-gold",
+    };
+  }
+
+  return {
+    label: "Needs focused support",
+    description: "This plan may create extra strain without clearer autonomy-supportive language and supports.",
+    accentClassName:
+      "bg-[rgba(196,122,110,0.15)] text-[var(--wc-error-dark)] border-[var(--wc-error)]/25",
+    ringClassName: "ring-[var(--wc-error)]/20",
+    washClassName: "wc-wash-ochre",
+  };
+}
 
 export function AnalyzePageClient({
   featureEnabled,
@@ -72,6 +155,8 @@ export function AnalyzePageClient({
     );
   }, [result]);
 
+  const scoreTone = result ? getScoreTone(result.score) : null;
+
   function persistHistory(report: AnalyzeReport, fileName: string) {
     const next = saveAnalyzeHistory(
       {
@@ -96,6 +181,9 @@ export function AnalyzePageClient({
     setCurrentFileName(entry.fileName);
     setResult(entry.fullReport);
     setError(null);
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "auto" });
+    });
   }
 
   function removeHistoryEntry(entryId: string) {
@@ -103,10 +191,7 @@ export function AnalyzePageClient({
     setSavedHistory(remaining);
   }
 
-  async function submitAnalyzeRequest(
-    file: File,
-    warningId?: string,
-  ) {
+  async function submitAnalyzeRequest(file: File, warningId?: string) {
     setIsProcessing(true);
     setError(null);
     setWarningReason(null);
@@ -205,100 +290,324 @@ export function AnalyzePageClient({
             />
           ) : result ? (
             <div className="space-y-6">
-              <div className="bg-white rounded-xl border p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-2xl font-bold">Analysis Results</h2>
-                  <p className="text-muted-foreground">
-                    {currentFileName ? `Report for ${currentFileName}` : "Review your report below."}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" onClick={() => window.print()}>
-                    Print / Save PDF
-                  </Button>
-                  <Button
-                    variant="premium"
-                    onClick={() => {
-                      setResult(null);
-                      setCurrentFileName(null);
-                      setWarningReason(null);
-                      setError(null);
-                    }}
-                  >
-                    Analyze Another File
-                  </Button>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="bg-white rounded-xl border p-6 text-center">
-                  <div className="text-sm uppercase tracking-wide text-muted-foreground">
-                    PDA Affirming Score
-                  </div>
-                  <div className="text-5xl font-bold mt-3">{result.score}</div>
-                </div>
-                <div className="bg-white rounded-xl border p-6 md:col-span-2">
-                  <div className="text-sm uppercase tracking-wide text-muted-foreground">
-                    Summary
-                  </div>
-                  <p className="mt-3 text-slate-700">{result.summary}</p>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="bg-green-50 rounded-xl border border-green-200 p-6">
-                  <h3 className="font-semibold text-green-900 mb-3">Strengths</h3>
-                  <ul className="space-y-2 text-sm text-green-900">
-                    {result.strengths.map((item) => (
-                      <li key={item}>• {item}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="bg-amber-50 rounded-xl border border-amber-200 p-6">
-                  <h3 className="font-semibold text-amber-900 mb-3">Opportunities</h3>
-                  <ul className="space-y-2 text-sm text-amber-900">
-                    {result.opportunities.map((item) => (
-                      <li key={item}>• {item}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                {groupedResults.map(([category, items]) => (
-                  <div key={category} className="bg-white rounded-xl border p-6">
-                    <h3 className="text-xl font-semibold mb-4">{category}</h3>
-                    <div className="space-y-4">
-                      {items.map((item) => (
-                        <div key={`${item.title}-${item.page ?? "na"}`} className="border rounded-lg p-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
-                              <h4 className="font-semibold">{item.title}</h4>
-                              <p className="text-sm text-muted-foreground">{item.status}</p>
-                            </div>
-                            {item.page ? (
-                              <span className="text-xs text-muted-foreground">Page {item.page}</span>
-                            ) : null}
-                          </div>
-                          <p className="mt-3 text-sm text-slate-700">{item.description}</p>
-                          <p className="mt-3 text-sm font-medium text-slate-900">
-                            Recommendation: {item.recommendation}
-                          </p>
-                          <blockquote className="mt-3 border-l-2 border-slate-200 pl-3 text-sm italic text-slate-600">
-                            “{item.quote}”
-                          </blockquote>
-                        </div>
-                      ))}
+              <section className="wc-card relative overflow-hidden p-6 md:p-8">
+                <div className="absolute inset-0 wc-wash-blend opacity-45" aria-hidden="true" />
+                <div
+                  className="absolute -top-12 right-0 h-36 w-36 rounded-full bg-[var(--wc-blue)]/10 blur-3xl"
+                  aria-hidden="true"
+                />
+                <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                  <div className="max-w-3xl space-y-3">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-[var(--wc-blue)]/20 bg-[var(--wc-blue-pale)]/75 px-3 py-1 text-sm font-semibold text-[var(--wc-blue-dark)]">
+                      <Sparkles className="h-4 w-4" />
+                      Analysis Results
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-bold tracking-tight text-[var(--wc-brown-darker)]">
+                        Your report is organized for quick decision-making
+                      </h2>
+                      <p className="mt-2 text-base leading-7 text-[var(--wc-brown-dark)]">
+                        {currentFileName ? `Report for ${currentFileName}` : "Review your report below."}
+                      </p>
                     </div>
                   </div>
-                ))}
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline-organic" onClick={() => window.print()}>
+                      <Printer className="h-4 w-4" />
+                      Print / Save PDF
+                    </Button>
+                    <Button
+                      variant="watercolor"
+                      onClick={() => {
+                        setResult(null);
+                        setCurrentFileName(null);
+                        setWarningReason(null);
+                        setError(null);
+                      }}
+                    >
+                      Analyze Another File
+                    </Button>
+                  </div>
+                </div>
+              </section>
+
+              <div className="grid gap-4 lg:grid-cols-[1.1fr_1.9fr]">
+                <section
+                  className={`wc-card relative overflow-hidden p-6 md:p-7 ring-1 ${scoreTone?.ringClassName ?? ""}`}
+                >
+                  <div
+                    className={`absolute inset-0 opacity-80 ${scoreTone?.washClassName ?? ""}`}
+                    aria-hidden="true"
+                  />
+                  <div className="relative space-y-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--wc-brown)]">
+                          PDA Affirming Score
+                        </p>
+                        <p className="mt-2 text-sm text-[var(--wc-brown-dark)]">
+                          A quick snapshot of how well this plan supports regulation and autonomy.
+                        </p>
+                      </div>
+                      <div className="min-w-[9rem] rounded-[2rem] border border-[var(--wc-paper)]/80 bg-[var(--wc-paper)]/90 px-5 py-4 text-center shadow-sm backdrop-blur">
+                        <div className="text-6xl font-bold leading-none tracking-tight text-[var(--wc-brown-darker)] md:text-7xl">
+                          {result.score}
+                        </div>
+                        <div className="mt-3 text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-[var(--wc-brown)]">
+                          Score
+                        </div>
+                        <div className="mt-1 text-sm text-[var(--wc-brown)]/80">
+                          out of 100
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${scoreTone?.accentClassName ?? ""}`}
+                    >
+                      {scoreTone?.label}
+                    </div>
+                    <p className="text-sm leading-6 text-[var(--wc-brown-dark)]">
+                      {scoreTone?.description}
+                    </p>
+                  </div>
+                </section>
+
+                <section className="wc-card p-6 md:p-7">
+                  <div className="flex items-start gap-4">
+                    <div className="mt-1 rounded-2xl bg-[var(--wc-ochre-pale)] p-3 text-[var(--wc-ochre-dark)]">
+                      <FileText className="h-5 w-5" />
+                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--wc-brown)]">
+                          Plain-language summary
+                        </p>
+                        <h3 className="mt-2 text-2xl font-semibold text-[var(--wc-brown-darker)]">
+                          What stands out most in this plan
+                        </h3>
+                      </div>
+                      <p className="max-w-3xl text-base leading-7 text-[var(--wc-brown-dark)]">
+                        {result.summary}
+                      </p>
+                    </div>
+                  </div>
+                </section>
               </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <section className="wc-card wc-status-good p-6">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="rounded-2xl bg-[var(--wc-paper)]/85 p-2 text-[var(--wc-sage-dark)]">
+                      <CheckCircle2 className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-[var(--wc-sage-dark)]">Strengths to preserve</h3>
+                      <p className="text-sm text-[var(--wc-brown-dark)]">
+                        Effective supports already present in the document.
+                      </p>
+                    </div>
+                  </div>
+                  <ul className="space-y-3 text-sm leading-6 text-[var(--wc-brown-dark)]">
+                    {result.strengths.map((item) => (
+                      <li key={item} className="flex gap-3">
+                        <span className="mt-1 text-[var(--wc-sage-dark)]">●</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+
+                <section className="wc-card wc-status-warning p-6">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="rounded-2xl bg-[var(--wc-paper)]/85 p-2 text-[var(--wc-gold-dark)]">
+                      <TriangleAlert className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-[var(--wc-gold-dark)]">Opportunities to revise</h3>
+                      <p className="text-sm text-[var(--wc-brown-dark)]">
+                        Areas that may benefit from softer language or stronger supports.
+                      </p>
+                    </div>
+                  </div>
+                  <ul className="space-y-3 text-sm leading-6 text-[var(--wc-brown-dark)]">
+                    {result.opportunities.map((item) => (
+                      <li key={item} className="flex gap-3">
+                        <span className="mt-1 text-[var(--wc-gold-dark)]">●</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              </div>
+
+              <section className="wc-card p-6 md:p-7">
+                <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--wc-brown)]">
+                      Category guidance
+                    </p>
+                    <h3 className="mt-2 text-2xl font-semibold text-[var(--wc-brown-darker)]">
+                      Suggested adds and removals
+                    </h3>
+                  </div>
+                  <p className="max-w-2xl text-sm leading-6 text-[var(--wc-brown-dark)]">
+                    These suggestions group the findings into concrete document edits so it is easier to plan next steps.
+                  </p>
+                </div>
+
+                <div className="mt-6 grid gap-4 md:grid-cols-2">
+                  {Object.entries(result.categorySuggestions).map(([category, suggestions]) => {
+                    const style = categoryStyles[category as AnalyzeFindingCategory];
+
+                    return (
+                      <article
+                        key={category}
+                        className={`wc-card relative overflow-hidden border ${style.borderClassName} p-5`}
+                      >
+                        <div className={`absolute inset-0 opacity-65 ${style.wash}`} aria-hidden="true" />
+                        <div className="relative space-y-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <h4 className="text-lg font-semibold text-[var(--wc-brown-darker)]">{category}</h4>
+                            <span
+                              className={`rounded-full border px-3 py-1 text-xs font-semibold ${style.badgeClassName}`}
+                            >
+                              Focus area
+                            </span>
+                          </div>
+
+                          <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="rounded-2xl bg-[var(--wc-paper)]/80 p-4">
+                              <div className="text-sm font-semibold text-[var(--wc-sage-dark)]">Consider adding</div>
+                              <ul className="mt-3 space-y-2 text-sm leading-6 text-[var(--wc-brown-dark)]">
+                                {suggestions.add.length > 0 ? (
+                                  suggestions.add.map((item) => (
+                                    <li key={item} className="flex gap-2">
+                                      <span className="mt-1 text-[var(--wc-sage-dark)]">+</span>
+                                      <span>{item}</span>
+                                    </li>
+                                  ))
+                                ) : (
+                                  <li className="text-[var(--wc-brown)]">No specific additions suggested.</li>
+                                )}
+                              </ul>
+                            </div>
+
+                            <div className="rounded-2xl bg-[var(--wc-paper)]/80 p-4">
+                              <div className="text-sm font-semibold text-[var(--wc-error-dark)]">Consider removing</div>
+                              <ul className="mt-3 space-y-2 text-sm leading-6 text-[var(--wc-brown-dark)]">
+                                {suggestions.remove.length > 0 ? (
+                                  suggestions.remove.map((item) => (
+                                    <li key={item} className="flex gap-2">
+                                      <span className="mt-1 text-[var(--wc-error-dark)]">-</span>
+                                      <span>{item}</span>
+                                    </li>
+                                  ))
+                                ) : (
+                                  <li className="text-[var(--wc-brown)]">No removals called out for this section.</li>
+                                )}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <section className="space-y-4">
+                <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--wc-brown)]">
+                      Detailed findings
+                    </p>
+                    <h3 className="mt-2 text-2xl font-semibold text-[var(--wc-brown-darker)]">
+                      Finding-by-finding analysis with evidence
+                    </h3>
+                  </div>
+                  <p className="max-w-2xl text-sm leading-6 text-[var(--wc-brown-dark)]">
+                    Each section below groups related findings and keeps the recommendation next to the supporting quote.
+                  </p>
+                </div>
+
+                {groupedResults.map(([category, items]) => (
+                  <section key={category} className="wc-card overflow-hidden">
+                    <div className={`border-b px-6 py-5 ${categoryStyles[category as AnalyzeFindingCategory].wash}`}>
+                      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div>
+                          <h3 className="text-2xl font-semibold text-[var(--wc-brown-darker)]">{category}</h3>
+                          <p className="mt-1 text-sm text-[var(--wc-brown-dark)]">
+                            {items.length} finding{items.length === 1 ? "" : "s"} in this section
+                          </p>
+                        </div>
+                        <span
+                          className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${categoryStyles[category as AnalyzeFindingCategory].badgeClassName}`}
+                        >
+                          Organized by category
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4 p-6">
+                      {items.map((item) => (
+                        <article
+                          key={`${item.title}-${item.page ?? "na"}`}
+                          className={`rounded-2xl border p-5 ${
+                            item.status === "Good"
+                              ? "border-[var(--wc-sage)]/20 bg-[var(--wc-sage-pale)]/35"
+                              : "border-[var(--wc-gold)]/20 bg-[var(--wc-gold-pale)]/35"
+                          }`}
+                        >
+                          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                            <div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h4 className="text-lg font-semibold text-[var(--wc-brown-darker)]">{item.title}</h4>
+                                <span
+                                  className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                                    item.status === "Good"
+                                      ? "border-[var(--wc-sage)]/25 bg-[var(--wc-sage-pale)] text-[var(--wc-sage-dark)]"
+                                      : "border-[var(--wc-gold)]/25 bg-[var(--wc-gold-pale)] text-[var(--wc-gold-dark)]"
+                                  }`}
+                                >
+                                  {item.status}
+                                </span>
+                              </div>
+                              <p className="mt-3 text-sm leading-6 text-[var(--wc-brown-dark)]">{item.description}</p>
+                            </div>
+                            {item.page ? (
+                              <span className="shrink-0 rounded-full border border-[var(--wc-brown-muted)]/40 bg-[var(--wc-paper)] px-3 py-1 text-xs text-[var(--wc-brown)]">
+                                Page {item.page}
+                              </span>
+                            ) : null}
+                          </div>
+
+                          <div className="mt-4 grid gap-4 lg:grid-cols-[1.25fr_0.95fr]">
+                            <div className="rounded-2xl bg-[var(--wc-paper)]/80 p-4">
+                              <div className="text-sm font-semibold text-[var(--wc-brown-darker)]">Recommendation</div>
+                              <p className="mt-2 text-sm leading-6 text-[var(--wc-brown-dark)]">
+                                {item.recommendation}
+                              </p>
+                            </div>
+
+                            <blockquote className="rounded-2xl border-l-4 border-[var(--wc-blue)]/40 bg-[var(--wc-paper)]/80 p-4 text-sm italic leading-6 text-[var(--wc-brown)]">
+                              <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] not-italic text-[var(--wc-blue-dark)]">
+                                Supporting text
+                              </div>
+                              “{item.quote}”
+                            </blockquote>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </section>
 
               <DonationPrompt />
             </div>
           ) : (
             <>
-              <div className="bg-white rounded-xl border p-6 space-y-6">
+              <div className="wc-card p-6 space-y-6">
                 <UploadZone onFileSelect={handleFileSelect} isProcessing={isProcessing} />
 
                 {error ? (
@@ -318,7 +627,7 @@ export function AnalyzePageClient({
                     </div>
                     <div className="flex gap-2 justify-end">
                       <Button
-                        variant="outline"
+                        variant="outline-organic"
                         onClick={() => {
                           setPendingSubmission(null);
                           setWarningReason(null);
@@ -326,22 +635,23 @@ export function AnalyzePageClient({
                       >
                         Cancel
                       </Button>
-                      <Button onClick={() => void proceedWithWarning()}>
+                      <Button variant="watercolor" onClick={() => void proceedWithWarning()}>
                         Proceed Anyway
                       </Button>
                     </div>
                   </div>
                 ) : null}
 
-                <div className="rounded-xl border bg-slate-50 p-4">
+                <div className="rounded-2xl border border-[var(--wc-blue)]/15 bg-[var(--wc-blue-pale)]/35 p-4">
                   <div className="max-w-2xl">
-                    <div className="flex items-center gap-2 font-medium">
-                      <Sparkles className="h-4 w-4 text-indigo-600" />
+                    <div className="flex items-center gap-2 font-medium text-[var(--wc-blue-dark)]">
+                      <Sparkles className="h-4 w-4" />
                       What you’ll receive
                     </div>
-                    <ul className="mt-3 space-y-2 text-sm text-slate-700">
+                    <ul className="mt-3 space-y-2 text-sm text-[var(--wc-brown-dark)]">
                       <li>PDA affirming score</li>
                       <li>Strengths and opportunities</li>
+                      <li>Category-based adds and removals</li>
                       <li>Finding-by-finding analysis with citations</li>
                     </ul>
                   </div>
@@ -349,20 +659,20 @@ export function AnalyzePageClient({
               </div>
 
               {savedHistory.length > 0 ? (
-                <div className="bg-white rounded-xl border overflow-hidden">
-                  <div className="p-4 border-b bg-slate-50 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="wc-card overflow-hidden">
+                  <div className="flex flex-col gap-3 border-b bg-[var(--wc-blue-pale)]/30 p-4 md:flex-row md:items-center md:justify-between">
                     <div className="space-y-1">
-                      <h2 className="font-semibold">Saved device history</h2>
-                      <p className="text-xs text-muted-foreground">
+                      <h2 className="font-semibold text-[var(--wc-brown-darker)]">Saved report history</h2>
+                      <p className="text-xs text-[var(--wc-brown)]">
                         Reports are saved in this browser on this device until you delete them.
                       </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-[var(--wc-brown)]">
                         {savedHistory.length} item{savedHistory.length === 1 ? "" : "s"}
                       </span>
                       <Button
-                        variant="outline"
+                        variant="outline-organic"
                         size="sm"
                         onClick={() => {
                           clearAnalyzeHistory();
@@ -373,19 +683,17 @@ export function AnalyzePageClient({
                       </Button>
                     </div>
                   </div>
-                  <div className="divide-y">
+                  <div className="divide-y divide-[var(--wc-ochre-pale)]">
                     {savedHistory.map((entry) => (
-                      <div key={entry.id} className="p-4 flex items-start justify-between gap-4">
+                      <div key={entry.id} className="flex items-start justify-between gap-4 p-4">
                         <button
-                          className="text-left flex-1"
+                          className="flex-1 cursor-pointer text-left disabled:cursor-not-allowed"
                           onClick={() => restoreHistory(entry)}
                           disabled={!entry.fullReport}
                         >
-                          <div className="font-medium">{entry.fileName}</div>
-                          <div className="mt-1 text-sm text-muted-foreground">
-                            {entry.summary}
-                          </div>
-                          <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+                          <div className="font-medium text-[var(--wc-brown-darker)]">{entry.fileName}</div>
+                          <div className="mt-1 text-sm text-[var(--wc-brown-dark)]">{entry.summary}</div>
+                          <div className="mt-2 flex items-center gap-3 text-xs text-[var(--wc-brown)]">
                             <span className="inline-flex items-center gap-1">
                               <Clock className="h-3 w-3" />
                               {new Date(entry.timestamp).toLocaleString()}
@@ -394,7 +702,7 @@ export function AnalyzePageClient({
                             <span>Full report saved</span>
                           </div>
                         </button>
-                        <Button variant="ghost" size="icon" onClick={() => removeHistoryEntry(entry.id)}>
+                        <Button variant="ghost-warm" size="icon" onClick={() => removeHistoryEntry(entry.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

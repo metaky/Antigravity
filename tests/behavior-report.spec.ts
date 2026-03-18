@@ -56,3 +56,23 @@ test("behavior report warning override works without a hard page reload", async 
 
   await expect(page.getByRole("heading", { name: "Behavior Incident Analysis" })).toBeVisible();
 });
+
+test("behavior report history restores the report and scrolls back to the top", async ({ page }) => {
+  await page.goto("/behavior-report");
+
+  const fileInputs = page.locator('input[type="file"]');
+  await fileInputs.nth(0).setInputFiles(path.join(__dirname, "fixtures", "test_behavior_report.pdf"));
+  await fileInputs.nth(1).setInputFiles(path.join(__dirname, "fixtures", "test_iep.pdf"));
+
+  await page.getByRole("button", { name: "Generate Behavior Report Analysis" }).click();
+  await page.getByRole("button", { name: "Complete security check" }).click();
+
+  await page.getByRole("button", { name: "Analyze Another Incident" }).click();
+  await expect(page.getByText("Saved report history")).toBeVisible();
+
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.getByRole("button", { name: /test_behavior_report\.pdf \+ test_iep\.pdf/i }).click();
+
+  await expect(page.getByRole("heading", { name: "Behavior Incident Analysis" })).toBeVisible();
+  await expect.poll(async () => page.evaluate(() => window.scrollY)).toBeLessThan(32);
+});

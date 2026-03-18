@@ -65,8 +65,26 @@ test("history saves full reports automatically and can be cleared", async ({ pag
   await page.getByRole("button", { name: "Complete security check" }).click();
 
   await page.getByRole("button", { name: "Analyze Another File" }).click();
-  await expect(page.getByText("Saved device history")).toBeVisible();
+  await expect(page.getByText("Saved report history")).toBeVisible();
   await expect(page.getByText("Full report saved")).toBeVisible();
   await page.getByRole("button", { name: "Clear all history" }).click();
-  await expect(page.getByText("Saved device history")).not.toBeVisible();
+  await expect(page.getByText("Saved report history")).not.toBeVisible();
+});
+
+test("restoring analyze history scrolls back to the top of the report", async ({ page }) => {
+  await page.goto("/analyze");
+
+  const fileInput = page.locator('input[type="file"]');
+  await fileInput.setInputFiles(path.join(__dirname, "fixtures", "test_iep.pdf"));
+  await page.getByRole("button", { name: "Generate Report" }).click();
+  await page.getByRole("button", { name: "Complete security check" }).click();
+
+  await page.getByRole("button", { name: "Analyze Another File" }).click();
+  await expect(page.getByText("Saved report history")).toBeVisible();
+
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.getByRole("button", { name: /test_iep\.pdf/i }).click();
+
+  await expect(page.getByRole("heading", { name: "Analysis Results" })).toBeVisible();
+  await expect.poll(async () => page.evaluate(() => window.scrollY)).toBeLessThan(32);
 });
