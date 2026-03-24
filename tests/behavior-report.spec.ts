@@ -40,6 +40,16 @@ test("behavior report flow uses verified session and returns results", async ({ 
   await expect(page.getByText("PDA considerations")).toBeVisible();
 });
 
+test("plural behavior reports route lands on the working upload flow", async ({ page }) => {
+  await page.goto("/behavior-reports");
+
+  await expect(page).toHaveURL(/\/behavior-report$/);
+  await expect(page.getByRole("heading", { name: "Behavior Report Tool" })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Upload Both Documents to Continue" }),
+  ).toBeVisible();
+});
+
 test("behavior report warning override works without a hard page reload", async ({ page }) => {
   await page.goto("/behavior-report");
 

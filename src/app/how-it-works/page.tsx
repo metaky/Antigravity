@@ -1,195 +1,286 @@
-
-import { Navbar } from "@/components/navbar"
-import { Footer } from "@/components/footer"
-import { Upload, BrainCircuit, FileSearch, ShieldCheck, Sparkles, BicepsFlexed, Trophy } from "lucide-react"
-import { WhyIBuiltThis } from "@/components/why-i-built-this"
+import type { Metadata } from "next"
+import Link from "next/link"
 
 import { BottomCTA } from "@/components/bottom-cta"
-import type { Metadata } from "next"
+import { Footer } from "@/components/footer"
+import { Navbar } from "@/components/navbar"
+import { WhyIBuiltThis } from "@/components/why-i-built-this"
+import { buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
     title: "How It Works | PDA Your IEP",
     description: "Learn how our AI analyzes your IEP. We prioritize privacy and security while delivering specific, actionable advocacy strategies for PDA students.",
 }
 
+const trustPoints = ["Private", "PDA-aware", "Meeting-ready"] as const
+
+const processSteps = [
+    {
+        number: "01",
+        eyebrow: "Start with the paperwork",
+        title: "Secure Upload",
+        description:
+            "Upload your child's existing IEP or 504 Plan as a PDF. Your document is processed in-memory with safeguards designed to protect family data, so the first step feels simple without feeling risky.",
+        supportLabel: "At this stage",
+        supportDetail: "We focus on private handling, readable extraction, and getting the document ready for review.",
+        tone: {
+            badge: "border-[var(--wc-blue)]/20 bg-[var(--wc-blue-pale)] text-[var(--wc-blue-dark)]",
+            panel: "border-[var(--wc-blue)]/15 bg-[var(--wc-blue-pale)]/60",
+            rail: "bg-[var(--wc-blue)]/22",
+        },
+    },
+    {
+        number: "02",
+        eyebrow: "Interpret the plan",
+        title: "AI Logic + Expert Knowledge",
+        description:
+            'Our AI engine reads your IEP or 504 Plan and cross-references it against our curated "PDA Affirming Guide." It looks for the gap between standard school language and what PDA brains actually need.',
+        supportLabel: "What the review compares",
+        supportDetail: "Goal wording, accommodation fit, and whether the plan supports regulation instead of escalating demands.",
+        tone: {
+            badge: "border-[var(--wc-ochre)]/20 bg-[var(--wc-ochre-pale)] text-[var(--wc-ochre-dark)]",
+            panel: "border-[var(--wc-ochre)]/15 bg-[var(--wc-ochre-pale)]/65",
+            rail: "bg-[var(--wc-ochre)]/24",
+        },
+    },
+    {
+        number: "03",
+        eyebrow: "Find what matters",
+        title: "Detailed Analysis",
+        description:
+            'We identify "bad" goals (compliance-based) and suggest specific, PDA-affirming replacements. We also check for missing accommodations that are critical for nervous system safety.',
+        supportLabel: "What gets surfaced",
+        supportDetail: "You see where language needs reframing, where support is missing, and why each finding matters in real school settings.",
+        tone: {
+            badge: "border-[var(--wc-sage)]/20 bg-[var(--wc-sage-pale)] text-[var(--wc-sage-dark)]",
+            panel: "border-[var(--wc-sage)]/15 bg-[var(--wc-sage-pale)]/60",
+            rail: "bg-[var(--wc-sage)]/24",
+        },
+    },
+    {
+        number: "04",
+        eyebrow: "Bring it to the meeting",
+        title: "Advocate with Confidence",
+        description:
+            "You get a cleaner, data-backed report to take to your next school meeting. It is designed to help you show up with clearer language, stronger requests, and less second-guessing.",
+        supportLabel: "What it helps you do",
+        supportDetail: "Turn your understanding of your child into concrete talking points, priorities, and follow-up questions.",
+        tone: {
+            badge: "border-[var(--wc-gold)]/22 bg-[var(--wc-gold-pale)] text-[var(--wc-gold-dark)]",
+            panel: "border-[var(--wc-gold)]/15 bg-[var(--wc-gold-pale)]/70",
+            rail: "bg-[var(--wc-gold)]/26",
+        },
+    },
+] as const
+
+const reportSections = [
+    {
+        title: "What gets flagged",
+        tone: "text-[var(--wc-blue-dark)]",
+        items: [
+            "Goals that sound compliance-first instead of safety-based.",
+            "Accommodations that are vague, missing, or hard for staff to carry out consistently.",
+        ],
+    },
+    {
+        title: "What gets suggested",
+        tone: "text-[var(--wc-sage-dark)]",
+        items: [
+            "PDA-affirming rewrites that protect autonomy and nervous system safety.",
+            "Concrete support ideas that are easier to discuss in school meetings.",
+        ],
+    },
+    {
+        title: "What parents can bring to meetings",
+        tone: "text-[var(--wc-gold-dark)]",
+        items: [
+            "A clearer summary of the biggest issues to address first.",
+            "Specific talking points and follow-up questions for the team.",
+        ],
+    },
+] as const
+
+function ProcessStepRow(step: (typeof processSteps)[number]) {
+    return (
+        <article className="grid gap-4 md:grid-cols-[11rem_minmax(0,1fr)] md:gap-6">
+            <div className="relative flex items-start gap-4 md:min-h-full md:pl-2">
+                <div className="absolute left-[2.15rem] top-14 hidden h-[calc(100%+1.5rem)] w-px bg-[var(--wc-ochre-light)]/70 md:block" aria-hidden="true" />
+                <div
+                    className={cn(
+                        "relative z-10 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border bg-[var(--wc-paper)] text-sm font-bold text-[var(--wc-brown-darker)] shadow-sm",
+                        step.tone.badge
+                    )}
+                >
+                    {step.number}
+                </div>
+                <div className="pt-2 md:pl-5 md:pt-3">
+                    <p className="max-w-[6.25rem] text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[var(--wc-brown)] md:leading-8">
+                        {step.eyebrow}
+                    </p>
+                </div>
+            </div>
+
+            <div className="rounded-[1.85rem] border border-[var(--wc-ochre-pale)] bg-[var(--wc-paper)] p-6 shadow-[0_14px_40px_-28px_rgba(61,47,29,0.48)] md:p-7">
+                <div className="max-w-3xl space-y-4">
+                    <h3 className="text-2xl font-bold tracking-tight text-[var(--wc-brown-darker)] md:text-[2rem]">
+                        {step.title}
+                    </h3>
+                    <p className="text-base leading-8 text-[var(--wc-brown-dark)] md:text-lg">
+                        {step.description}
+                    </p>
+                </div>
+
+                <div className={cn("mt-6 rounded-[1.4rem] border p-4 md:p-5", step.tone.panel)}>
+                    <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[var(--wc-brown)]">
+                        {step.supportLabel}
+                    </p>
+                    <div className="mt-3 flex items-start gap-3">
+                        <span className={cn("mt-1 h-2.5 w-2.5 shrink-0 rounded-full", step.tone.rail)} aria-hidden="true" />
+                        <p className="text-sm leading-7 text-[var(--wc-brown-dark)] md:text-[15px]">
+                            {step.supportDetail}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </article>
+    )
+}
+
 export default function HowItWorksPage() {
     return (
         <div className="min-h-screen flex flex-col bg-[var(--wc-cream)]">
             <Navbar />
-            <main className="flex-1 pt-40 pb-20">
-                <div className="container mx-auto px-4 md:px-6 max-w-4xl">
-                    <div className="text-center mb-20 space-y-6 relative isolate">
-                        {/* Watercolor wash background */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] max-w-[90vw] h-[300px] wc-wash-blend blur-2xl rounded-full -z-10 opacity-60"></div>
 
-                        <h1 className="text-4xl font-display font-extrabold tracking-tight sm:text-5xl text-[var(--wc-brown-darker)]">
-                            How it Works
-                        </h1>
-                        <p className="text-xl text-[var(--wc-brown-dark)] max-w-2xl mx-auto">
-                            We combine advanced AI with expert-verified PDA strategies to turn your child's IEP or 504 Plan into a powerful tool for support, not just compliance.
-                        </p>
-                    </div>
+            <main className="flex-1 pt-32 pb-20 md:pt-36">
+                <div className="container mx-auto max-w-6xl px-4 md:px-6">
+                    <section className="relative overflow-hidden rounded-[2.25rem] border border-[var(--wc-ochre-pale)] bg-[var(--wc-paper)] px-6 py-10 shadow-[0_18px_60px_-32px_rgba(61,47,29,0.42)] sm:px-8 lg:px-12 lg:py-14">
+                        <div className="absolute inset-0 wc-wash-blend opacity-40" aria-hidden="true" />
+                        <div className="absolute -left-12 top-10 h-28 w-28 rounded-full bg-[var(--wc-blue)]/10 blur-3xl" aria-hidden="true" />
+                        <div className="absolute right-0 top-0 h-36 w-36 rounded-full bg-[var(--wc-gold)]/10 blur-3xl" aria-hidden="true" />
 
-                    <div className="space-y-24 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-[var(--wc-ochre-light)] before:to-transparent">
-
-                        {/* Step 1 */}
-                        <div className="relative flex flex-col md:flex-row items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-[var(--wc-paper)] shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 mb-4 md:mb-0">
-                                <span className="text-sm font-bold text-[var(--wc-brown-darker)]">1</span>
+                        <div className="relative z-10 max-w-3xl space-y-6">
+                            <div className="inline-flex items-center rounded-full border border-[var(--wc-blue)]/18 bg-[var(--wc-blue-pale)]/80 px-4 py-1.5 text-sm font-semibold text-[var(--wc-blue-dark)]">
+                                How PDA Your IEP works
                             </div>
 
-                            {/* Text Card */}
-                            <div className="w-full md:w-[calc(50%-2.5rem)] wc-card p-6 ml-8 md:ml-0 md:group-odd:mr-auto md:group-even:ml-auto">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="h-10 w-10 bg-[var(--wc-blue-pale)] rounded-lg flex items-center justify-center text-[var(--wc-blue-dark)]">
-                                        <Upload className="h-6 w-6" />
-                                    </div>
-                                    <h3 className="font-display font-bold text-lg text-[var(--wc-brown-darker)]">Secure Upload</h3>
-                                </div>
-                                <p className="text-[var(--wc-brown-dark)] leading-relaxed">
-                                    Upload your child's existing IEP or 504 Plan (PDF). We prioritize privacy: your document is processed in-memory and heavily safeguarded. No data is used to train public models.
+                            <div className="space-y-4">
+                                <h1 className="text-4xl font-extrabold tracking-tight text-[var(--wc-brown-darker)] sm:text-5xl lg:text-6xl">
+                                    How it Works
+                                </h1>
+                                <p className="max-w-2xl text-lg leading-8 text-[var(--wc-brown-dark)] md:text-xl">
+                                    We review your child's IEP or 504 Plan through a PDA-aware lens, then turn the findings into something you can actually use in your next school conversation.
                                 </p>
                             </div>
 
-                            {/* Visual Illustration (Opposite Step 1) */}
-                            <div className="hidden md:flex w-[calc(50%-2.5rem)] items-center justify-center p-8 md:order-first md:group-even:order-last">
-                                <div className="relative h-48 w-48 flex items-center justify-center">
-                                    <div className="absolute inset-0 wc-wash-blue rounded-full opacity-50 blur-2xl animate-pulse"></div>
-                                    <ShieldCheck className="h-32 w-32 text-[var(--wc-blue-wash)] absolute opacity-20" />
-                                    <Upload className="h-16 w-16 text-[var(--wc-blue-dark)] relative z-10 drop-shadow-xl bg-[var(--wc-paper)] p-3 rounded-2xl border border-[var(--wc-blue)]/20" />
-                                </div>
+                            <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-[var(--wc-brown-dark)]">
+                                {trustPoints.map((point, index) => (
+                                    <div key={point} className="inline-flex items-center gap-3">
+                                        <span>{point}</span>
+                                        {index < trustPoints.length - 1 ? (
+                                            <span className="h-1.5 w-1.5 rounded-full bg-[var(--wc-ochre)]/70" aria-hidden="true" />
+                                        ) : null}
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                                <Link
+                                    href="/analyze"
+                                    className={cn(buttonVariants({ variant: "watercolor", size: "xl" }), "w-full sm:w-auto")}
+                                >
+                                    Analyze IEP Now
+                                </Link>
+                                <p className="max-w-xl text-sm leading-7 text-[var(--wc-brown-dark)]">
+                                    Your document is handled privately in-memory.
+                                    {" "}
+                                    <Link href="/privacy" className="font-semibold text-[var(--wc-blue-dark)] underline decoration-[var(--wc-ochre)]/60 underline-offset-4">
+                                        Read our privacy approach
+                                    </Link>
+                                </p>
                             </div>
                         </div>
+                    </section>
 
-                        {/* Step 2 */}
-                        <div className="relative flex flex-col md:flex-row items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-[var(--wc-paper)] shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 mb-4 md:mb-0">
-                                <span className="text-sm font-bold text-[var(--wc-brown-darker)]">2</span>
+                    <section className="mt-16 md:mt-20">
+                        <div className="max-w-2xl space-y-4">
+                            <div className="inline-flex items-center rounded-full border border-[var(--wc-ochre)]/18 bg-[var(--wc-ochre-pale)]/85 px-4 py-1.5 text-sm font-semibold text-[var(--wc-ochre-dark)]">
+                                The process
                             </div>
+                            <h2 className="text-3xl font-bold tracking-tight text-[var(--wc-brown-darker)] sm:text-4xl md:text-[2.8rem]">
+                                One clear path from upload to a calmer, more useful report
+                            </h2>
+                            <p className="max-w-2xl text-lg leading-8 text-[var(--wc-brown-dark)]">
+                                This page is meant to help you follow the flow without sorting through competing panels. Each step answers one simple question: what happens next, and why it matters.
+                            </p>
+                        </div>
 
-                            {/* Text Card */}
-                            <div className="w-full md:w-[calc(50%-2.5rem)] wc-card p-6 ml-8 md:ml-0 md:group-odd:mr-auto md:group-even:ml-auto">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="h-10 w-10 bg-[var(--wc-ochre-pale)] rounded-lg flex items-center justify-center text-[var(--wc-ochre-dark)]">
-                                        <BrainCircuit className="h-6 w-6" />
-                                    </div>
-                                    <h3 className="font-display font-bold text-lg text-[var(--wc-brown-darker)]">AI Logic + Expert Knowledge</h3>
+                        <div className="mt-10 space-y-6 md:space-y-7">
+                            {processSteps.map((step, index) => (
+                                <div key={step.number} className="relative">
+                                    <ProcessStepRow {...step} />
+                                    {index < processSteps.length - 1 ? (
+                                        <div className="ml-6 mt-4 hidden h-6 w-px bg-[var(--wc-ochre-light)]/65 md:block" aria-hidden="true" />
+                                    ) : null}
                                 </div>
-                                <p className="text-[var(--wc-brown-dark)] leading-relaxed">
-                                    Our AI engine reads your IEP or 504 Plan and cross-references it against our curated <a href="/pda-guide" className="text-[var(--wc-blue-dark)] hover:underline font-medium">"PDA Affirming Guide"</a>. It understands the nuance between standard ASD supports and what PDA brains actually need.
+                            ))}
+                        </div>
+                    </section>
+
+                    <section className="mt-16 md:mt-20">
+                        <div className="rounded-[2rem] border border-[var(--wc-ochre-pale)] bg-[var(--wc-paper)] px-6 py-8 shadow-[0_16px_40px_-30px_rgba(61,47,29,0.35)] sm:px-8 md:px-10 md:py-10">
+                            <div className="max-w-3xl space-y-4">
+                                <div className="inline-flex items-center rounded-full border border-[var(--wc-sage)]/18 bg-[var(--wc-sage-pale)]/85 px-4 py-1.5 text-sm font-semibold text-[var(--wc-sage-dark)]">
+                                    What you get
+                                </div>
+                                <h2 className="text-3xl font-bold tracking-tight text-[var(--wc-brown-darker)] sm:text-4xl">
+                                    A report you can actually use
+                                </h2>
+                                <p className="text-lg leading-8 text-[var(--wc-brown-dark)]">
+                                    The finished report is designed to help you understand what needs attention first, what language to change, and what to bring into the room when you meet with the school.
                                 </p>
                             </div>
 
-                            {/* Visual Illustrated (Opposite Step 2) */}
-                            <div className="hidden md:flex w-[calc(50%-2.5rem)] items-center justify-center p-8 md:order-last md:group-even:order-first">
-                                <div className="relative h-48 w-48 flex items-center justify-center">
-                                    <div className="absolute inset-0 wc-wash-ochre rounded-full opacity-50 blur-2xl"></div>
-                                    <BrainCircuit className="h-32 w-32 text-[var(--wc-ochre-light)] absolute opacity-20" />
-                                    <div className="relative z-10 bg-[var(--wc-paper)] p-4 rounded-2xl border border-[var(--wc-ochre)]/20 shadow-lg flex flex-col items-center gap-2">
-                                        <div className="flex gap-2">
-                                            <div className="h-2 w-2 rounded-full bg-[var(--wc-ochre)]"></div>
-                                            <div className="h-2 w-8 rounded-full bg-[var(--wc-ochre-pale)]"></div>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <div className="h-2 w-2 rounded-full bg-[var(--wc-ochre)]"></div>
-                                            <div className="h-2 w-12 rounded-full bg-[var(--wc-ochre-pale)]"></div>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <div className="h-2 w-2 rounded-full bg-[var(--wc-ochre)]"></div>
-                                            <div className="h-2 w-6 rounded-full bg-[var(--wc-ochre-pale)]"></div>
-                                        </div>
+                            <div className="mt-8 grid gap-4 md:grid-cols-3">
+                                {reportSections.map((section) => (
+                                    <div
+                                        key={section.title}
+                                        className="rounded-[1.5rem] border border-[var(--wc-ochre)]/12 bg-[var(--wc-ivory)]/90 p-5"
+                                    >
+                                        <h3 className={cn("text-lg font-bold tracking-tight", section.tone)}>
+                                            {section.title}
+                                        </h3>
+                                        <ul className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--wc-brown-dark)]">
+                                            {section.items.map((item) => (
+                                                <li key={item} className="flex gap-3">
+                                                    <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--wc-ochre)]/70" aria-hidden="true" />
+                                                    <span>{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
+                    </section>
 
-                        {/* Step 3 */}
-                        <div className="relative flex flex-col md:flex-row items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-[var(--wc-paper)] shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 mb-4 md:mb-0">
-                                <span className="text-sm font-bold text-[var(--wc-brown-darker)]">3</span>
+                    <section className="mt-18 md:mt-24">
+                        <div className="max-w-2xl space-y-4 pb-6">
+                            <div className="inline-flex items-center rounded-full border border-[var(--wc-gold)]/18 bg-[var(--wc-gold-pale)]/80 px-4 py-1.5 text-sm font-semibold text-[var(--wc-gold-dark)]">
+                                Built from lived experience
                             </div>
-
-                            {/* Text Card */}
-                            <div className="w-full md:w-[calc(50%-2.5rem)] wc-card p-6 ml-8 md:ml-0 md:group-odd:mr-auto md:group-even:ml-auto">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="h-10 w-10 bg-[var(--wc-sage-pale)] rounded-lg flex items-center justify-center text-[var(--wc-sage-dark)]">
-                                        <FileSearch className="h-6 w-6" />
-                                    </div>
-                                    <h3 className="font-display font-bold text-lg text-[var(--wc-brown-darker)]">Detailed Analysis</h3>
-                                </div>
-                                <p className="text-[var(--wc-brown-dark)] leading-relaxed">
-                                    We identify "bad" goals (compliance-based) and suggest specific, PDA-affirming replacements. We also check for missing accommodations that are critical for nervous system safety.
-                                </p>
-                            </div>
-
-                            {/* Visual Illustration (Opposite Step 3) */}
-                            <div className="hidden md:flex w-[calc(50%-2.5rem)] items-center justify-center p-8 md:order-first md:group-even:order-last">
-                                <div className="relative h-48 w-48 flex items-center justify-center">
-                                    <div className="absolute inset-0 wc-wash-sage rounded-full opacity-50 blur-2xl"></div>
-                                    <FileSearch className="h-32 w-32 text-[var(--wc-sage-light)] absolute opacity-20" />
-
-                                    {/* Mini Card Mockup */}
-                                    <div className="relative z-10 bg-[var(--wc-paper)] p-4 rounded-xl border border-[var(--wc-sage)]/20 shadow-xl w-40 -rotate-3">
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <div className="h-6 w-6 rounded-full bg-[var(--wc-sage-pale)] flex items-center justify-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--wc-sage-dark)]"><polyline points="20 6 9 17 4 12" /></svg>
-                                            </div>
-                                            <div className="h-2 w-16 bg-[var(--wc-sage-pale)] rounded-full"></div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <div className="h-1.5 w-full bg-[var(--wc-ochre-pale)] rounded-full"></div>
-                                            <div className="h-1.5 w-3/4 bg-[var(--wc-ochre-pale)] rounded-full"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <p className="text-base leading-8 text-[var(--wc-brown-dark)] md:text-lg">
+                                If you want the human context behind the tool, here is the story. It sits after the process on purpose, so you can understand the product first and then the person behind it.
+                            </p>
                         </div>
 
-                        {/* Step 4 */}
-                        <div className="relative flex flex-col md:flex-row items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-[var(--wc-paper)] shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 mb-4 md:mb-0">
-                                <span className="text-sm font-bold text-[var(--wc-brown-darker)]">4</span>
-                            </div>
-
-                            {/* Text Card */}
-                            <div className="w-full md:w-[calc(50%-2.5rem)] wc-card p-6 ml-8 md:ml-0 md:group-odd:mr-auto md:group-even:ml-auto">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="h-10 w-10 bg-[var(--wc-gold-pale)] rounded-lg flex items-center justify-center text-[var(--wc-gold-dark)]">
-                                        <BicepsFlexed className="h-6 w-6" />
-                                    </div>
-                                    <h3 className="font-display font-bold text-lg text-[var(--wc-brown-darker)]">Advocate with Confidence</h3>
-                                </div>
-                                <p className="text-[var(--wc-brown-dark)] leading-relaxed">
-                                    You get a cleaner, data-backed report to take to your next school meeting. No more feeling overwhelmed or unsure of what to ask for.
-                                </p>
-                            </div>
-
-                            {/* Visual Illustration (Opposite Step 4) */}
-                            <div className="hidden md:flex w-[calc(50%-2.5rem)] items-center justify-center p-8 md:order-last md:group-even:order-first">
-                                <div className="relative h-48 w-48 flex items-center justify-center">
-                                    <div className="absolute inset-0 wc-wash-gold rounded-full opacity-50 blur-2xl"></div>
-                                    <BicepsFlexed className="h-32 w-32 text-[var(--wc-gold-light)] absolute opacity-20" />
-
-                                    <div className="relative z-10">
-                                        <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-[var(--wc-gold)] to-[var(--wc-ochre)] shadow-xl flex items-center justify-center transform rotate-3 hover:rotate-6 transition-transform">
-                                            <Trophy className="h-10 w-10 text-white" />
-                                        </div>
-                                        <div className="absolute -top-4 -right-4 bg-[var(--wc-paper)] p-2 rounded-lg shadow-lg">
-                                            <Sparkles className="h-6 w-6 text-[var(--wc-gold)] fill-[var(--wc-gold-light)]" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div className="mt-24">
                         <WhyIBuiltThis />
-                    </div>
+                    </section>
                 </div>
+
                 <BottomCTA />
             </main>
+
             <Footer />
         </div>
     )

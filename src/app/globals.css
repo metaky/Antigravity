@@ -425,9 +425,9 @@
      TYPOGRAPHY HELPERS
      ---------------------------------------- */
 
-  /* Display font (Caveat) for special headings */
+  /* Shared display font helper */
   .font-display {
-    font-family: var(--font-caveat), cursive;
+    font-family: var(--font-display), serif;
   }
 
   /* Warm brown text */
