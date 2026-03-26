@@ -1,5 +1,8 @@
 import { BehaviorReportPageClient } from "@/components/behavior-report-page-client";
-import { getServerConfig } from "@/lib/server/config";
+import {
+  getHumanVerificationMode,
+  getServerConfig,
+} from "@/lib/server/config";
 
 export default function BehaviorReportPage() {
   const config = getServerConfig();
@@ -9,6 +12,8 @@ export default function BehaviorReportPage() {
       featureEnabled={config.features.behaviorReport}
       maintenanceMode={config.maintenanceMode}
       historyLimit={config.history.retentionCap}
+      humanVerificationMode={getHumanVerificationMode(config)}
+      turnstileSiteKey={config.turnstile.siteKey}
     />
   );
 }

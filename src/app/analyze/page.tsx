@@ -1,5 +1,8 @@
 import { AnalyzePageClient } from "@/components/analyze-page-client";
-import { getServerConfig } from "@/lib/server/config";
+import {
+  getHumanVerificationMode,
+  getServerConfig,
+} from "@/lib/server/config";
 
 type AnalyzePageProps = {
   searchParams?: Promise<{ preview?: string }>;
@@ -16,6 +19,8 @@ export default async function AnalyzePage({ searchParams }: AnalyzePageProps) {
       featureEnabled={config.features.analyze && !previewMaintenance}
       maintenanceMode={config.maintenanceMode || previewMaintenance}
       historyLimit={config.history.retentionCap}
+      humanVerificationMode={getHumanVerificationMode(config)}
+      turnstileSiteKey={config.turnstile.siteKey}
     />
   );
 }

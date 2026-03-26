@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Script from "next/script";
 import { Button } from "@/components/ui/button";
 import { getSecurityHeaders, getSecurityTestToken } from "@/lib/client/security";
+import type { HumanVerificationMode } from "@/lib/human-verification";
 
 declare global {
   interface Window {
@@ -24,6 +25,8 @@ declare global {
 type HumanVerificationPanelProps = {
   open: boolean;
   purpose: "analyze" | "behavior-report";
+  verificationMode: HumanVerificationMode;
+  turnstileSiteKey: string | null;
   onClose: () => void;
   onVerified: () => void;
 };
@@ -31,16 +34,16 @@ type HumanVerificationPanelProps = {
 export function HumanVerificationPanel({
   open,
   purpose,
+  verificationMode,
+  turnstileSiteKey,
   onClose,
   onVerified,
 }: HumanVerificationPanelProps) {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTurnstileReady, setIsTurnstileReady] = useState(false);
   const widgetContainerRef = useRef<HTMLDivElement | null>(null);
   const widgetIdRef = useRef<string | null>(null);
-
-  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
-  const testMode = process.env.NEXT_PUBLIC_SECURITY_TEST_MODE === "true";
 
   const submitToken = useCallback(async (token: string) => {
     setIsSubmitting(true);
@@ -74,12 +77,28 @@ export function HumanVerificationPanel({
   }, [onVerified, purpose]);
 
   useEffect(() => {
-    if (!open || testMode || !siteKey || !window.turnstile || !widgetContainerRef.current) {
+    if (verificationMode !== "turnstile") {
+      setIsTurnstileReady(false);
+      return;
+    }
+
+    setIsTurnstileReady(Boolean(window.turnstile));
+  }, [verificationMode]);
+
+  useEffect(() => {
+    if (
+      !open ||
+      verificationMode !== "turnstile" ||
+      !turnstileSiteKey ||
+      !isTurnstileReady ||
+      !window.turnstile ||
+      !widgetContainerRef.current
+    ) {
       return;
     }
 
     widgetIdRef.current = window.turnstile.render(widgetContainerRef.current, {
-      sitekey: siteKey,
+      sitekey: turnstileSiteKey,
       callback: (token) => {
         void submitToken(token);
       },
@@ -94,7 +113,7 @@ export function HumanVerificationPanel({
         widgetIdRef.current = null;
       }
     };
-  }, [open, siteKey, submitToken, testMode]);
+  }, [isTurnstileReady, open, submitToken, turnstileSiteKey, verificationMode]);
 
   if (!open) {
     return null;
@@ -102,10 +121,11 @@ export function HumanVerificationPanel({
 
   return (
     <div className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm p-4 flex items-center justify-center">
-      {!testMode && siteKey ? (
+      {verificationMode === "turnstile" && turnstileSiteKey ? (
         <Script
           id="turnstile-api"
           src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+          onReady={() => setIsTurnstileReady(true)}
           strategy="afterInteractive"
         />
       ) : null}
@@ -119,7 +139,7 @@ export function HumanVerificationPanel({
           </p>
         </div>
 
-        {testMode ? (
+        {verificationMode === "test" ? (
           <Button
             className="w-full"
             onClick={() => void submitToken(getSecurityTestToken())}
@@ -127,7 +147,7 @@ export function HumanVerificationPanel({
           >
             {isSubmitting ? "Verifying..." : "Complete security check"}
           </Button>
-        ) : siteKey ? (
+        ) : verificationMode === "turnstile" && turnstileSiteKey ? (
           <div className="min-h-16 flex items-center justify-center" ref={widgetContainerRef} />
         ) : (
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">

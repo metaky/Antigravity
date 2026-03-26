@@ -26,6 +26,7 @@ import type {
   ApiResponse,
   StoredAnalyzeHistoryEntry,
 } from "@/lib/server/api-types";
+import type { HumanVerificationMode } from "@/lib/human-verification";
 import analytics from "@/services/analytics";
 import {
   clearAnalyzeHistory,
@@ -44,6 +45,8 @@ type AnalyzePageClientProps = {
   featureEnabled: boolean;
   maintenanceMode: boolean;
   historyLimit: number;
+  humanVerificationMode: HumanVerificationMode;
+  turnstileSiteKey: string | null;
 };
 
 const categoryStyles: Record<
@@ -123,6 +126,8 @@ export function AnalyzePageClient({
   featureEnabled,
   maintenanceMode,
   historyLimit,
+  humanVerificationMode,
+  turnstileSiteKey,
 }: AnalyzePageClientProps) {
   const printedAt = new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
@@ -750,6 +755,8 @@ export function AnalyzePageClient({
       <HumanVerificationPanel
         open={verificationOpen}
         purpose="analyze"
+        verificationMode={humanVerificationMode}
+        turnstileSiteKey={turnstileSiteKey}
         onClose={() => setVerificationOpen(false)}
         onVerified={() => void continueAfterVerification()}
       />

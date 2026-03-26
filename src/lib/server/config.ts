@@ -1,3 +1,5 @@
+import type { HumanVerificationMode } from "@/lib/human-verification";
+
 type FeatureKey = "analyze" | "behaviorReport";
 
 type ServerConfig = {
@@ -198,6 +200,20 @@ export function getServerConfig(): ServerConfig {
   });
 
   return cachedConfig;
+}
+
+export function getHumanVerificationMode(
+  config: ServerConfig = getServerConfig(),
+): HumanVerificationMode {
+  if (config.turnstile.siteKey && config.turnstile.secretKey) {
+    return "turnstile";
+  }
+
+  if (config.turnstile.allowTestTokens) {
+    return "test";
+  }
+
+  return "unconfigured";
 }
 
 export function resetServerConfigForTests() {

@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import {
+  getHumanVerificationMode,
   getServerConfig,
   resetServerConfigForTests,
 } from "@/lib/server/config";
@@ -13,6 +14,7 @@ const DEFAULT_ENV = {
   SESSION_SIGNING_SECRET: process.env.SESSION_SIGNING_SECRET,
   RAG_MOCK_MODE: process.env.RAG_MOCK_MODE,
   GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
   TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
   UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
   UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
@@ -64,5 +66,19 @@ test.describe("server config validation", () => {
     expect(config.security.useMemoryStore).toBeTruthy();
     expect(config.security.signingSecret).toBe("unit-test-signing-secret");
     expect(config.mockMode).toBeTruthy();
+    expect(getHumanVerificationMode(config)).toBe("test");
+  });
+
+  test("prefers turnstile mode when both keys are configured", () => {
+    process.env.FEATURE_ANALYZE_ENABLED = "true";
+    process.env.SECURITY_USE_MEMORY_STORE = "true";
+    process.env.SECURITY_ALLOW_TEST_TOKENS = "true";
+    process.env.SESSION_SIGNING_SECRET = "unit-test-signing-secret";
+    process.env.RAG_MOCK_MODE = "true";
+    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = "turnstile-site-key";
+    process.env.TURNSTILE_SECRET_KEY = "turnstile-secret-key";
+    resetServerConfigForTests();
+
+    expect(getHumanVerificationMode()).toBe("turnstile");
   });
 });

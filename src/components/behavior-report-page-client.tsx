@@ -27,6 +27,7 @@ import type {
   BehaviorGuidanceItem,
   StoredBehaviorHistoryEntry,
 } from "@/lib/server/api-types";
+import type { HumanVerificationMode } from "@/lib/human-verification";
 import analytics from "@/services/analytics";
 import {
   clearBehaviorHistory,
@@ -46,6 +47,8 @@ type BehaviorReportPageClientProps = {
   featureEnabled: boolean;
   maintenanceMode: boolean;
   historyLimit: number;
+  humanVerificationMode: HumanVerificationMode;
+  turnstileSiteKey: string | null;
 };
 
 function getGuidanceBadge(item: BehaviorGuidanceItem) {
@@ -60,6 +63,8 @@ export function BehaviorReportPageClient({
   featureEnabled,
   maintenanceMode,
   historyLimit,
+  humanVerificationMode,
+  turnstileSiteKey,
 }: BehaviorReportPageClientProps) {
   const printedAt = new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
@@ -645,6 +650,8 @@ export function BehaviorReportPageClient({
       <HumanVerificationPanel
         open={verificationOpen}
         purpose="behavior-report"
+        verificationMode={humanVerificationMode}
+        turnstileSiteKey={turnstileSiteKey}
         onClose={() => setVerificationOpen(false)}
         onVerified={() => void continueAfterVerification()}
       />
