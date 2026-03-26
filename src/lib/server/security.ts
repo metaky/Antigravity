@@ -88,10 +88,31 @@ async function getRequiredStore() {
   return store;
 }
 
+export function parseStoredJson<T>(value: unknown): T | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  if (typeof value === "string") {
+    return JSON.parse(value) as T;
+  }
+
+  if (typeof value === "object") {
+    return value as T;
+  }
+
+  throw new PublicApiError(
+    "Security session data is invalid.",
+    503,
+    "SECURITY_UNAVAILABLE",
+    true,
+  );
+}
+
 async function getJson<T>(key: string): Promise<T | null> {
   const store = await getRequiredStore();
   const value = await store.get(key);
-  return value ? (JSON.parse(value) as T) : null;
+  return parseStoredJson<T>(value);
 }
 
 async function setJson(key: string, value: unknown, ttlSeconds: number) {

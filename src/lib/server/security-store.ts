@@ -2,7 +2,7 @@ import { Redis } from "@upstash/redis";
 import { getServerConfig } from "@/lib/server/config";
 
 export interface SecurityStore {
-  get(key: string): Promise<string | null>;
+  get(key: string): Promise<unknown | null>;
   set(key: string, value: string, ttlSeconds: number): Promise<void>;
   del(key: string): Promise<void>;
   incr(key: string, ttlSeconds: number): Promise<number>;
@@ -58,7 +58,7 @@ class UpstashSecurityStore implements SecurityStore {
   constructor(private readonly redis: Redis) {}
 
   async get(key: string) {
-    const value = await this.redis.get<string>(key);
+    const value = await this.redis.get(key);
     return value ?? null;
   }
 
