@@ -42,13 +42,13 @@ export default function PrivacyPolicyPage() {
                         </ul>
 
                         <h3>B. Information We Collect Automatically</h3>
-                        <p>When you use our application, we automatically collect certain information to help us understand usage patterns and improve our services. This is done through a third-party analytics service called PostHog. The information collected includes:</p>
+                        <p>When you use our application, we automatically collect certain information to help us understand usage patterns and improve our services. This is done through a third-party analytics service called PostHog. Basic anonymous analytics are enabled by default unless you decline them in the site banner or your browser sends a Do Not Track signal. The information collected includes:</p>
                         <ul>
-                            <li><strong>Usage Data:</strong> We collect information about your interactions with the app, such as the features you use, buttons you click, and pages you view.</li>
-                            <li><strong>Session Replays:</strong> To improve the application’s usability and identify issues, we may record your sessions. These recordings capture your interactions with the user interface, such as clicks, scrolls, and navigation. <em>We take care to ensure that sensitive information (such as text in uploaded documents) is not captured in these recordings.</em></li>
+                            <li><strong>Usage Data:</strong> We collect anonymous information about your interactions with the app, such as the pages you view and the core features you use.</li>
                             <li><strong>Device Information:</strong> We may collect basic information about your device, such as browser type and operating system, to help us troubleshoot issues.</li>
                             <li><strong>Cookies:</strong> We use cookies and similar technologies to identify and track visitors, their usage of the website, and their website access preferences.</li>
                         </ul>
+                        <p>We do not currently use session replay recordings on this site.</p>
 
                         <h2>2. How We Use Your Information</h2>
                         <p>We use the information we collect to:</p>
@@ -72,7 +72,7 @@ export default function PrivacyPolicyPage() {
                         <h3>B. Service Providers</h3>
                         <p>We engage trusted third-party service providers to perform functions and provide services to us, such as:</p>
                         <ul>
-                            <li><strong>PostHog:</strong> For product analytics and session replay to understand user behavior and fix bugs. PostHog's use of your information is governed by their privacy policy.</li>
+                            <li><strong>PostHog:</strong> For anonymous product analytics that help us understand usage patterns and fix bugs. PostHog's use of your information is governed by their privacy policy.</li>
                             <li><strong>Stripe:</strong> For secure payment processing (future integration). We do not store your full credit card details.</li>
                             <li><strong>Hosting Providers:</strong> To store and serve our application (e.g., Vercel, AWS).</li>
                         </ul>
@@ -90,7 +90,7 @@ export default function PrivacyPolicyPage() {
                             <li><strong>The right to data portability</strong> – You have the right to request that we transfer the data that we have collected to another organization, or directly to you, under certain conditions.</li>
                         </ul>
                         <p>
-                            <strong>Opt-out:</strong> PostHog respects "Do Not Track" browser settings. You can also opt-out of PostHog tracking on this site by enabling "Do Not Track" in your browser settings.
+                            <strong>Opt-out:</strong> PostHog respects "Do Not Track" browser settings. If you prefer not to be tracked, choose "Decline analytics" in the site banner instead of keeping analytics on.
                         </p>
 
                         <h2>5. Data Retention and Security</h2>

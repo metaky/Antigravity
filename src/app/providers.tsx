@@ -7,7 +7,9 @@ import analytics, { type ConsentValue } from "@/services/analytics";
 function AnalyticsPageView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [consent, setConsent] = useState<ConsentValue | null>(null);
+  const [consent, setConsent] = useState<ConsentValue | null | "loading">(
+    "loading",
+  );
 
   useEffect(() => {
     setConsent(analytics.getStoredConsent());
@@ -23,7 +25,7 @@ function AnalyticsPageView() {
   }, []);
 
   useEffect(() => {
-    if (consent !== "granted" || !pathname) {
+    if (consent === "loading" || consent === "denied" || !pathname) {
       return;
     }
 
