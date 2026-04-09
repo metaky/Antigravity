@@ -1,26 +1,53 @@
 "use client";
 
 import posthog from "posthog-js";
+import {
+  isAnalyticsEnabledByPreference,
+  isDoNotTrackEnabled,
+  parseConsentValue,
+  type ConsentValue,
+} from "@/lib/client/analytics-consent";
+
+export type { ConsentValue } from "@/lib/client/analytics-consent";
 
 const CONSENT_KEY = "cookie_consent";
 let initialized = false;
-
-export type ConsentValue = "granted" | "denied";
 
 function getStoredConsent(): ConsentValue | null {
   if (typeof window === "undefined") {
     return null;
   }
 
-  const raw = window.localStorage.getItem(CONSENT_KEY);
-  return raw === "granted" || raw === "denied" ? raw : null;
+  return parseConsentValue(window.localStorage.getItem(CONSENT_KEY));
+}
+
+function isBrowserDoNotTrackEnabled() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const legacyWindow = window as Window & typeof globalThis & {
+    doNotTrack?: string;
+  };
+  const legacyNavigator = window.navigator as Navigator & {
+    msDoNotTrack?: string;
+  };
+
+  return isDoNotTrackEnabled([
+    window.navigator.doNotTrack,
+    legacyWindow.doNotTrack,
+    legacyNavigator.msDoNotTrack,
+  ]);
 }
 
 function shouldInitAnalytics() {
   return (
     typeof window !== "undefined" &&
-    Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY) &&
-    getStoredConsent() === "granted"
+    isAnalyticsEnabledByPreference({
+      posthogKey: process.env.NEXT_PUBLIC_POSTHOG_KEY,
+      consent: getStoredConsent(),
+      doNotTrack: isBrowserDoNotTrackEnabled(),
+    })
   );
 }
 
@@ -75,6 +102,7 @@ const analytics = {
   ensureInitialized,
   setConsent,
   trackEvent,
+  isBrowserDoNotTrackEnabled,
 };
 
 export default analytics;
