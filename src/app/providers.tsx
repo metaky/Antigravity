@@ -1,31 +1,27 @@
 "use client";
 
-import { PropsWithChildren, Suspense, useEffect, useState } from "react";
+import { PropsWithChildren, Suspense, useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import analytics, { type ConsentValue } from "@/services/analytics";
+import analytics from "@/services/analytics";
 
 function AnalyticsPageView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [consent, setConsent] = useState<ConsentValue | null | "loading">(
-    "loading",
-  );
+  const hasSeenInitialRouteRender = useRef(false);
 
   useEffect(() => {
-    setConsent(analytics.getStoredConsent());
-
-    const handleConsentChange = (event: Event) => {
-      const customEvent = event as CustomEvent<ConsentValue>;
-      setConsent(customEvent.detail);
-    };
-
-    window.addEventListener("cookie-consent-change", handleConsentChange);
-    return () =>
-      window.removeEventListener("cookie-consent-change", handleConsentChange);
+    analytics.trackEvent("$pageview", {
+      $current_url: window.location.href,
+    });
   }, []);
 
   useEffect(() => {
-    if (consent === "loading" || consent === "denied" || !pathname) {
+    if (!pathname) {
+      return;
+    }
+
+    if (!hasSeenInitialRouteRender.current) {
+      hasSeenInitialRouteRender.current = true;
       return;
     }
 
@@ -37,7 +33,7 @@ function AnalyticsPageView() {
     analytics.trackEvent("$pageview", {
       $current_url: url,
     });
-  }, [consent, pathname, searchParams]);
+  }, [pathname, searchParams]);
 
   return null;
 }
