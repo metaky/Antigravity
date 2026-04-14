@@ -60,7 +60,7 @@ function ensureInitialized() {
     api_host:
       process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com",
     person_profiles: "identified_only",
-    capture_pageview: true,
+    capture_pageview: false,
     autocapture: false,
     disable_session_recording: true,
   });
@@ -94,7 +94,11 @@ function trackEvent(eventName: string, properties?: Record<string, unknown>) {
   }
 
   ensureInitialized();
-  posthog.capture(eventName, properties);
+  posthog.capture(
+    eventName,
+    properties,
+    eventName === "$pageview" ? { send_instantly: true } : undefined,
+  );
 }
 
 const analytics = {
