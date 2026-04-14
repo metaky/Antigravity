@@ -13,6 +13,22 @@ export type { ConsentValue } from "@/lib/client/analytics-consent";
 const CONSENT_KEY = "cookie_consent";
 let initialized = false;
 
+function isAnalyticsDebugEnabled() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return new URLSearchParams(window.location.search).has("__analytics_debug");
+}
+
+function logAnalyticsDebug(message: string, details?: Record<string, unknown>) {
+  if (!isAnalyticsDebugEnabled()) {
+    return;
+  }
+
+  console.log("[PDA analytics]", message, details ?? {});
+}
+
 function getStoredConsent(): ConsentValue | null {
   if (typeof window === "undefined") {
     return null;
@@ -41,18 +57,29 @@ function isBrowserDoNotTrackEnabled() {
 }
 
 function shouldInitAnalytics() {
-  return (
+  const enabled =
     typeof window !== "undefined" &&
     isAnalyticsEnabledByPreference({
       posthogKey: process.env.NEXT_PUBLIC_POSTHOG_KEY,
       consent: getStoredConsent(),
       doNotTrack: isBrowserDoNotTrackEnabled(),
-    })
-  );
+    });
+
+  logAnalyticsDebug("shouldInitAnalytics", {
+    enabled,
+    consent: getStoredConsent(),
+    doNotTrack: isBrowserDoNotTrackEnabled(),
+    hasPosthogKey: Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY),
+  });
+
+  return enabled;
 }
 
 function ensureInitialized() {
   if (!shouldInitAnalytics() || initialized) {
+    logAnalyticsDebug("ensureInitialized skipped", {
+      initialized,
+    });
     return false;
   }
 
@@ -65,6 +92,7 @@ function ensureInitialized() {
     disable_session_recording: true,
   });
   initialized = true;
+  logAnalyticsDebug("ensureInitialized completed");
   return true;
 }
 
@@ -90,10 +118,17 @@ function setConsent(consent: ConsentValue) {
 
 function trackEvent(eventName: string, properties?: Record<string, unknown>) {
   if (!shouldInitAnalytics()) {
+    logAnalyticsDebug("trackEvent skipped", {
+      eventName,
+    });
     return;
   }
 
   ensureInitialized();
+  logAnalyticsDebug("trackEvent capture", {
+    eventName,
+    properties,
+  });
   posthog.capture(
     eventName,
     properties,
