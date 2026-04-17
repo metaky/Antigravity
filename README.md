@@ -16,6 +16,13 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+Notes for local testing:
+
+- `npm run dev` is intentionally bound to `127.0.0.1` only. This keeps local analyzer testing private and prevents accidental LAN exposure.
+- If you need to test from another device on your network, you must intentionally override the host binding for that session.
+- Analyzer uploads in normal local development use the app's default rate limits. High-limit test overrides are reserved for automated Playwright runs.
+- Run `npm run test:guards` as-is so Playwright can start its own isolated test server. Pointing the suite at an already-running dev server can cause false failures because it will use normal local rate limits instead of the test-only overrides.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

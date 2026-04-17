@@ -4,6 +4,10 @@ import {
   getServerConfig,
 } from "@/lib/server/config";
 
+// These analyzer pages must read runtime env because Cloud Run build-time and
+// runtime configuration can differ.
+export const dynamic = "force-dynamic";
+
 type AnalyzePageProps = {
   searchParams?: Promise<{ preview?: string }>;
 };

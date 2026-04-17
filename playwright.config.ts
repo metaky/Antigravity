@@ -18,6 +18,10 @@ const enabledEnv = {
   NEXT_PUBLIC_SECURITY_TEST_TOKEN: "codex-turnstile-test-token",
 };
 
+// These overrides are intentionally more permissive than everyday `npm run dev`
+// so automated safeguard tests can exercise repeated verification/upload flows
+// without fighting local recovery rate limits.
+
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: true,

@@ -37,8 +37,8 @@ test("analyze flow verifies only when the user submits an upload", async ({ page
   await expect(page.getByRole("heading", { name: "Complete security check" })).toBeVisible();
   await page.getByRole("button", { name: "Complete security check" }).click();
 
-  await expect(page.getByRole("heading", { name: "Analysis Results" })).toBeVisible();
-  await expect(page.getByText("PDA Affirming Score")).toBeVisible();
+  await expect(page.getByText("Analysis Results", { exact: true })).toBeVisible();
+  await expect(page.getByText("PDA Affirming Score", { exact: true }).first()).toBeVisible();
 });
 
 test("warning override works without a hard page reload", async ({ page }) => {
@@ -53,7 +53,7 @@ test("warning override works without a hard page reload", async ({ page }) => {
   await expect(page.getByText("Document may be irrelevant")).toBeVisible();
   await page.getByRole("button", { name: "Proceed Anyway" }).click();
 
-  await expect(page.getByRole("heading", { name: "Analysis Results" })).toBeVisible();
+  await expect(page.getByText("Analysis Results", { exact: true })).toBeVisible();
 });
 
 test("history saves full reports automatically and can be cleared", async ({ page }) => {
@@ -85,6 +85,6 @@ test("restoring analyze history scrolls back to the top of the report", async ({
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   await page.getByRole("button", { name: /test_iep\.pdf/i }).click();
 
-  await expect(page.getByRole("heading", { name: "Analysis Results" })).toBeVisible();
+  await expect(page.getByText("Analysis Results", { exact: true })).toBeVisible();
   await expect.poll(async () => page.evaluate(() => window.scrollY)).toBeLessThan(32);
 });

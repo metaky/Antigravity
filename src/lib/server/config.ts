@@ -176,8 +176,8 @@ export function getServerConfig(): ServerConfig {
         process.env.SECURITY_TEST_TOKEN ?? "codex-turnstile-test-token",
     },
     uploads: {
-      maxFileBytes: parseNumber(process.env.UPLOAD_MAX_FILE_BYTES, 10 * 1024 * 1024),
-      maxPdfPages: parseNumber(process.env.UPLOAD_MAX_PDF_PAGES, 120),
+      maxFileBytes: parseNumber(process.env.UPLOAD_MAX_FILE_BYTES, 20 * 1024 * 1024),
+      maxPdfPages: parseNumber(process.env.UPLOAD_MAX_PDF_PAGES, 200),
       maxPageWidth: parseNumber(process.env.UPLOAD_MAX_PAGE_WIDTH, 2000),
       maxPageHeight: parseNumber(process.env.UPLOAD_MAX_PAGE_HEIGHT, 2000),
       minExtractedTextLength: parseNumber(
