@@ -8,9 +8,9 @@ import Image from "next/image"
 
 export function LandingHero() {
     return (
-        <section className="relative overflow-hidden pt-32 pb-16 md:pt-48 md:pb-32 mt-16">
+        <section className="relative isolate overflow-hidden pt-32 pb-16 md:pt-48 md:pb-32 mt-16">
             {/* Background Image with Watercolor Overlay */}
-            <div className="absolute inset-0 -z-10">
+            <div className="absolute inset-0 z-0">
                 {/* The actual hero photo */}
                 <Image
                     src="/hero-tablet.jpg"
@@ -28,10 +28,10 @@ export function LandingHero() {
             </div>
 
             {/* Decorative watercolor splashes - reduced opacity to not compete */}
-            <div className="absolute top-20 left-10 w-64 h-64 bg-[var(--wc-gold)]/10 rounded-full blur-3xl animate-wc-float" />
-            <div className="absolute bottom-20 right-10 w-80 h-80 bg-[var(--wc-blue)]/10 rounded-full blur-3xl animate-wc-float" style={{ animationDelay: '2s' }} />
+            <div className="pointer-events-none absolute top-20 left-10 z-10 w-64 h-64 bg-[var(--wc-gold)]/10 rounded-full blur-3xl animate-wc-float" />
+            <div className="pointer-events-none absolute bottom-20 right-10 z-10 w-80 h-80 bg-[var(--wc-blue)]/10 rounded-full blur-3xl animate-wc-float" style={{ animationDelay: '2s' }} />
 
-            <div className="container mx-auto px-4 md:px-6 relative z-10 flex flex-col items-center">
+            <div className="container mx-auto px-4 md:px-6 relative z-20 flex flex-col items-center">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
