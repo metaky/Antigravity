@@ -7,6 +7,7 @@ import { Menu, X, Sparkles } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { usePathname } from "next/navigation"
+import analytics from "@/services/analytics"
 
 export function MobileNav() {
     const [isOpen, setIsOpen] = useState(false)
@@ -70,6 +71,12 @@ export function MobileNav() {
                             <Link
                                 href="/analyze"
                                 className="text-2xl font-semibold text-[var(--wc-brown-darker)] py-2 hover:text-[var(--wc-blue-dark)] transition-colors"
+                                onClick={() =>
+                                    analytics.trackEvent("analyze_cta_clicked", {
+                                        source: "mobile_nav_link",
+                                        destination: "/analyze",
+                                    })
+                                }
                             >
                                 Analyze IEP
                             </Link>
@@ -82,6 +89,12 @@ export function MobileNav() {
                             <Link
                                 href="/behavior-report"
                                 className="text-2xl font-semibold text-[var(--wc-brown-darker)] py-2 hover:text-[var(--wc-blue-dark)] transition-colors"
+                                onClick={() =>
+                                    analytics.trackEvent("behavior_report_cta_clicked", {
+                                        source: "mobile_nav_link",
+                                        destination: "/behavior-report",
+                                    })
+                                }
                             >
                                 Behavior Reports
                             </Link>
@@ -100,6 +113,12 @@ export function MobileNav() {
                             <Link
                                 href="/support"
                                 className="text-2xl font-semibold text-[var(--wc-brown-darker)] py-2 hover:text-[var(--wc-blue-dark)] transition-colors"
+                                onClick={() =>
+                                    analytics.trackEvent("support_cta_clicked", {
+                                        source: "mobile_nav_link",
+                                        destination: "/support",
+                                    })
+                                }
                             >
                                 Support & Donate
                             </Link>
@@ -118,7 +137,16 @@ export function MobileNav() {
                         </div>
 
                         <div className="mt-8 space-y-4 flex flex-col items-center w-full max-w-xs mx-auto">
-                            <Link href="/analyze" className={cn(buttonVariants({ variant: "watercolor", size: "lg" }), "w-full justify-center text-lg h-14 rounded-full")}>
+                            <Link
+                                href="/analyze"
+                                className={cn(buttonVariants({ variant: "watercolor", size: "lg" }), "w-full justify-center text-lg h-14 rounded-full")}
+                                onClick={() =>
+                                    analytics.trackEvent("analyze_cta_clicked", {
+                                        source: "mobile_nav_button",
+                                        destination: "/analyze",
+                                    })
+                                }
+                            >
                                 <Sparkles className="mr-2 h-5 w-5" />
                                 Analyze IEP Now
                             </Link>

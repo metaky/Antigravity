@@ -20,3 +20,16 @@ test("support page loads and has correct content", async ({ page }) => {
     await customButton.click();
     await expect(page.getByRole("button", { name: "Support" })).toBeVisible();
 });
+
+test("support flow opens the Stripe checkout link for the selected amount", async ({ page }) => {
+    await page.goto("/support");
+
+    await page.getByRole("button", { name: "$8 Medium" }).click();
+
+    const popupPromise = page.waitForEvent("popup");
+    await page.getByRole("button", { name: "Support $8" }).click();
+    const popup = await popupPromise;
+
+    await popup.waitForLoadState("domcontentloaded");
+    await expect(popup).toHaveURL(/buy\.stripe\.com/);
+});

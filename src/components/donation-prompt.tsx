@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Heart, Coffee } from "lucide-react"
+import analytics from "@/services/analytics"
 
 export function DonationPrompt() {
     return (
@@ -21,7 +22,15 @@ export function DonationPrompt() {
             </div>
 
             <div className="pt-2">
-                <Link href="/support">
+                <Link
+                    href="/support"
+                    onClick={() =>
+                        analytics.trackEvent("support_cta_clicked", {
+                            source: "donation_prompt",
+                            destination: "/support",
+                        })
+                    }
+                >
                     <Button
                         size="lg"
                         className="bg-orange-600 hover:bg-orange-700 text-white shadow-lg shadow-orange-200 gap-2"

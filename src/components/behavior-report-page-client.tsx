@@ -154,7 +154,9 @@ export function BehaviorReportPageClient({
 
       if (data.ok) {
         setResult(data.data);
-        analytics.trackEvent("generated_behavior_report");
+        analytics.trackEvent("generated_behavior_report", {
+          entry_point: "behavior_report_page",
+        });
         persistHistory(data.data, behaviorReport.name, iepDocument.name);
         return;
       }

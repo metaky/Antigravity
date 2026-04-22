@@ -1,5 +1,5 @@
 import { Heart, ArrowRight } from "lucide-react"
-import Link from "next/link"
+import { TrackedLink } from "@/components/tracked-link"
 
 export function WhyIBuiltThis() {
     return (
@@ -30,12 +30,14 @@ export function WhyIBuiltThis() {
                 {/* Actions */}
                 <div className="pt-4 space-y-4">
                     <div>
-                        <Link
+                        <TrackedLink
                             href="/support"
+                            eventName="support_cta_clicked"
+                            eventProperties={{ source: "why_i_built_this", destination: "/support" }}
                             className="inline-flex items-center gap-2 text-yellow-400 hover:text-yellow-300 font-bold text-lg underline hover:no-underline transition-colors"
                         >
                             Click here to support this project and others like it <ArrowRight className="h-5 w-5" />
-                        </Link>
+                        </TrackedLink>
                     </div>
                     <div>
                         <a

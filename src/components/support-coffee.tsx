@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Coffee } from "lucide-react"
+import analytics from "@/services/analytics"
 
 export function SupportCoffee() {
     const [selectedAmount, setSelectedAmount] = useState<number | "custom" | null>(null)
@@ -15,11 +16,22 @@ export function SupportCoffee() {
         "custom": "https://buy.stripe.com/7sY14o6JD0CO0Ddc8b7Zu02"
     }
 
+    const selectAmount = (amount: number | "custom") => {
+        setSelectedAmount(amount)
+        analytics.trackEvent("donation_amount_selected", {
+            amount: amount.toString(),
+        })
+    }
+
     const handleSupportClick = () => {
         if (!selectedAmount) return
 
         const link = STRIPE_LINKS[selectedAmount.toString()]
         if (link) {
+            analytics.trackEvent("donation_checkout_clicked", {
+                amount: selectedAmount.toString(),
+                provider: "stripe_payment_link",
+            })
             window.open(link, '_blank', 'noopener,noreferrer')
         }
     }
@@ -39,7 +51,7 @@ export function SupportCoffee() {
 
             <div className="grid grid-cols-3 gap-3 mb-8">
                 <button
-                    onClick={() => setSelectedAmount(3)}
+                    onClick={() => selectAmount(3)}
                     className={cn(
                         "flex flex-col items-center justify-center p-4 rounded-xl bg-white border transition-all hover:border-orange-300 hover:shadow-md",
                         selectedAmount === 3
@@ -51,7 +63,7 @@ export function SupportCoffee() {
                     <span className="text-xs text-gray-500 font-medium">Small</span>
                 </button>
                 <button
-                    onClick={() => setSelectedAmount(8)}
+                    onClick={() => selectAmount(8)}
                     className={cn(
                         "flex flex-col items-center justify-center p-4 rounded-xl bg-white border transition-all hover:border-orange-300 hover:shadow-md",
                         selectedAmount === 8
@@ -63,7 +75,7 @@ export function SupportCoffee() {
                     <span className="text-xs text-gray-500 font-medium">Medium</span>
                 </button>
                 <button
-                    onClick={() => setSelectedAmount("custom")}
+                    onClick={() => selectAmount("custom")}
                     className={cn(
                         "flex flex-col items-center justify-center p-4 rounded-xl bg-white border transition-all hover:border-orange-300 hover:shadow-md",
                         selectedAmount === "custom"

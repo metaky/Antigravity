@@ -1,11 +1,12 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useDropzone } from "react-dropzone"
 import { UploadCloud, FileText, XCircle, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import analytics from "@/services/analytics"
 
 interface DualUploadZoneProps {
     onFilesSelect: (behaviorReport: File, iepDocument: File) => void
@@ -123,6 +124,7 @@ export function DualUploadZone({ onFilesSelect, isProcessing = false }: DualUplo
     const [behaviorReport, setBehaviorReport] = useState<File | null>(null)
     const [iepDocument, setIepDocument] = useState<File | null>(null)
     const [error, setError] = useState<string | null>(null)
+    const hasTrackedReadyState = useRef(false)
 
     const handleBehaviorDrop = useCallback((acceptedFiles: File[]) => {
         setError(null)
@@ -148,13 +150,33 @@ export function DualUploadZone({ onFilesSelect, isProcessing = false }: DualUplo
         }
     }, [])
 
-    const handleAnalyze = () => {
-        if (behaviorReport && iepDocument) {
-            onFilesSelect(behaviorReport, iepDocument)
-        }
-    }
-
     const bothFilesReady = behaviorReport && iepDocument
+
+    useEffect(() => {
+        if (bothFilesReady && !hasTrackedReadyState.current) {
+            analytics.trackEvent("behavior_report_files_selected", {
+                behavior_file_type: "pdf",
+                iep_file_type: "pdf",
+            })
+            hasTrackedReadyState.current = true
+            return
+        }
+
+        if (!bothFilesReady) {
+            hasTrackedReadyState.current = false
+        }
+    }, [bothFilesReady])
+
+    const handleSubmit = () => {
+        if (!bothFilesReady) {
+            return
+        }
+
+        analytics.trackEvent("behavior_report_submission_started", {
+            entry_point: "behavior_report_page",
+        })
+        onFilesSelect(behaviorReport, iepDocument)
+    }
 
     return (
         <div className="w-full max-w-3xl mx-auto space-y-6">
@@ -201,7 +223,7 @@ export function DualUploadZone({ onFilesSelect, isProcessing = false }: DualUplo
                     <Button
                         size="xl"
                         className="w-full font-semibold shadow-lg shadow-indigo-500/20"
-                        onClick={handleAnalyze}
+                        onClick={handleSubmit}
                         disabled={!bothFilesReady}
                     >
                         {bothFilesReady ? "Generate Behavior Report Analysis" : "Upload Both Documents to Continue"}

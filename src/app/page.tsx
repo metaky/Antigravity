@@ -2,9 +2,9 @@ import { Navbar } from "@/components/navbar";
 import { LandingHero } from "@/components/landing-hero";
 import { Footer } from "@/components/footer";
 import { Target, Gauge, ClipboardCheck, FileWarning, ArrowRight } from "lucide-react";
-import Link from "next/link";
 
 import { BottomCTA } from "@/components/bottom-cta";
+import { TrackedLink } from "@/components/tracked-link";
 
 export default function Home() {
   return (
@@ -125,13 +125,15 @@ export default function Home() {
                     </ul>
                   </div>
                   <div className="shrink-0">
-                    <Link
+                    <TrackedLink
                       href="/behavior-report"
+                      eventName="behavior_report_cta_clicked"
+                      eventProperties={{ source: "homepage_behavior_promo", destination: "/behavior-report" }}
                       className="inline-flex items-center gap-2 px-6 py-4 rounded-full bg-gradient-to-r from-[var(--wc-sage)] to-[var(--wc-blue)] text-white font-semibold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
                     >
                       Analyze Your BIR
                       <ArrowRight className="w-5 h-5" />
-                    </Link>
+                    </TrackedLink>
                   </div>
                 </div>
               </div>

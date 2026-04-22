@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { ShieldCheck } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import analytics from "@/services/analytics"
 
 export function LandingHero() {
     return (
@@ -47,7 +48,16 @@ export function LandingHero() {
                         </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
-                        <Link href="/analyze" className={buttonVariants({ variant: "watercolor", size: "xl", className: "w-full sm:w-auto px-8 rounded-full shadow-lg" })}>
+                        <Link
+                            href="/analyze"
+                            className={buttonVariants({ variant: "watercolor", size: "xl", className: "w-full sm:w-auto px-8 rounded-full shadow-lg" })}
+                            onClick={() =>
+                                analytics.trackEvent("analyze_cta_clicked", {
+                                    source: "hero",
+                                    destination: "/analyze",
+                                })
+                            }
+                        >
                             Analyze IEP Now
                         </Link>
                         <Link href="/how-it-works" className={buttonVariants({ variant: "outline-organic", size: "xl", className: "bg-white/95 backdrop-blur-sm hover:bg-white text-[var(--wc-brown-darker)] shadow-lg" })}>

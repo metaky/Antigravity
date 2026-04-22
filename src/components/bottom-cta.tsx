@@ -1,5 +1,5 @@
-import Link from "next/link"
 import { buttonVariants } from "@/components/ui/button"
+import { TrackedLink } from "@/components/tracked-link"
 import { cn } from "@/lib/utils"
 
 export function BottomCTA() {
@@ -19,12 +19,14 @@ export function BottomCTA() {
                 <p className="text-lg text-[var(--wc-brown-dark)] max-w-[600px]">
                     Get instant, PDA-affirming feedback on your IEP or 504 Plan today.
                 </p>
-                <Link
+                <TrackedLink
                     href="/analyze"
+                    eventName="analyze_cta_clicked"
+                    eventProperties={{ source: "bottom_cta", destination: "/analyze" }}
                     className={cn(buttonVariants({ variant: "watercolor", size: "xl" }), "px-8 font-semibold rounded-full")}
                 >
                     Analyze IEP Now
-                </Link>
+                </TrackedLink>
             </div>
         </section>
     )

@@ -222,7 +222,9 @@ export function AnalyzePageClient({
       const data = (await response.json()) as ApiResponse<AnalyzeReport>;
       if (data.ok) {
         setResult(data.data);
-        analytics.trackEvent("generated_report");
+        analytics.trackEvent("generated_report", {
+          entry_point: "analyze_page",
+        });
         persistHistory(data.data, file.name);
         return;
       }

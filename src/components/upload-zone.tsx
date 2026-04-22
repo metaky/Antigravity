@@ -6,6 +6,7 @@ import { UploadCloud, FileText, XCircle, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import analytics from "@/services/analytics"
 
 interface UploadZoneProps {
     onFileSelect: (file: File) => void
@@ -25,6 +26,9 @@ export function UploadZone({ onFileSelect, isProcessing = false }: UploadZonePro
                 return
             }
             setFile(selectedFile)
+            analytics.trackEvent("analyze_file_selected", {
+                file_type: "pdf",
+            })
         }
     }, [])
 
@@ -46,6 +50,9 @@ export function UploadZone({ onFileSelect, isProcessing = false }: UploadZonePro
     const handleAnalyze = async (e: React.MouseEvent) => {
         e.stopPropagation()
         if (file) {
+            analytics.trackEvent("analyze_submission_started", {
+                entry_point: "analyze_page",
+            })
             onFileSelect(file)
         }
     }
