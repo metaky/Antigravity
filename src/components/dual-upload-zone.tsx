@@ -91,7 +91,10 @@ function UploadBox({ label, description, file, onDrop, onRemove, disabled, color
                             animate={{ opacity: 1, scale: 1 }}
                             className="w-full"
                         >
-                            <div className="relative bg-card rounded-xl shadow-sm border p-4 flex items-center gap-3">
+                            <div
+                                className="relative bg-card rounded-xl shadow-sm border p-4 flex items-center gap-3"
+                                data-ph-no-capture
+                            >
                                 <div className="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center shrink-0">
                                     <FileText className="h-5 w-5 text-red-600" />
                                 </div>

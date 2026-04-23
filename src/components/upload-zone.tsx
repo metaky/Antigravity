@@ -104,7 +104,10 @@ export function UploadZone({ onFileSelect, isProcessing = false }: UploadZonePro
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="w-full"
                             >
-                                <div className="relative bg-card rounded-xl shadow-lg border p-6 flex items-center gap-4 mb-8">
+                                <div
+                                    className="relative bg-card rounded-xl shadow-lg border p-6 flex items-center gap-4 mb-8"
+                                    data-ph-no-capture
+                                >
                                     <div className="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center shrink-0">
                                         <FileText className="h-6 w-6 text-red-600" />
                                     </div>

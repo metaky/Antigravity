@@ -89,7 +89,13 @@ function ensureInitialized() {
     person_profiles: "identified_only",
     capture_pageview: false,
     autocapture: false,
-    disable_session_recording: true,
+    disable_session_recording: false,
+    session_recording: {
+      // Keep replays useful for flow debugging while excluding tool output.
+      maskAllInputs: true,
+      maskTextSelector: "[data-ph-mask]",
+      blockSelector: "[data-ph-no-capture]",
+    },
   });
   initialized = true;
   logAnalyticsDebug("ensureInitialized completed");

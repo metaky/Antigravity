@@ -42,13 +42,14 @@ export default function PrivacyPolicyPage() {
                         </ul>
 
                         <h3>B. Information We Collect Automatically</h3>
-                        <p>When you use our application, we automatically collect certain information to help us understand usage patterns and improve our services. This is done through a third-party analytics service called PostHog. Basic anonymous analytics are enabled by default unless you decline them in the site banner or your browser sends a Do Not Track signal. The information collected includes:</p>
+                        <p>When you use our application, we automatically collect certain information to help us understand usage patterns and improve our services. This is done through a third-party analytics service called PostHog. Analytics and session replays are enabled by default unless you decline them in the site banner or your browser sends a Do Not Track signal. The information collected includes:</p>
                         <ul>
                             <li><strong>Usage Data:</strong> We collect anonymous information about your interactions with the app, such as the pages you view and the core features you use.</li>
+                            <li><strong>Session Replay Data:</strong> We may record how pages are viewed and interacted with to help us debug issues and improve the product experience, while masking inputs and excluding sensitive tool output areas from replay capture.</li>
                             <li><strong>Device Information:</strong> We may collect basic information about your device, such as browser type and operating system, to help us troubleshoot issues.</li>
                             <li><strong>Cookies:</strong> We use cookies and similar technologies to identify and track visitors, their usage of the website, and their website access preferences.</li>
                         </ul>
-                        <p>We do not currently use session replay recordings on this site.</p>
+                        <p>If you prefer not to be included in analytics or session replays, use the site banner to decline analytics.</p>
 
                         <h2>2. How We Use Your Information</h2>
                         <p>We use the information we collect to:</p>

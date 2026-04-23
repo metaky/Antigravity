@@ -238,7 +238,7 @@ export function BehaviorReportPageClient({
               description="This feature is temporarily unavailable while the API hardening work is completed."
             />
           ) : result ? (
-            <div className="space-y-6 print-report-shell">
+            <div className="space-y-6 print-report-shell" data-ph-no-capture>
               <section className="hidden print:block print-report-header">
                 <div className="print-report-kicker">PDA Your IEP</div>
                 <h1 className="print-report-title">Behavior Incident Analysis Report</h1>
@@ -587,7 +587,7 @@ export function BehaviorReportPageClient({
               </div>
 
               {savedHistory.length > 0 ? (
-                <div className="wc-card overflow-hidden print:hidden">
+                <div className="wc-card overflow-hidden print:hidden" data-ph-no-capture>
                   <div className="flex flex-col gap-3 border-b bg-[var(--wc-sage-pale)]/30 p-4 md:flex-row md:items-center md:justify-between">
                     <div className="space-y-1">
                       <h2 className="font-semibold text-[var(--wc-brown-darker)]">Saved report history</h2>

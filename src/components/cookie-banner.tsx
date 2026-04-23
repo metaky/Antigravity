@@ -33,9 +33,10 @@ export function CookieBanner() {
             Anonymous analytics are on by default
           </p>
           <p>
-            We use basic PostHog pageviews and feature usage to improve PDA Your
-            IEP. We do not use session replay, and we honor Do Not Track. You
-            can keep analytics on or decline them below. Read our{" "}
+            We use PostHog pageviews, feature usage, and session replays to
+            improve PDA Your IEP. These analytics are on by default unless you
+            decline them below or your browser sends a Do Not Track signal. Read
+            our{" "}
             <a
               href="/privacy-policy"
               className="underline decoration-[var(--wc-ochre)] underline-offset-4 hover:text-[var(--wc-blue-dark)]"
