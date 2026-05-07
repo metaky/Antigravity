@@ -88,3 +88,86 @@ test("restoring analyze history scrolls back to the top of the report", async ({
   await expect(page.getByText("Analysis Results", { exact: true })).toBeVisible();
   await expect.poll(async () => page.evaluate(() => window.scrollY)).toBeLessThan(32);
 });
+
+test("successful analyze responses with unknown categories still render", async ({ page }) => {
+  const pageErrors: string[] = [];
+  let analyzeCalls = 0;
+
+  page.on("pageerror", (error) => {
+    pageErrors.push(error.message);
+  });
+
+  await page.route("**/api/analyze", async (route) => {
+    analyzeCalls += 1;
+
+    if (analyzeCalls === 1) {
+      await route.fulfill({
+        status: 403,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ok: false,
+          type: "error",
+          code: "VERIFICATION_REQUIRED",
+          message: "Complete the security check before uploading files.",
+        }),
+      });
+      return;
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ok: true,
+        data: {
+          score: 108,
+          summary: "This report should render even with unexpected model labels.",
+          strengths: ["The plan names a support need."],
+          opportunities: ["The plan should soften compliance-heavy language."],
+          categorySuggestions: {
+            Goal: { add: ["Add collaborative self-advocacy language."], remove: [] },
+            Accommodation: { add: [], remove: [] },
+            Service: { add: [], remove: [] },
+            "Behavior Plan": { add: [], remove: [] },
+          },
+          results: [
+            {
+              category: "Compliance",
+              title: "Compliance-heavy goal",
+              status: "Mixed",
+              description: "The model returned labels outside the public UI contract.",
+              recommendation: "Render the finding under General instead of crashing.",
+              quote: "Student will comply with adult directions.",
+              page: 3,
+            },
+          ],
+        },
+      }),
+    });
+  });
+
+  await page.route("**/api/human-verify", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ok: true,
+        data: { verified: true },
+      }),
+    });
+  });
+
+  await page.goto("/analyze");
+
+  const fileInput = page.locator('input[type="file"]');
+  await fileInput.setInputFiles(path.join(__dirname, "fixtures", "test_iep.pdf"));
+  await page.getByRole("button", { name: "Generate Report" }).click();
+  await page.getByRole("button", { name: "Complete security check" }).click();
+
+  await expect(page.getByText("Analysis Results", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "General" })).toBeVisible();
+  await expect(page.getByText("Compliance-heavy goal")).toBeVisible();
+  await expect(page.getByText("Needs Review")).toBeVisible();
+  await expect(page.getByText("Application error")).not.toBeVisible();
+  expect(pageErrors).toEqual([]);
+});

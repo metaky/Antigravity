@@ -12,6 +12,13 @@ import {
   MOCK_BEHAVIOR_REPORT,
 } from "@/lib/server/mock-analysis";
 import { extractPdfText } from "@/lib/server/uploads";
+import {
+  isAnalyzeFindingCategory,
+  isAnalyzeFindingStatus,
+  normalizeAnalyzeFindingCategory,
+  normalizeAnalyzeFindingStatus,
+  normalizeAnalyzeScore,
+} from "@/lib/analyze-report-normalization";
 
 interface DocumentChunk {
   id: string;
@@ -129,8 +136,13 @@ function assertAnalyzeReport(value: unknown): AnalyzeReport {
     );
   }
 
-  return {
-    score: assertNumber(record.score, "score"),
+  const score = assertNumber(record.score, "score");
+  let normalizedCategoryCount = 0;
+  let normalizedStatusCount = 0;
+  const normalizedScore = normalizeAnalyzeScore(score);
+
+  const report = {
+    score: normalizedScore,
     summary: assertString(record.summary, "summary"),
     strengths: assertStringArray(record.strengths, "strengths"),
     opportunities: assertStringArray(record.opportunities, "opportunities"),
@@ -150,10 +162,19 @@ function assertAnalyzeReport(value: unknown): AnalyzeReport {
         );
       }
       const finding = item as Record<string, unknown>;
+      const category = assertString(finding.category, "results.category");
+      const status = assertString(finding.status, "results.status");
+      if (!isAnalyzeFindingCategory(category)) {
+        normalizedCategoryCount += 1;
+      }
+      if (!isAnalyzeFindingStatus(status)) {
+        normalizedStatusCount += 1;
+      }
+
       return {
-        category: assertString(finding.category, "results.category") as AnalyzeReport["results"][number]["category"],
+        category: normalizeAnalyzeFindingCategory(category),
         title: assertString(finding.title, "results.title"),
-        status: assertString(finding.status, "results.status") as AnalyzeReport["results"][number]["status"],
+        status: normalizeAnalyzeFindingStatus(status),
         description: assertString(finding.description, "results.description"),
         recommendation: assertString(
           finding.recommendation,
@@ -167,6 +188,23 @@ function assertAnalyzeReport(value: unknown): AnalyzeReport {
       };
     }),
   };
+
+  if (
+    normalizedCategoryCount > 0 ||
+    normalizedStatusCount > 0 ||
+    normalizedScore !== score
+  ) {
+    console.warn(
+      JSON.stringify({
+        event: "analyze_report_normalized",
+        normalizedCategoryCount,
+        normalizedStatusCount,
+        scoreClamped: normalizedScore !== score,
+      }),
+    );
+  }
+
+  return report;
 }
 
 function assertBehaviorReportAnalysis(value: unknown): BehaviorReportAnalysis {

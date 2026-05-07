@@ -35,6 +35,10 @@ import {
   saveAnalyzeHistory,
 } from "@/lib/client/history";
 import { getSecurityHeaders } from "@/lib/client/security";
+import {
+  normalizeAnalyzeFindingCategory,
+  normalizeAnalyzeFindingStatus,
+} from "@/lib/analyze-report-normalization";
 
 type PendingAnalyzeSubmission = {
   file: File;
@@ -88,6 +92,10 @@ const categoryStyles: Record<
     borderClassName: "border-[var(--wc-blue)]/20",
   },
 };
+
+function getCategoryStyle(category: unknown) {
+  return categoryStyles[normalizeAnalyzeFindingCategory(category)];
+}
 
 function getScoreTone(score: number) {
   if (score >= 85) {
@@ -154,7 +162,7 @@ export function AnalyzePageClient({
 
     return Object.entries(
       result.results.reduce<Record<string, AnalyzeReport["results"]>>((acc, item) => {
-        const key = item.category ?? "General";
+        const key = normalizeAnalyzeFindingCategory(item.category);
         if (!acc[key]) {
           acc[key] = [];
         }
@@ -490,7 +498,7 @@ export function AnalyzePageClient({
 
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
                   {Object.entries(result.categorySuggestions).map(([category, suggestions]) => {
-                    const style = categoryStyles[category as AnalyzeFindingCategory];
+                    const style = getCategoryStyle(category);
 
                     return (
                       <article
@@ -568,7 +576,7 @@ export function AnalyzePageClient({
 
                 {groupedResults.map(([category, items]) => (
                   <section key={category} className="wc-card overflow-hidden">
-                    <div className={`border-b px-6 py-5 ${categoryStyles[category as AnalyzeFindingCategory].wash}`}>
+                    <div className={`border-b px-6 py-5 ${getCategoryStyle(category).wash}`}>
                       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                         <div>
                           <h3 className="text-2xl font-semibold text-[var(--wc-brown-darker)]">{category}</h3>
@@ -577,7 +585,7 @@ export function AnalyzePageClient({
                           </p>
                         </div>
                         <span
-                          className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${categoryStyles[category as AnalyzeFindingCategory].badgeClassName}`}
+                          className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${getCategoryStyle(category).badgeClassName}`}
                         >
                           Organized by category
                         </span>
@@ -585,27 +593,30 @@ export function AnalyzePageClient({
                     </div>
 
                     <div className="space-y-4 p-6">
-                      {items.map((item) => (
-                        <article
-                          key={`${item.title}-${item.page ?? "na"}`}
-                          className={`print-break-avoid rounded-2xl border p-5 ${
-                            item.status === "Good"
-                              ? "border-[var(--wc-sage)]/20 bg-[var(--wc-sage-pale)]/35"
-                              : "border-[var(--wc-gold)]/20 bg-[var(--wc-gold-pale)]/35"
-                          }`}
-                        >
+                      {items.map((item) => {
+                        const status = normalizeAnalyzeFindingStatus(item.status);
+
+                        return (
+                          <article
+                            key={`${item.title}-${item.page ?? "na"}`}
+                            className={`print-break-avoid rounded-2xl border p-5 ${
+                              status === "Good"
+                                ? "border-[var(--wc-sage)]/20 bg-[var(--wc-sage-pale)]/35"
+                                : "border-[var(--wc-gold)]/20 bg-[var(--wc-gold-pale)]/35"
+                            }`}
+                          >
                           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                             <div>
                               <div className="flex flex-wrap items-center gap-2">
                                 <h4 className="text-lg font-semibold text-[var(--wc-brown-darker)]">{item.title}</h4>
                                 <span
                                   className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                                    item.status === "Good"
+                                    status === "Good"
                                       ? "border-[var(--wc-sage)]/25 bg-[var(--wc-sage-pale)] text-[var(--wc-sage-dark)]"
                                       : "border-[var(--wc-gold)]/25 bg-[var(--wc-gold-pale)] text-[var(--wc-gold-dark)]"
                                   }`}
                                 >
-                                  {item.status}
+                                  {status}
                                 </span>
                               </div>
                               <p className="mt-3 text-sm leading-6 text-[var(--wc-brown-dark)]">{item.description}</p>
@@ -633,7 +644,8 @@ export function AnalyzePageClient({
                             </blockquote>
                           </div>
                         </article>
-                      ))}
+                        );
+                      })}
                     </div>
                   </section>
                 ))}

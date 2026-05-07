@@ -89,6 +89,7 @@ function ensureInitialized() {
     person_profiles: "identified_only",
     capture_pageview: false,
     autocapture: false,
+    capture_exceptions: true,
     disable_session_recording: false,
     session_recording: {
       // Keep replays useful for flow debugging while excluding tool output.
@@ -142,11 +143,30 @@ function trackEvent(eventName: string, properties?: Record<string, unknown>) {
   );
 }
 
+function captureException(
+  error: unknown,
+  properties?: Record<string, unknown>,
+) {
+  if (!shouldInitAnalytics()) {
+    logAnalyticsDebug("captureException skipped", {
+      properties,
+    });
+    return;
+  }
+
+  ensureInitialized();
+  logAnalyticsDebug("captureException capture", {
+    properties,
+  });
+  posthog.captureException(error, properties);
+}
+
 const analytics = {
   getStoredConsent,
   ensureInitialized,
   setConsent,
   trackEvent,
+  captureException,
   isBrowserDoNotTrackEnabled,
 };
 
