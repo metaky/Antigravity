@@ -103,7 +103,7 @@ const reportSections = [
 
 function ProcessStepRow(step: (typeof processSteps)[number]) {
     return (
-        <article className="grid gap-4 md:grid-cols-[11rem_minmax(0,1fr)] md:gap-6">
+        <article className="grid gap-4 md:grid-cols-[4.75rem_minmax(0,1fr)] md:gap-6">
             <div className="relative flex items-start gap-4 md:min-h-full md:pl-2">
                 <div className="absolute left-[2.15rem] top-14 hidden h-[calc(100%+1.5rem)] w-px bg-[var(--wc-ochre-light)]/70 md:block" aria-hidden="true" />
                 <div
@@ -114,17 +114,16 @@ function ProcessStepRow(step: (typeof processSteps)[number]) {
                 >
                     {step.number}
                 </div>
-                <div className="pt-2 md:pl-5 md:pt-3">
-                    <p className="max-w-[6.25rem] text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[var(--wc-brown)] md:leading-8">
-                        {step.eyebrow}
-                    </p>
-                </div>
             </div>
 
             <div className="rounded-[1.85rem] border border-[var(--wc-ochre-pale)] bg-[var(--wc-paper)] p-6 shadow-[0_14px_40px_-28px_rgba(61,47,29,0.48)] md:p-7">
                 <div className="max-w-3xl space-y-4">
-                    <h3 className="text-2xl font-bold tracking-tight text-[var(--wc-brown-darker)] md:text-[2rem]">
+                    <h3 className="text-2xl font-bold text-[var(--wc-brown-darker)] md:text-[2rem]">
                         {step.title}
+                        <span className="text-[var(--wc-brown)]">
+                            {": "}
+                            {step.eyebrow}
+                        </span>
                     </h3>
                     <p className="text-base leading-8 text-[var(--wc-brown-dark)] md:text-lg">
                         {step.description}
@@ -211,7 +210,7 @@ export default function HowItWorksPage() {
                                 One clear path from upload to a calmer, more useful report
                             </h2>
                             <p className="max-w-2xl text-lg leading-8 text-[var(--wc-brown-dark)]">
-                                This page is meant to help you follow the flow without sorting through competing panels. Each step answers one simple question: what happens next, and why it matters.
+                                You start with the plan you already have, get a PDA-aware read on what it says, and leave with clearer language for the next school conversation.
                             </p>
                         </div>
 
@@ -270,7 +269,7 @@ export default function HowItWorksPage() {
                                 Built from lived experience
                             </div>
                             <p className="text-base leading-8 text-[var(--wc-brown-dark)] md:text-lg">
-                                If you want the human context behind the tool, here is the story. It sits after the process on purpose, so you can understand the product first and then the person behind it.
+                                This tool grew out of real IEP meetings, confusing paperwork, and the need for language that better protects PDA students in everyday school life.
                             </p>
                         </div>
 
