@@ -2,7 +2,10 @@ import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Info, AlertTriangle, CheckCircle2, Heart, Lightbulb, Shield, Sparkles } from "lucide-react"
+import { buttonVariants } from "@/components/ui/button"
+import { TrackedLink } from "@/components/tracked-link"
+import { cn } from "@/lib/utils"
+import { ArrowRight, Info, AlertTriangle, CheckCircle2, Heart, Lightbulb, Shield, Sparkles } from "lucide-react"
 
 import type { Metadata } from "next"
 
@@ -207,7 +210,7 @@ export default function PDAGuidePage() {
 
                     {/* Section 5: Goals */}
                     <section className="space-y-6">
-                        <h2 className="text-3xl font-display font-bold text-[var(--wc-brown-darker)]">5.0 Meaningful Goals (SMART)</h2>
+                        <h2 className="text-3xl font-display font-bold text-[var(--wc-brown-darker)]">5.0 Meaningful Goals</h2>
                         <p className="text-lg text-[var(--wc-brown-dark)]">
                             Goals should focus on long-term well-being, self-advocacy, and regulation, not just compliance.
                         </p>
@@ -233,6 +236,18 @@ export default function PDAGuidePage() {
                         <p className="italic text-lg">
                             "A successful IEP for a PDA student is a living document, built on a foundation of trust, flexibility, and a deep, compassionate understanding of the child's unique neurology."
                         </p>
+                    </div>
+
+                    <div className="text-center">
+                        <TrackedLink
+                            href="/analyze"
+                            eventName="analyze_cta_clicked"
+                            eventProperties={{ source: "pda_guide_bottom", destination: "/analyze" }}
+                            className={cn(buttonVariants({ variant: "watercolor", size: "xl" }), "px-8 font-semibold rounded-full")}
+                        >
+                            Analyze Your IEP
+                            <ArrowRight aria-hidden="true" />
+                        </TrackedLink>
                     </div>
 
                 </div>

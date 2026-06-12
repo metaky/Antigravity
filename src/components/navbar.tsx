@@ -36,6 +36,7 @@ export function Navbar() {
                                 src="/logo.png"
                                 alt="PDA Your IEP Logo"
                                 fill
+                                sizes="64px"
                                 className="object-contain mix-blend-multiply"
                             />
                         </div>
